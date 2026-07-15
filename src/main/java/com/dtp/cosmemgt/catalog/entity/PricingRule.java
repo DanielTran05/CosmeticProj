@@ -1,9 +1,12 @@
 package com.dtp.cosmemgt.catalog.entity;
 
+import com.dtp.cosmemgt.core.baseEntity.BaseAuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
@@ -15,7 +18,9 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "pricing_rule")
-public class PricingRule {
+@SQLDelete(sql = "UPDATE pricing_rule SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class PricingRule extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;
