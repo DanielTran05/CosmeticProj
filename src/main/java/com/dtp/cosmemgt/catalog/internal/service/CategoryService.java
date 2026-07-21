@@ -1,9 +1,9 @@
-package com.dtp.cosmemgt.catalog.service;
+package com.dtp.cosmemgt.catalog.internal.service;
 
-import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.CategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
-import com.dtp.cosmemgt.catalog.mapper.CategoryMapper;
+import com.dtp.cosmemgt.catalog.internal.mapper.CategoryMapper;
 import com.dtp.cosmemgt.catalog.repository.CategoryRepository;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;

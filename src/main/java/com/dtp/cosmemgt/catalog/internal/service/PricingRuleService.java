@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.service;
-import com.dtp.cosmemgt.catalog.dto.request.PricingRuleCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.PricingRuleResponse;
+package com.dtp.cosmemgt.catalog.internal.service;
+import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.PricingRuleResponse;
 import com.dtp.cosmemgt.catalog.entity.PricingRule;
-import com.dtp.cosmemgt.catalog.mapper.PricingRuleMapper;
+import com.dtp.cosmemgt.catalog.internal.mapper.PricingRuleMapper;
 import com.dtp.cosmemgt.catalog.repository.PricingRuleRepository;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;

@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.controller;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
-import com.dtp.cosmemgt.catalog.dto.request.PricingRuleCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.PricingRuleResponse;
-import com.dtp.cosmemgt.catalog.service.PricingRuleService;
+import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.PricingRuleResponse;
+import com.dtp.cosmemgt.catalog.internal.service.PricingRuleService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

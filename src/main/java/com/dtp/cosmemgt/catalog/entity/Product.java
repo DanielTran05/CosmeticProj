@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
 
@@ -17,6 +19,8 @@ import java.math.BigDecimal;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "product")
+@SQLDelete(sql = "UPDATE product SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
 public class Product extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -39,4 +43,8 @@ public class Product extends BaseAuditEntity {
     @NotNull
     @Column(name = "abc_class", length = 5)
     String abcClass;
+
+    String avatar;
+
+    String description;
 }

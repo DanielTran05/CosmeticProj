@@ -1,7 +1,7 @@
-package com.dtp.cosmemgt.catalog.mapper;
+package com.dtp.cosmemgt.catalog.internal.mapper;
 
-import com.dtp.cosmemgt.catalog.dto.request.PricingRuleCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.PricingRuleResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.PricingRuleResponse;
 import com.dtp.cosmemgt.catalog.entity.PricingRule;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
 import org.mapstruct.*;

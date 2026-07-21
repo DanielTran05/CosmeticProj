@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.controller;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
-import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
-import com.dtp.cosmemgt.catalog.service.CategoryService;
+import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.internal.service.CategoryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

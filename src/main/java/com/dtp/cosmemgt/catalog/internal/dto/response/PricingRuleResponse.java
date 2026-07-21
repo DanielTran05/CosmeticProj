@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.dto.request;
+package com.dtp.cosmemgt.catalog.internal.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,10 +10,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PricingRuleCreationRequest {
+public class PricingRuleResponse {
     String name;
     String targetABCClass;
-    Integer stockThreshold;
+    int stockThreshold;
     BigDecimal priceMultiplier;
-    Boolean isActive;
 }

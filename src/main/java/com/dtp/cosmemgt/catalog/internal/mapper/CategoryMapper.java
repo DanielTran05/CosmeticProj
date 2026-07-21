@@ -1,7 +1,7 @@
-package com.dtp.cosmemgt.catalog.mapper;
+package com.dtp.cosmemgt.catalog.internal.mapper;
 
-import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.CategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
 import org.mapstruct.Mapper;

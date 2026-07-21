@@ -29,6 +29,10 @@ public enum ErrorCode {
     PRICING_RULE_EXISTED(4001, "Pricing rule existed", HttpStatus.BAD_REQUEST),
     PRICING_RULE_NOT_EXISTED(4002, "Pricing rule not existed", HttpStatus.NOT_FOUND),
 
+    //product
+    PRODUCT_EXISTED(5001, "Product existed", HttpStatus.BAD_REQUEST),
+    PRODUCT_NOT_EXISTED(5002, "Product not existed", HttpStatus.NOT_FOUND),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
