@@ -1,9 +1,9 @@
-package com.dtp.cosmemgt.catalog.service;
+package com.dtp.cosmemgt.catalog.internal.adminService;
 
-import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
-import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminCategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
-import com.dtp.cosmemgt.catalog.mapper.CategoryMapper;
+import com.dtp.cosmemgt.catalog.internal.mapper.AdminCategoryMapper;
 import com.dtp.cosmemgt.catalog.repository.CategoryRepository;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -21,11 +21,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 @Slf4j
-public class CategoryService {
+public class AdminCategoryService {
     CategoryRepository categoryRepository;
-    CategoryMapper categoryMapper;
+    AdminCategoryMapper categoryMapper;
 
-    public CategoryResponse create(CategoryCreationRequest request) {
+    public AdminCategoryResponse create(CategoryCreationRequest request) {
         Category c = categoryMapper.toCategory(request);
 
         if (categoryRepository.existsByName(c.getName())) {
@@ -41,20 +41,20 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(categoryRepository.save(c));
     }
 
-    public CategoryResponse getCateById(int categoryId){
+    public AdminCategoryResponse getCateById(int categoryId){
         Category c = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         return categoryMapper.toCategoryResponse(c);
     }
 
-    public List<CategoryResponse> getAll(){
+    public List<AdminCategoryResponse> getAll(){
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
                 .map(categoryMapper::toCategoryResponse)
                 .toList();
     }
 
-    public CategoryResponse update(int categoryId, CategoryCreationRequest request){
+    public AdminCategoryResponse update(int categoryId, CategoryCreationRequest request){
         Category c = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         c.setName(request.getName());

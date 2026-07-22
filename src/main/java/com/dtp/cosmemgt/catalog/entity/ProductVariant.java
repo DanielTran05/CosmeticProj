@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.SQLDelete;
 
 @Getter
 @Setter
@@ -14,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "product_variant")
+@SQLDelete(sql = "UPDATE product_variant SET deleted_at = NOW() WHERE id = ?")
 public class ProductVariant extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

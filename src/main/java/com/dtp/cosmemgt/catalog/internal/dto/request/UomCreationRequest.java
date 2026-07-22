@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.dto.response;
+package com.dtp.cosmemgt.catalog.internal.dto.request;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,7 +8,6 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CategoryResponse {
-    int parentId;
+public class UomCreationRequest {
     String name;
 }
