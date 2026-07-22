@@ -1,18 +1,18 @@
 package com.dtp.cosmemgt.catalog.internal.mapper;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.ProductResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring",
         builder = @Builder(disableBuilder = true))
-public interface ProductMapper {
+public interface AdminProductMapper {
     @IgnoreAuditFields
     Product toProduct(ProductCreationRequest request);
 
-    ProductResponse toProductResponse(Product product);
+    AdminProductResponse toProductResponse(Product product);
 
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

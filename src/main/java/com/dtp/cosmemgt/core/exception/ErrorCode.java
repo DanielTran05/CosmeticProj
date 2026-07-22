@@ -37,6 +37,11 @@ public enum ErrorCode {
     UOM_EXISTED(6001, "UOM existed", HttpStatus.BAD_REQUEST),
     UOM_NOT_EXISTED(6002, "UOM not existed", HttpStatus.NOT_FOUND),
 
+    //product variant
+    PRODUCT_VARIANT_EXISTED(7001, "Product variant existed", HttpStatus.BAD_REQUEST),
+    PRODUCT_VARIANT_NOT_EXISTED(7002, "Product variant not existed", HttpStatus.NOT_FOUND),
+    PRODUCT_OR_UOM_NOT_EXISTED(7003, "Product or UOM not existed", HttpStatus.NOT_FOUND),
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

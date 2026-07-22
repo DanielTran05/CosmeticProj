@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.controller;
+package com.dtp.cosmemgt.catalog.internal.adminController;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.CategoryResponse;
-import com.dtp.cosmemgt.catalog.internal.service.CategoryService;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminCategoryResponse;
+import com.dtp.cosmemgt.catalog.internal.adminService.AdminCategoryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,33 +18,33 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class CategoryController {
-    CategoryService categoryService;
+    AdminCategoryService categoryService;
 
     @PostMapping()
-    ApiResponse<CategoryResponse> create(@RequestBody CategoryCreationRequest request) {
-        return ApiResponse.<CategoryResponse>builder()
+    ApiResponse<AdminCategoryResponse> create(@RequestBody CategoryCreationRequest request) {
+        return ApiResponse.<AdminCategoryResponse>builder()
                 .result(categoryService.create(request))
                 .build();
     }
 
     @GetMapping()
-    ApiResponse<List<CategoryResponse>> getAll() {
-        return ApiResponse.<List<CategoryResponse>>builder()
+    ApiResponse<List<AdminCategoryResponse>> getAll() {
+        return ApiResponse.<List<AdminCategoryResponse>>builder()
                 .result(categoryService.getAll())
                 .build();
     }
 
     @GetMapping("/{categoryId}")
-    ApiResponse<CategoryResponse> getCateById(@PathVariable int categoryId) {
-        return ApiResponse.<CategoryResponse>builder()
+    ApiResponse<AdminCategoryResponse> getCateById(@PathVariable int categoryId) {
+        return ApiResponse.<AdminCategoryResponse>builder()
                 .result(categoryService.getCateById(categoryId))
                 .build();
     }
 
     @PutMapping("/{categoryId}")
-    ApiResponse<CategoryResponse> updateCate(@PathVariable int categoryId,
-                                             @RequestBody CategoryCreationRequest request) {
-        return ApiResponse.<CategoryResponse>builder()
+    ApiResponse<AdminCategoryResponse> updateCate(@PathVariable int categoryId,
+                                                  @RequestBody CategoryCreationRequest request) {
+        return ApiResponse.<AdminCategoryResponse>builder()
                 .result(categoryService.update(categoryId, request))
                 .build();
     }

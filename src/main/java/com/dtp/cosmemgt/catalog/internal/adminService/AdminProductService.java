@@ -1,11 +1,15 @@
-package com.dtp.cosmemgt.catalog.internal.service;
+package com.dtp.cosmemgt.catalog.internal.adminService;
 
+import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.ProductResponse;
-import com.dtp.cosmemgt.catalog.internal.mapper.ProductMapper;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductVariantResponse;
+import com.dtp.cosmemgt.catalog.internal.mapper.AdminProductMapper;
 import com.dtp.cosmemgt.catalog.entity.Product;
+import com.dtp.cosmemgt.catalog.internal.mapper.AdminProductVariantMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.catalog.service.ProductCoreService;
+import com.dtp.cosmemgt.catalog.service.ProductVariantCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -16,6 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -23,12 +29,13 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 @Slf4j
-public class ProductService {
+public class AdminProductService {
     ProductRepository productRepository;
     ProductCoreService productCoreService;
-    ProductMapper productMapper;
+    AdminProductVariantMapper productVariantMapper;
+    AdminProductMapper productMapper;
 
-    public ProductResponse create(ProductCreationRequest request) {
+    public AdminProductResponse create(ProductCreationRequest request) {
         Product c = productMapper.toProduct(request);
 
         if (productRepository.existsByName(c.getName())) {
@@ -38,21 +45,29 @@ public class ProductService {
         return productMapper.toProductResponse(productRepository.save(c));
     }
 
-    public ProductResponse getProductById(String productId){
+    public AdminProductResponse getProductById(String productId){
         Product c = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
         return productMapper.toProductResponse(c);
     }
 
-    public PageResponse<ProductResponse> getAll(Map<String, String> queryParams) {
+    public PageResponse<AdminProductResponse> getAll(Map<String, String> queryParams) {
         Page<Product> rawProductPage = productCoreService.getAll(queryParams);
 
-        Page<ProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
+        Page<AdminProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
 
         return PageResponse.of(dtoProductRes);
     }
 
-    public ProductResponse update(String productId, ProductCreationRequest request){
+    public List<AdminProductVariantResponse> getAllVariantOfProduct(String productId) {
+        List<ProductVariant> pvs = productCoreService.getAllVariantOfProduct(productId);
+
+        return pvs.stream()
+                .map(productVariantMapper::toProductVariantResponse)
+                .toList();
+    }
+
+    public AdminProductResponse update(String productId, ProductCreationRequest request){
         Product c = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
         c.setName(request.getName());

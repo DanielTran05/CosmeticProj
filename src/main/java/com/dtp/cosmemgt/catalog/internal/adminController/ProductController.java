@@ -1,15 +1,16 @@
-package com.dtp.cosmemgt.catalog.internal.controller;
+package com.dtp.cosmemgt.catalog.internal.adminController;
 
+import com.dtp.cosmemgt.catalog.internal.adminService.AdminProductVariantService;
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.ProductResponse;
-import com.dtp.cosmemgt.catalog.internal.service.ProductService;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductResponse;
+import com.dtp.cosmemgt.catalog.internal.adminService.AdminProductService;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,33 +22,34 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ProductController {
-    ProductService productService;
+    AdminProductService productService;
+    AdminProductVariantService productVariantService;
 
     @PostMapping()
-    ApiResponse<ProductResponse> create(@RequestBody ProductCreationRequest request) {
-        return ApiResponse.<ProductResponse>builder()
+    ApiResponse<AdminProductResponse> create(@RequestBody ProductCreationRequest request) {
+        return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.create(request))
                 .build();
     }
 
     @GetMapping
-    public ApiResponse<PageResponse<ProductResponse>> getAllProducts(@RequestParam Map<String, String> queryParams) {
-        return ApiResponse.<PageResponse<ProductResponse>>builder()
+    public ApiResponse<PageResponse<AdminProductResponse>> getAllProducts(@RequestParam Map<String, String> queryParams) {
+        return ApiResponse.<PageResponse<AdminProductResponse>>builder()
                 .result(productService.getAll(queryParams))
                 .build();
     }
 
     @GetMapping("/{productId}")
-    ApiResponse<ProductResponse> getProductById(@PathVariable String productId) {
-        return ApiResponse.<ProductResponse>builder()
+    ApiResponse<AdminProductResponse> getProductById(@PathVariable String productId) {
+        return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.getProductById(productId))
                 .build();
     }
 
     @PutMapping("/{productId}")
-    ApiResponse<ProductResponse> updateProduct(@PathVariable String productId,
-                                             @RequestBody ProductCreationRequest request) {
-        return ApiResponse.<ProductResponse>builder()
+    ApiResponse<AdminProductResponse> updateProduct(@PathVariable String productId,
+                                                    @RequestBody ProductCreationRequest request) {
+        return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.update(productId, request))
                 .build();
     }
@@ -73,6 +75,14 @@ public class ProductController {
         productService.hardDelProduct(productId);
         return ApiResponse.<Void>builder()
                 .message("Product with id " + productId + " has been hard deleted successfully.")
+                .build();
+    }
+
+
+    @GetMapping("/{productId}/variants")
+    ApiResponse<List<AdminProductVariantResponse>> getAllVariantOfProduct(@PathVariable String productId) {
+        return ApiResponse.<List<AdminProductVariantResponse>>builder()
+                .result(productService.getAllVariantOfProduct(productId))
                 .build();
     }
 }

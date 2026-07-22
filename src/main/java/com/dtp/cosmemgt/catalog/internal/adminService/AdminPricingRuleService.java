@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.service;
+package com.dtp.cosmemgt.catalog.internal.adminService;
 import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.PricingRuleResponse;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminPricingRuleResponse;
 import com.dtp.cosmemgt.catalog.entity.PricingRule;
-import com.dtp.cosmemgt.catalog.internal.mapper.PricingRuleMapper;
+import com.dtp.cosmemgt.catalog.internal.mapper.AdminPricingRuleMapper;
 import com.dtp.cosmemgt.catalog.repository.PricingRuleRepository;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -20,11 +20,11 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 @Slf4j
-public class PricingRuleService {
+public class AdminPricingRuleService {
     PricingRuleRepository pricingRuleRepo;
-    PricingRuleMapper pricingRuleMapper;
+    AdminPricingRuleMapper pricingRuleMapper;
 
-    public PricingRuleResponse create(PricingRuleCreationRequest request) {
+    public AdminPricingRuleResponse create(PricingRuleCreationRequest request) {
         PricingRule p = pricingRuleMapper.toPricingRule(request);
 
         if (pricingRuleRepo.existsByName(p.getName())) {
@@ -34,20 +34,20 @@ public class PricingRuleService {
         return pricingRuleMapper.toPricingRuleResponse(pricingRuleRepo.save(p));
     }
 
-    public PricingRuleResponse getPrcRById(int pricingRuleId){
+    public AdminPricingRuleResponse getPrcRById(int pricingRuleId){
         PricingRule s = pricingRuleRepo.findById(pricingRuleId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRICING_RULE_NOT_EXISTED));
         return pricingRuleMapper.toPricingRuleResponse(s);
     }
 
-    public List<PricingRuleResponse> getAll(){
+    public List<AdminPricingRuleResponse> getAll(){
         List<PricingRule> suppliers = pricingRuleRepo.findAll();
         return suppliers.stream()
                 .map(pricingRuleMapper::toPricingRuleResponse)
                 .toList();
     }
 
-    public PricingRuleResponse update(int pricingRuleId, PricingRuleCreationRequest request){
+    public AdminPricingRuleResponse update(int pricingRuleId, PricingRuleCreationRequest request){
         PricingRule s = pricingRuleRepo.findById(pricingRuleId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRICING_RULE_NOT_EXISTED));
 

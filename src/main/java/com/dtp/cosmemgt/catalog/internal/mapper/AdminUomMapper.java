@@ -8,7 +8,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring",
         builder = @org.mapstruct.Builder(disableBuilder = true))
-public interface UomMapper {
+public interface AdminUomMapper {
     @IgnoreAuditFields
     UnitOfMeasure toUom(UomCreationRequest request);
 

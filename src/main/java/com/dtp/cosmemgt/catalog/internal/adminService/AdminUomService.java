@@ -1,9 +1,9 @@
-package com.dtp.cosmemgt.catalog.internal.service;
+package com.dtp.cosmemgt.catalog.internal.adminService;
 
 import com.dtp.cosmemgt.catalog.entity.UnitOfMeasure;
 import com.dtp.cosmemgt.catalog.internal.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.UomResponse;
-import com.dtp.cosmemgt.catalog.internal.mapper.UomMapper;
+import com.dtp.cosmemgt.catalog.internal.mapper.AdminUomMapper;
 import com.dtp.cosmemgt.catalog.repository.UomRepository;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -21,9 +21,9 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 @Slf4j
-public class UomService {
+public class AdminUomService {
     UomRepository uomRepository;
-    UomMapper uomMapper;
+    AdminUomMapper uomMapper;
 
     public UomResponse create(UomCreationRequest request) {
         UnitOfMeasure u = uomMapper.toUom(request);

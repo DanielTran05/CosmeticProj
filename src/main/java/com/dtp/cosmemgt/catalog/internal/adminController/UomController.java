@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.controller;
+package com.dtp.cosmemgt.catalog.internal.adminController;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.UomResponse;
-import com.dtp.cosmemgt.catalog.internal.service.UomService;
+import com.dtp.cosmemgt.catalog.internal.adminService.AdminUomService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UomController {
-    UomService uomService;
+    AdminUomService uomService;
 
     @PostMapping()
     ApiResponse<UomResponse> create(@RequestBody UomCreationRequest request) {

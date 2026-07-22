@@ -2,7 +2,7 @@ package com.dtp.cosmemgt.catalog.internal.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import java.math.BigDecimal;
+
 import java.time.LocalDateTime;
 
 @Data
@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductResponse {
-    String name;
-    BigDecimal basePrice;
-    String abcClass;
+public class AdminProductVariantResponse {
+    String product;
+    String unitOfMeasure;
+    String sku;
+    String barcode;
+    String variantName;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

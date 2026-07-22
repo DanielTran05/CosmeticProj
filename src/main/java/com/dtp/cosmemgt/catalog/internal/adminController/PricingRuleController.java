@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.controller;
+package com.dtp.cosmemgt.catalog.internal.adminController;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
-import com.dtp.cosmemgt.catalog.internal.dto.response.PricingRuleResponse;
-import com.dtp.cosmemgt.catalog.internal.service.PricingRuleService;
+import com.dtp.cosmemgt.catalog.internal.dto.response.AdminPricingRuleResponse;
+import com.dtp.cosmemgt.catalog.internal.adminService.AdminPricingRuleService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -18,33 +18,33 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class PricingRuleController {
-    PricingRuleService pricingRuleService;
+    AdminPricingRuleService pricingRuleService;
 
     @PostMapping()
-    ApiResponse<PricingRuleResponse> create(@RequestBody PricingRuleCreationRequest request) {
-        return ApiResponse.<PricingRuleResponse>builder()
+    ApiResponse<AdminPricingRuleResponse> create(@RequestBody PricingRuleCreationRequest request) {
+        return ApiResponse.<AdminPricingRuleResponse>builder()
                 .result(pricingRuleService.create(request))
                 .build();
     }
 
     @GetMapping()
-    ApiResponse<List<PricingRuleResponse>> getAll() {
-        return ApiResponse.<List<PricingRuleResponse>>builder()
+    ApiResponse<List<AdminPricingRuleResponse>> getAll() {
+        return ApiResponse.<List<AdminPricingRuleResponse>>builder()
                 .result(pricingRuleService.getAll())
                 .build();
     }
 
     @GetMapping("/{pricingRuleId}")
-    ApiResponse<PricingRuleResponse> getCateById(@PathVariable int pricingRuleId) {
-        return ApiResponse.<PricingRuleResponse>builder()
+    ApiResponse<AdminPricingRuleResponse> getCateById(@PathVariable int pricingRuleId) {
+        return ApiResponse.<AdminPricingRuleResponse>builder()
                 .result(pricingRuleService.getPrcRById(pricingRuleId))
                 .build();
     }
 
     @PutMapping("/{pricingRuleId}")
-    ApiResponse<PricingRuleResponse> updateCate(@PathVariable int pricingRuleId,
-                                             @RequestBody PricingRuleCreationRequest request) {
-        return ApiResponse.<PricingRuleResponse>builder()
+    ApiResponse<AdminPricingRuleResponse> updateCate(@PathVariable int pricingRuleId,
+                                                     @RequestBody PricingRuleCreationRequest request) {
+        return ApiResponse.<AdminPricingRuleResponse>builder()
                 .result(pricingRuleService.update(pricingRuleId, request))
                 .build();
     }

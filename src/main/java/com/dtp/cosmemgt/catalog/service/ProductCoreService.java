@@ -1,8 +1,12 @@
 package com.dtp.cosmemgt.catalog.service;
 
 import com.dtp.cosmemgt.catalog.entity.Product;
+import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
+import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.service.specification.ProductSpecification;
+import com.dtp.cosmemgt.core.exception.AppException;
+import com.dtp.cosmemgt.core.exception.ErrorCode;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -24,6 +29,7 @@ import java.util.Map;
 @Service
 public class ProductCoreService {
     ProductRepository productRepository;
+    ProductVariantRepository productVariantRepository;
 
     public Page<Product> getAll(Map<String, String> queryParams) {
         Specification<Product> spec = ProductSpecification.filterProduct(queryParams);
@@ -33,5 +39,13 @@ public class ProductCoreService {
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         return productRepository.findAll(spec, pageable);
+    }
+
+    public List<ProductVariant> getAllVariantOfProduct(String productId) {
+        Product p = productRepository.findById(productId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        List<ProductVariant> pvs = productVariantRepository.findAllByProductId(p.getId());
+        return pvs;
     }
 }
