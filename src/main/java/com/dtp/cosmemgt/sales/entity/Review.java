@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.sales.entity;
 
+import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -28,7 +29,7 @@ public class Review{
         name = "customer_id",
         foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT)
     )
-    Customer customer;
+    User customer;  //Customer → USER
 
     @NotNull
     @Builder.Default

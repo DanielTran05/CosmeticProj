@@ -42,6 +42,18 @@ public enum ErrorCode {
     PRODUCT_VARIANT_NOT_EXISTED(7002, "Product variant not existed", HttpStatus.NOT_FOUND),
     PRODUCT_OR_UOM_NOT_EXISTED(7003, "Product or UOM not existed", HttpStatus.NOT_FOUND),
 
+    //order
+    ORDER_DO_NOT_BELONG(8001, "This order is not belong to you", HttpStatus.BAD_REQUEST),
+    ONLY_ONE_REVIEW_FOR_CUS_PV(8002, "You can only review once for a product", HttpStatus.BAD_REQUEST),
+    HAS_NOT_USED_YET(8003, "You have not used this product", HttpStatus.BAD_REQUEST),
+
+    //review
+    REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
+    REVIEW_EXISTED(9002, "Review existed", HttpStatus.BAD_REQUEST),
+    USER_HAS_NOT_REVIEWED_THIS_PRODUCT(9003, "User has not review this product", HttpStatus.BAD_REQUEST)
+
+
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
