@@ -1,7 +1,9 @@
 package com.dtp.cosmemgt.sales.entity;
 
+import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.core.baseEntity.BaseAuditEntity;
 import com.dtp.cosmemgt.sales.enums.ChannelEnum;
+import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -29,16 +31,20 @@ public class Order extends BaseAuditEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
-    Customer customer;
+    User customer;
 
-    @Column(name = "employee_id")
-    String employeeId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    User employee;
 
     @Column(precision = 19, scale = 4)
     BigDecimal totalAmount;
 
     @Column(precision = 19, scale = 4)
     BigDecimal totalCogs;
+
+    @Enumerated(EnumType.STRING)
+    OrderStatusEnum orderStatus;
 
     @Enumerated(EnumType.STRING)
     ChannelEnum channel;
