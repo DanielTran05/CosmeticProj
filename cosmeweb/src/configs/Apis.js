@@ -2,7 +2,13 @@ import axios from "axios";
 import cookies from 'react-cookies'
 
 export const endpoints = {
-    'products': '/products' 
+
+    //customer
+    'products': '/products',
+    'categories': '/categories', 
+    'best-sellers': '/products?sort=best_seller', 
+    'cart': '/cart', 
+    'current-user': '/users/me'
 }
 
 export const authApis = () => {

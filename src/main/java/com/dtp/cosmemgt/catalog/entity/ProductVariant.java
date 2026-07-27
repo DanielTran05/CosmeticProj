@@ -38,4 +38,6 @@ public class ProductVariant extends BaseAuditEntity {
     @Basic(optional = false)
     @NotNull
     String variantName;
+
+    String img;
 }

@@ -1,6 +1,8 @@
 package com.dtp.cosmemgt.catalog.service.specification;
 
 import com.dtp.cosmemgt.catalog.entity.Product;
+import com.dtp.cosmemgt.sales.entity.Order;
+import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -8,46 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ProductSpecification {
+public class OrderSpecification {
 
-    public static Specification<Product> filterProduct(Map<String, String> queryParams){
+    public static Specification<Order> filterOrder(Map<String, String> queryParams){
         return (root, query, criteriaBuilder) -> {
                         List<Predicate> predicates = new ArrayList<>();
 
-                        //name like %nameValue%
-                        if(queryParams.containsKey("name") && !queryParams.get("name").isEmpty()){
-                            String nameSearch = "%"+queryParams.get("name").toLowerCase()+"%";
-                            predicates.add(criteriaBuilder.like(
-                                    criteriaBuilder.lower(root.get("name")),
-                                    nameSearch));
-                        }
-
-                        if(queryParams.containsKey("minPrice") && queryParams.get("minPrice") != null){
+                        if(queryParams.containsKey("status") && !queryParams.get("status").isEmpty()){
                             try{
-                                Double minPrice = Double.parseDouble(queryParams.get("minPrice"));
-                                predicates.add(criteriaBuilder.ge(root.get("price"), minPrice));
-                            }catch (NumberFormatException e){
-                                //dguwiu
-                            };
-                        }
-
-                        if(queryParams.containsKey("maxPrice") && queryParams.get("maxPrice") != null){
-                            try{
-                                Double maxPrice = Double.parseDouble(queryParams.get("maxPrice"));
-                                predicates.add(criteriaBuilder.le(root.get("price"), maxPrice));
-                            }catch (NumberFormatException e){
-                                //dguwiu
-                            };
-                        }
-
-                        if(queryParams.containsKey("cateId") && queryParams.get("cateId") != null){
-                            try{
-                                int cateId = Integer.parseInt(queryParams.get("cateId"));
-                                predicates.add(criteriaBuilder.equal(root.get("category"),
-                                        cateId));
-                            }catch(NumberFormatException e){
-                                //fhefuhd
-                            };
+                                OrderStatusEnum orderStatusEnum = OrderStatusEnum.valueOf(queryParams.get("status").toUpperCase());
+                                predicates.add(criteriaBuilder.equal(root.get("orderStatus"), orderStatusEnum));
+                            }catch (IllegalArgumentException e){
+                                //nothing
+                            }
                         }
 
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

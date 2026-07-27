@@ -39,8 +39,11 @@ public class InventoryBatch extends BaseAuditEntity {
     @Column(name = "original_qty")
     int originalQty;
 
-    @Column(name = "remain_qty")
-    int remainQty;
+    @Column(name = "available_qty")
+    int availableQty;
+
+    @Column(name = "physical_qty")
+    int physicalQty;
 
     @Column(precision = 19, scale = 4)
     BigDecimal unitCost;

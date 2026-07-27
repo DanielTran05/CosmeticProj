@@ -1,4 +1,8 @@
 package com.dtp.cosmemgt.sales.enums;
 
-public enum PaymentMethodEnum {
+public enum PaymentStatusEnum {
+    UNPAID,
+    PAID,
+    REFUNDED,
+    FAILED,
 }

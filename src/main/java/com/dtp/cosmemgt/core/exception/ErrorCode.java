@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.core.exception;
 
 import lombok.Getter;
+import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -46,11 +47,17 @@ public enum ErrorCode {
     ORDER_DO_NOT_BELONG(8001, "This order is not belong to you", HttpStatus.BAD_REQUEST),
     ONLY_ONE_REVIEW_FOR_CUS_PV(8002, "You can only review once for a product", HttpStatus.BAD_REQUEST),
     HAS_NOT_USED_YET(8003, "You have not used this product", HttpStatus.BAD_REQUEST),
+    ORDER_NOT_FOUND(8004, "Order is not found", HttpStatus.NOT_FOUND),
+    CAN_NOT_CANCEL_ORDER(8005, "Can not cancel order", HttpStatus.BAD_REQUEST),
+    CAN_NOT_RETURN_ORDER(8006, "Can not return order", HttpStatus.BAD_REQUEST),
 
     //review
     REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
     REVIEW_EXISTED(9002, "Review existed", HttpStatus.BAD_REQUEST),
-    USER_HAS_NOT_REVIEWED_THIS_PRODUCT(9003, "User has not review this product", HttpStatus.BAD_REQUEST)
+    USER_HAS_NOT_REVIEWED_THIS_PRODUCT(9003, "User has not review this product", HttpStatus.BAD_REQUEST),
+
+    //inventory transaction
+    OUT_OF_STOCK(9100, "Out of stock", HttpStatus.BAD_REQUEST),
 
 
 

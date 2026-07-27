@@ -1,10 +1,14 @@
-package com.dtp.cosmemgt.warehouse.mapper;
+package com.dtp.cosmemgt.sales.customer.mapper;
 
+import com.dtp.cosmemgt.catalog.cus.dto.response.ProductVariantResponse;
+import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
+import com.dtp.cosmemgt.sales.customer.dto.response.OrderDetailItemsResponse;
+import com.dtp.cosmemgt.sales.customer.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.entity.Order;
+import com.dtp.cosmemgt.sales.entity.OrderDetail;
 import com.dtp.cosmemgt.warehouse.dto.request.SupplierCreationRequest;
-import com.dtp.cosmemgt.warehouse.dto.response.SupplierResponse;
 import com.dtp.cosmemgt.warehouse.entity.Supplier;
 import org.mapstruct.*;
 
@@ -13,7 +17,11 @@ import org.mapstruct.*;
 public interface OrderMapper {
     OrderResponse toOrderResponse(Order oder);
 
-    @IgnoreAuditFields
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateSupplierFromRequest(SupplierCreationRequest request, @MappingTarget Supplier supplier);
+    OrderDetailResponse toOrderDetailResponse(Order order);                             //↓
+
+    OrderDetailItemsResponse toOrderDetailItemsResponse(OrderDetail orderDetail);       //↓
+
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "variantName", target = "variantName")
+    ProductVariantResponse toProductVariantResponse (ProductVariant productVariant);    //↓
 }

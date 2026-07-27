@@ -1,5 +1,6 @@
-package com.dtp.cosmemgt.catalog.internal.dto.response;
+package com.dtp.cosmemgt.catalog.cus.dto.response;
 
+import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -10,14 +11,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class AdminProductVariantResponse {
-    String product;
-    String unitOfMeasure;
-    String sku;
-    String barcode;
+public class ProductVariantResponse {
+    String id;
     String variantName;
-    LocalDateTime createdAt;
-    LocalDateTime updatedAt;
-    LocalDateTime deletedAt;
-    Long deletedBy;
+    String img;
 }
