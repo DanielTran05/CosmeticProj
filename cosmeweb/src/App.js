@@ -5,16 +5,16 @@ import Footer from "./components/Footer";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 const App = () => {
-  return(
-    <BrowserRouter>
-      <Header/>
-        <Routes>
-          <Route path="/" element= {<Home/>} />
-        </Routes>
-      <Footer/>
-    </BrowserRouter>
-  )
+   return(
+     <BrowserRouter>
+       <Header/>
+         <Routes>
+           <Route path="/" element= {<Home/>} />
+         </Routes>
+       <Footer/>
+     </BrowserRouter>
+   )
 
-}
+ }
 
 export default App;

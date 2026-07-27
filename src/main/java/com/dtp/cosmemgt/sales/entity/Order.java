@@ -2,7 +2,6 @@ package com.dtp.cosmemgt.sales.entity;
 
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.core.baseEntity.BaseAuditEntity;
-import com.dtp.cosmemgt.sales.enums.ChannelEnum;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,16 +25,8 @@ public class Order extends BaseAuditEntity {
     String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "pos_shift_id")
-    POSShift posShift;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     User customer;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "employee_id")
-    User employee;
 
     @Column(precision = 19, scale = 4)
     BigDecimal totalAmount;
@@ -46,12 +37,13 @@ public class Order extends BaseAuditEntity {
     @Enumerated(EnumType.STRING)
     OrderStatusEnum orderStatus;
 
-    @Enumerated(EnumType.STRING)
-    ChannelEnum channel;
-
-    String paymentMethod;
-
     @Builder.Default
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     List<OrderDetail> orderDetails = new ArrayList<>();
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private OrderShipping orderShipping;
+
+    @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
+    private Invoice invoice;
 }
