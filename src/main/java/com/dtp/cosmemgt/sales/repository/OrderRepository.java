@@ -5,6 +5,8 @@ import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.entity.Review;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -20,8 +22,8 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecificationExecutor<Order> {
 
-    @Query("SELECT COUNT(o) > 0 " +
-            "FROM Order o JOIN o.orderDetails od " +
+    @Query("select COUNT(o) > 0 " +
+            "from Order o JOIN o.orderDetails od " +
             "WHERE o.customer.id = :userId " +
             "  AND od.productVariant.id = :productVariantId " +
             "  AND o.orderStatus = 'COMPLETED'")
@@ -30,16 +32,10 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
 
     List<Order> findAllByCustomer(User customer);
 
-//    boolean existsByName(String name);
-//
-//    @Modifying
-//    @Query(value = "delete from review where id = ?1", nativeQuery = true)
-//    void hardDelById(int id);
-//
-//    @Modifying(clearAutomatically = true)
-//    @Query(value = "update review set deleted_at = NULL where id = ?1", nativeQuery = true)
-//    int restoreById(int id);
-//
-//    @Query(value = "select * from review where id = ?1", nativeQuery = true)
-//    Optional<Review> getById(int id);
+    @Query("select o " +
+            "from Order o " +
+            "where o.orderStatus = com.dtp.cosmemgt.sales.enums.OrderStatusEnum.CONFIRMED")
+    Page<Order> findAllOrderToExport(Pageable pageable);
+
+    int getTotalProduct();
 }

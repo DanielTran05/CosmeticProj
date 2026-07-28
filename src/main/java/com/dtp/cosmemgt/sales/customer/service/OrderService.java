@@ -266,7 +266,6 @@ public class OrderService {
         List<InventoryTransaction> newTransToSave = new ArrayList<>();
 
         for (InventoryTransaction tran : trans) {
-            // Chỉ hoàn lại dựa trên các giao dịch xuất kho (tránh cộng dồn sai nếu có bug logic)
             if (tran.getChangeQty() >= 0) continue;
 
             InventoryBatch b = tran.getInventoryBatch();
