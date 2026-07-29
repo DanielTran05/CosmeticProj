@@ -22,6 +22,12 @@ public class OrderShipping extends BaseAuditEntity {
     @JoinColumn(name = "order_id", referencedColumnName = "id")
     Order order;
 
+    @Column(name = "tracking_number", length = 50)
+    String trackingNumber;
+
+    @Column(name = "shipping_provider", length = 50)
+    String shippingProvider;
+
     String receiverName;
     String receiverPhone;
     String receiverAddress;

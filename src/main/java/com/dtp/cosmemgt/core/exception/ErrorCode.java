@@ -50,6 +50,10 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(8004, "Order is not found", HttpStatus.NOT_FOUND),
     CAN_NOT_CANCEL_ORDER(8005, "Can not cancel order", HttpStatus.BAD_REQUEST),
     CAN_NOT_RETURN_ORDER(8006, "Can not return order", HttpStatus.BAD_REQUEST),
+    CAN_NOT_EXPORT_ORDER(8007, "Can not export order", HttpStatus.BAD_REQUEST),
+
+    //warehouse order
+    CAN_NOT_CONFIRM_DELIVERED(8100, "Warehouse can not confirm un-delivered order", HttpStatus.BAD_REQUEST),
 
     //review
     REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
@@ -58,6 +62,10 @@ public enum ErrorCode {
 
     //inventory transaction
     OUT_OF_STOCK(9100, "Out of stock", HttpStatus.BAD_REQUEST),
+
+    //inventory batch
+    INVENTORY_BATCH_NOT_EXISTED(9200, "Batch is not existed", HttpStatus.BAD_REQUEST),
+    INVALID_ADJUSTMENT_QTY(9201, "Invalid adjustment quantity", HttpStatus.BAD_REQUEST),
 
 
 
