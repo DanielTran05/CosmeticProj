@@ -3,6 +3,7 @@ package com.dtp.cosmemgt.warehouse.service;
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.admin.repository.UserRepository;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
+import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
@@ -47,12 +48,12 @@ public class WarehouseOrderService {
     OrderMapper orderMapper;
     WarehouseOrderMapper warehouseOrderMapper;
 
-    public Page<OrderResponse> getAllOrderToExport(int page, int size){
+    public PageResponse<OrderResponse> getAllOrderToExport(int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Page<Order> orderPage = orderRepository.findAllOrderToExport(pageable);
 
-        return orderPage.map(orderMapper::toOrderResponse);
+        return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
     }
 
     public WarehouseOrderResponse getOrderDetailToExport(String orderId){

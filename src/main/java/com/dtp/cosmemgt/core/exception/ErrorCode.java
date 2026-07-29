@@ -63,6 +63,10 @@ public enum ErrorCode {
     //inventory transaction
     OUT_OF_STOCK(9100, "Out of stock", HttpStatus.BAD_REQUEST),
 
+    //inventory batch
+    INVENTORY_BATCH_NOT_EXISTED(9200, "Batch is not existed", HttpStatus.BAD_REQUEST),
+    INVALID_ADJUSTMENT_QTY(9201, "Invalid adjustment quantity", HttpStatus.BAD_REQUEST),
+
 
 
     ;

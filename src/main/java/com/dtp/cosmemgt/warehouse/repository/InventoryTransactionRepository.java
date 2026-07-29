@@ -1,6 +1,8 @@
 package com.dtp.cosmemgt.warehouse.repository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,5 +15,7 @@ import java.util.List;
 @Repository
 public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Integer> {
     List<InventoryTransaction> findAllByReferenceId(String referenceId);
+
+    Page<InventoryTransaction> findAllByInventoryBatchId(String batchId, Pageable pageable);
 
 }
