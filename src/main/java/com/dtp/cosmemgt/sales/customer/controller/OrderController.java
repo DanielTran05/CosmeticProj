@@ -54,7 +54,7 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/return")
-    public ApiResponse<Void> returnOrder(@PathVariable String orderId) {
+    public ApiResponse<Void> returnOrder(@PathVariable String orderId) throws Exception {
         orderService.returnOrder(orderId);
         return ApiResponse.<Void>builder()
                 .message("Order returned successfully")

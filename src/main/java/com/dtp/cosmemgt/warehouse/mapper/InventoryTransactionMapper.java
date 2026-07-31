@@ -13,9 +13,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring", builder = @org.mapstruct.Builder(disableBuilder = true))
 public interface InventoryTransactionMapper {
-    @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(source = "transactionType", target = "transactionType")
     InventoryTransactionResponse toInventoryTransactionResponse(InventoryTransaction inventoryTransaction);
-
 }

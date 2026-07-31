@@ -19,7 +19,7 @@ public class WarehouseOrderController {
 
     WarehouseOrderService warehouseOrderService;
 
-    // 1. Lấy danh sách các đơn hàng chờ xuất kho
+    //ds don hang cho xuat kho                                                  CONFIRMED
     @GetMapping
     public ApiResponse<PageResponse<OrderResponse>> getAllOrderToExport(
             @RequestParam(defaultValue = "0") int page,
@@ -30,7 +30,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // 2. Lấy chi tiết đơn hàng để thủ kho nhặt hàng (Pick & Pack)
+    // chi tiet don hang nhan hang
     @GetMapping("/{orderId}")
     public ApiResponse<WarehouseOrderResponse> getOrderDetailToExport(@PathVariable String orderId) {
         
@@ -39,7 +39,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // 3. Xác nhận xuất kho giao cho Đơn vị vận chuyển
+    //xac nhan xuat giao cho dvvc                                                   CONFIRMED → SHIPPING
     @PutMapping("/{orderId}/export")
     public ApiResponse<Void> orderExportForShipping(@PathVariable String orderId) {
         
@@ -50,20 +50,20 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // 4. Xác nhận nhận lại hàng hoàn (Do khách bom hàng/trả hàng)
+    //xac nhan hoan hang                                                            COMPLETED||RETURN_REQUEST → RETURNED
     @PutMapping("/{orderId}/return")
-    public ApiResponse<Void> confirmReturnOrder(@PathVariable String orderId) {
+    public ApiResponse<Void> confirmReturnOrder(@PathVariable String orderId) throws Exception {
         
-        warehouseOrderService.confirmReturnOrder(orderId);
+        warehouseOrderService.warehousConfirmReturnOrder(orderId);
         
         return ApiResponse.<Void>builder()
                 .message("Xác nhận nhận hàng hoàn thành công")
                 .build();
     }
 
-    // 5. Hủy đơn từ phía kho (Do kiểm tra thấy hàng lỗi, rách bao bì không thể giao)
+    //huy don tu kho                                                                  → CANCELED
     @PutMapping("/{orderId}/cancel")
-    public ApiResponse<Void> cancelOrderFromWarehouse(@PathVariable String orderId) {
+    public ApiResponse<Void> cancelOrderFromWarehouse(@PathVariable String orderId) throws Exception {
         
         warehouseOrderService.cancelOrderFromWarehouse(orderId);
         
@@ -72,7 +72,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // 6. Xác nhận đơn hàng đã giao thành công (Thường do Webhook ĐVVC gọi về)
+    //xac nhan giao thanh cong DVVC                                                     SHIPPING → COMPLETED
     @PutMapping("/{orderId}/deliver")
     public ApiResponse<Void> confirmDelivered(@PathVariable String orderId) {
         

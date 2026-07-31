@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.sales.internal.job;
 
+import com.dtp.cosmemgt.sales.customer.service.OrderService;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.repository.OrderRepository;
@@ -22,7 +23,7 @@ import java.util.List;
 public class OrderCleanupJob {
 
     OrderRepository orderRepository;
-    WarehouseOrderService warehouseOrderService;
+    OrderService orderService;
 
     @Scheduled(fixedRate = 60000)
     @Transactional
@@ -39,7 +40,7 @@ public class OrderCleanupJob {
 
             for (Order order : expiredOrders) {
                 try {
-                    warehouseOrderService.cancelOrderDueToPaymentFailure(order.getId());
+                    orderService.cancelOrderDueToPaymentFailure(order.getId());
                     log.info("Successfully cancelled expired OrderId: {}", order.getId());
                 } catch (Exception e) {
                     log.error("Failed to cancel expired OrderId: {}", order.getId(), e);

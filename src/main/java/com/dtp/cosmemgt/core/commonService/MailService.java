@@ -21,7 +21,7 @@ import java.util.Map;
 @Slf4j
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class MailService {
-    private final RestTemplate restTemplate;
+    final RestTemplate restTemplate;
 
     @Value("${brevo.api.key}")
     String API_KEY;

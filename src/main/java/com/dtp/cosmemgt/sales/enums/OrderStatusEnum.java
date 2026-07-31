@@ -6,6 +6,7 @@ public enum OrderStatusEnum {
     SHIPPING,
     COMPLETED,
     CANCELLED,
+    RETURN_REQUESTED,       //yeu cau tra hang cho hang ve kho
     RETURNED,
 
     //PENDING: Khách vừa đặt xong, hàng vẫn nằm trên kệ (đã xí chỗ available_qty).

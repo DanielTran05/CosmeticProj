@@ -2,22 +2,22 @@ package com.dtp.cosmemgt.warehouse.service;
 
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.admin.repository.UserRepository;
-import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
+import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
+import com.dtp.cosmemgt.sales.customer.service.PaymentService;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.internal.dto.response.WarehouseOrderResponse;
-import com.dtp.cosmemgt.sales.internal.mapper.WarehouseOrderMapper;
+import com.dtp.cosmemgt.warehouse.mapper.WarehouseOrderMapper;
 import com.dtp.cosmemgt.sales.repository.OrderRepository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
-import com.dtp.cosmemgt.warehouse.repository.InventoryBatchRepository;
 import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -40,11 +40,11 @@ import java.util.List;
 @Transactional
 @Slf4j
 public class WarehouseOrderService {
-    ProductVariantRepository productVariantRepository;
     UserRepository userRepository;
     OrderRepository orderRepository;
-    InventoryBatchRepository inventoryBatchRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
+    PaymentService paymentService;
+    MailService mailService;
 
     OrderMapper orderMapper;
     WarehouseOrderMapper warehouseOrderMapper;
@@ -98,33 +98,43 @@ public class WarehouseOrderService {
     }
 
     //confirm don huy tu nguoi dung
-    public void confirmReturnOrder(String orderId){
+    public void warehousConfirmReturnOrder(String orderId) throws Exception {
         Order o = this.getOrder(orderId);
 
-        OrderStatusEnum orderStatus = o.getOrderStatus();
-        if(orderStatus != OrderStatusEnum.SHIPPING
-                && orderStatus != OrderStatusEnum.COMPLETED)
+        if(o.getOrderStatus() != OrderStatusEnum.RETURN_REQUESTED) {
             throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
+        }
 
-        o.setOrderStatus(OrderStatusEnum.RETURNED);
+        if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            paymentService.refund(o);
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+            sendOrderRefundEmail(o.getCustomer(), o);
+        }
 
         this.processInventoryRestoration(o, TransactionTypeEnum.RETURN_ORDER, true);
+
+        o.setOrderStatus(OrderStatusEnum.RETURNED);
+        log.info("Warehouse confirmed return and refunded order [{}]", orderId);
     }
 
     //huy don tu phia kho (do don hang hu hong)
-    public void cancelOrderFromWarehouse(String orderId){
+    public void cancelOrderFromWarehouse(String orderId) throws Exception {
         Order o = this.getOrder(orderId);
 
-        OrderStatusEnum orderStatus = o.getOrderStatus();
-        if(orderStatus != OrderStatusEnum.CONFIRMED)
+        if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED) {
             throw new AppException(ErrorCode.CAN_NOT_CANCEL_ORDER);
+        }
 
-        o.setOrderStatus(OrderStatusEnum.CANCELLED);
-
-        //hoan tien
-        //gui email thong bao
+        if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            paymentService.refund(o);
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+            sendOrderRefundEmail(o.getCustomer(), o);
+        }
 
         this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
+
+        o.setOrderStatus(OrderStatusEnum.CANCELLED);
+        log.info("Warehouse cancelled and refunded order [{}]", orderId);
     }
 
     //xac nhan giao hang thanh cong (webhook goi ve)
@@ -136,20 +146,6 @@ public class WarehouseOrderService {
 
         o.setOrderStatus(OrderStatusEnum.COMPLETED);
     }
-
-    //hoan kho khi thanh toan FAILED
-    public void cancelOrderDueToPaymentFailure(String orderId) {
-        Order o = this.getOrder(orderId);
-
-        if(o.getOrderStatus() != OrderStatusEnum.PENDING) {
-            return;
-        }
-
-        o.setOrderStatus(OrderStatusEnum.CANCELLED);
-
-        this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
-    }
-
 
     //utils
     private User getCurrentUser() {
@@ -204,5 +200,23 @@ public class WarehouseOrderService {
         }
 
         inventoryTransactionRepository.saveAll(newTransToSave);
+    }
+
+    private void sendOrderRefundEmail(User user, Order order) {
+        String subject = "Hoàn tiền đơn hàng - Mã đơn #" + order.getId();
+        String htmlBody = String.format("""
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2>Xin chào %s,</h2>
+                <p>Cảm ơn bạn đã đặt hàng tại <b>CosmeMgt</b>. Đơn hàng của bạn đã được hoàn tiền thành công!</p>
+                <ul>
+                    <li><b>Mã đơn hàng:</b> %s</li>
+                    <li><b>Tổng tiền:</b> %,d VNĐ</li>
+                    <li><b>Trạng thái:</b> Đã hoàn tiền</li>
+                </ul>
+                <p>Mọi thắc mắc xin vui lòng liên hệ CSKH. Trân trọng!</p>
+            </div>
+            """, user.getFullName(), order.getId(), order.getTotalAmount().longValue());
+
+        mailService.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
     }
 }

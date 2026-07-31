@@ -17,6 +17,7 @@ import org.mapstruct.*;
 public interface OrderMapper {
     OrderResponse toOrderResponse(Order oder);
 
+    @Named("toOrderDetailResponse")
     OrderDetailResponse toOrderDetailResponse(Order order);                             //↓
 
     OrderDetailItemsResponse toOrderDetailItemsResponse(OrderDetail orderDetail);       //↓

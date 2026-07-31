@@ -42,6 +42,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,8 @@ public class OrderService {
 
     @Transactional(readOnly = true)
     public OrderDetailResponse getOrderDetail(String orderId) {
-        Order order = getValidOwnedOrder(orderId);
+        User u = getCurrentUser();
+        Order order = getValidOwnedOrder(u, orderId);
         return orderMapper.toOrderDetailResponse(order);
     }
 
@@ -112,15 +114,17 @@ public class OrderService {
     }
 
     public void cancelOrder(String orderId) throws Exception {
-        Order order = getValidOwnedOrder(orderId);
+        User u = this.getCurrentUser();
+        Order order = getValidOwnedOrder(u, orderId);
 
-        if (order.getOrderStatus() != OrderStatusEnum.PENDING && order.getOrderStatus() != OrderStatusEnum.CONFIRMED) { //dang tra hoac da xuat kho
+        if (order.getOrderStatus() != OrderStatusEnum.PENDING && order.getOrderStatus() != OrderStatusEnum.CONFIRMED) {
             throw new AppException(ErrorCode.CAN_NOT_CANCEL_ORDER);
         }
 
         if (isEligibleForRefund(order)) {
             paymentService.refund(order);
             order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+            sendOrderRefundEmail(u, order);
         }
 
         processInventoryRestoration(order, TransactionTypeEnum.CANCEL_ORDER, false);
@@ -128,24 +132,38 @@ public class OrderService {
         log.info("Order [{}] cancelled successfully", orderId);
     }
 
-    public void returnOrder(String orderId) {
-        Order order = getValidOwnedOrder(orderId);
+    public void returnOrder(String orderId) throws Exception {
+        User u = this.getCurrentUser();
+        Order order = getValidOwnedOrder(u, orderId);
 
         if (order.getOrderStatus() != OrderStatusEnum.COMPLETED) {
             throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
         }
 
-        if (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
-            // TODO: Gọi MoMo / VNPAY API Refund tại đây
-            order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+        LocalDateTime completedAt = order.getUpdatedAt();
+        if (completedAt == null || completedAt.plusDays(7).isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.RETURN_PERIOD_EXPIRED);
         }
 
-        processInventoryRestoration(order, TransactionTypeEnum.RETURN_ORDER, true);
-        order.setOrderStatus(OrderStatusEnum.RETURNED);
-        log.info("Order [{}] returned successfully", orderId);
+        // KHÔNG hoàn tiền và KHÔNG cộng kho ở đây.
+        // Chỉ đổi trạng thái sang chờ kho xử lý.
+        order.setOrderStatus(OrderStatusEnum.RETURN_REQUESTED);
+        log.info("Order [{}] return request submitted. Waiting for warehouse confirmation.", orderId);
     }
 
+    //hoan kho khi thanh toan FAILED
+    public void cancelOrderDueToPaymentFailure(String orderId) {
+        Order o = orderRepository.findById(orderId)
+                .orElseThrow(() ->  new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if(o.getOrderStatus() != OrderStatusEnum.PENDING) {
+            return;
+        }
+
+        o.setOrderStatus(OrderStatusEnum.CANCELLED);
+
+        this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
+    }
 
 
     //HELPERS METHODS
@@ -166,11 +184,10 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    private Order getValidOwnedOrder(String orderId) {
+    private Order getValidOwnedOrder(User currentUser, String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
-        User currentUser = getCurrentUser();
         if (order.getCustomer() == null || !order.getCustomer().getId().equals(currentUser.getId())) {
             throw new AppException(ErrorCode.ORDER_DO_NOT_BELONG);
         }
@@ -189,8 +206,7 @@ public class OrderService {
     }
 
     private boolean isEligibleForRefund(Order order) {
-        return order.getOrderStatus() == OrderStatusEnum.CONFIRMED ||
-                (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID);
+        return order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID;
     }
 
     private List<InventoryTransaction> processOrderItemsAndInventory(OrderCreationRequest request, Order order) {
@@ -292,5 +308,23 @@ public class OrderService {
                 .toList();
 
         inventoryTransactionRepository.saveAll(newTransToSave);
+    }
+
+    public void sendOrderRefundEmail(User user, Order order) {
+        String subject = "Hoàn tiền đơn hàng - Mã đơn #" + order.getId();
+        String htmlBody = String.format("""
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2>Xin chào %s,</h2>
+                <p>Cảm ơn bạn đã đặt hàng tại <b>CosmeMgt</b>. Đơn hàng của bạn đã được hoàn tiền thành công!</p>
+                <ul>
+                    <li><b>Mã đơn hàng:</b> %s</li>
+                    <li><b>Tổng tiền:</b> %,d VNĐ</li>
+                    <li><b>Trạng thái:</b> Đã hoàn tiền</li>
+                </ul>
+                <p>Cảm ơn bạn đã đặt hàng. Mọi thắc mắc liên hệ 1900....!</p>
+            </div>
+            """, user.getFullName(), order.getId(), order.getTotalAmount().longValue());
+
+        mailService.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
     }
 }

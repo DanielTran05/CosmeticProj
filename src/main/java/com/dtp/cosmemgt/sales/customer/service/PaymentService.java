@@ -58,7 +58,7 @@ public class PaymentService {
 
     final OrderRepository orderRepository;
     final RestTemplate restTemplate;
-    final WarehouseOrderService warehouseOrderService;
+    OrderService orderService;
     final MailService mailService;
     final  ObjectMapper mapper;
 
@@ -236,7 +236,7 @@ public class PaymentService {
                 log.warn("[MoMo IPN] Payment FAILED for OrderId: {}. Message: {}", realOrderId, message);
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
 
-                warehouseOrderService.cancelOrderDueToPaymentFailure(realOrderId);
+                orderService.cancelOrderDueToPaymentFailure(realOrderId);
             }
 
         } catch (Exception e) {
