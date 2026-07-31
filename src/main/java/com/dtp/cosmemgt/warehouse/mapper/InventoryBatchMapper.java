@@ -15,7 +15,6 @@ public interface InventoryBatchMapper {
     @Mapping(target = "productVariant", ignore = true)
     InventoryBatch toInventoryBatch(BatchCreationRequest batchCreationRequest);
 
-    @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     BatchResponse toBatchResponse(InventoryBatch inventoryBatch);
 }

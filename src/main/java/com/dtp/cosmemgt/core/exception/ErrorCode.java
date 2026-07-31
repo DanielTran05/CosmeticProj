@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.core.exception;
 
 import lombok.Getter;
+import org.apache.http.impl.BHttpConnectionBase;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -17,6 +18,7 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(1009, "Invalid request", HttpStatus.BAD_REQUEST),
+    UPLOAD_FAILED(1100, "Img uploading failed", HttpStatus.BAD_REQUEST),
 
     //cate
     CATEGORY_EXISTED(2001, "Category existed", HttpStatus.BAD_REQUEST),
@@ -51,9 +53,11 @@ public enum ErrorCode {
     CAN_NOT_CANCEL_ORDER(8005, "Can not cancel order", HttpStatus.BAD_REQUEST),
     CAN_NOT_RETURN_ORDER(8006, "Can not return order", HttpStatus.BAD_REQUEST),
     CAN_NOT_EXPORT_ORDER(8007, "Can not export order", HttpStatus.BAD_REQUEST),
+    ORDER_HAS_BEEN_PAID(8008, "Order has been paid", HttpStatus.BAD_REQUEST),
 
     //warehouse order
     CAN_NOT_CONFIRM_DELIVERED(8100, "Warehouse can not confirm un-delivered order", HttpStatus.BAD_REQUEST),
+    RETURN_PERIOD_EXPIRED(8101, "Can not return order, return period expired", HttpStatus.BAD_REQUEST),
 
     //review
     REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
@@ -66,6 +70,10 @@ public enum ErrorCode {
     //inventory batch
     INVENTORY_BATCH_NOT_EXISTED(9200, "Batch is not existed", HttpStatus.BAD_REQUEST),
     INVALID_ADJUSTMENT_QTY(9201, "Invalid adjustment quantity", HttpStatus.BAD_REQUEST),
+
+    //momo payment
+    MOMO_PAYMENT_FAILED(9300, "Payment has been failed", HttpStatus.BAD_REQUEST),
+    MOMO_REFUND_FAILED(9301, "Refund has been failed", HttpStatus.BAD_REQUEST),
 
 
 

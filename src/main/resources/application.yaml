@@ -26,3 +26,24 @@ jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
   valid-duration: 3600 # in second
   refreshable-duration: 36000 # in seconds
+  
+momo:
+  partner-code: MOMO
+  access-key: F8BBA842ECF85
+  secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
+  redirect-url: http://localhost:3000
+  ipn-url: https://sasquatch-manifesto-specked.ngrok-free.dev/cosmeMgt/payments/ipn-url
+  api-endpoint: https://test-payment.vn/v2/gateway/api
+  refund_url: /refund
+
+brevo:
+  api.key: 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
+  sender:
+    email: tranducphu.dtp@gmail.com
+    name: Resto Restaurant
+  brevo_url: https://api.brevo.com/v3/smtp/email
+
+cloudinary:
+  cloud_name: djhiau9nq
+  api_key: 213478935551515
+  api_secret: mLUq43xmb-kFsQarGlKUyMi3rVI
