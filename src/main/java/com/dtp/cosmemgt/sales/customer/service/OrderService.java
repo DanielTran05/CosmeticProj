@@ -5,12 +5,15 @@ import com.dtp.cosmemgt.admin.repository.UserRepository;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.service.specification.OrderSpecification;
+import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
+import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.sales.customer.dto.request.OrderCreationRequest;
 import com.dtp.cosmemgt.sales.customer.dto.request.OrderDetailRequest;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
+import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
 import com.dtp.cosmemgt.sales.entity.Invoice;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.entity.OrderDetail;
@@ -22,7 +25,6 @@ import com.dtp.cosmemgt.sales.repository.OrderRepository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
-import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
 import com.dtp.cosmemgt.warehouse.repository.InventoryBatchRepository;
 import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
 import lombok.AccessLevel;
@@ -50,6 +52,7 @@ import java.util.Map;
 @Transactional
 @Slf4j
 public class OrderService {
+
     ProductVariantRepository productVariantRepository;
     UserRepository userRepository;
     OrderRepository orderRepository;
@@ -57,84 +60,72 @@ public class OrderService {
     InventoryTransactionRepository inventoryTransactionRepository;
     InvoiceRepository invoiceRepository;
 
+    MailService mailService;
+    PaymentService paymentService;
+
     OrderMapper orderMapper;
 
     public OrderResponse create(OrderCreationRequest request) {
-        User currentUser = this.getCurrentUser();
+        User currentUser = getCurrentUser();
 
         Order order = Order.builder()
                 .customer(currentUser)
                 .orderStatus(OrderStatusEnum.PENDING)
                 .build();
 
-        // tru kho, tinh gia von, chi tiet don hang
-        List<InventoryTransaction> transactionToSave = processOrderItemsAndInventory(request, order);
+        //FIFO
+        List<InventoryTransaction> transactionsToSave = processOrderItemsAndInventory(request, order);
 
         Order savedOrder = orderRepository.save(order);
 
-        Invoice invoice = Invoice.builder()
-                .order(savedOrder)
-                .amount(savedOrder.getTotalAmount())
-                .paymentMethod(PaymentMethodEnum.valueOf(request.getPaymentMethod()))
-                .paymentStatus(PaymentStatusEnum.UNPAID)
-                .build();
-        invoiceRepository.save(invoice);
+        createInvoiceForOrder(savedOrder, request.getPaymentMethod());
 
-        for (InventoryTransaction tx : transactionToSave) {
-            tx.setReferenceId(savedOrder.getId());
-        }
-        inventoryTransactionRepository.saveAll(transactionToSave);
+        transactionsToSave.forEach(tx -> tx.setReferenceId(savedOrder.getId()));
+        inventoryTransactionRepository.saveAll(transactionsToSave);
 
+
+
+        log.info("Order [{}] created successfully for user [{}]", savedOrder.getId(), currentUser.getId());
         return orderMapper.toOrderResponse(savedOrder);
     }
 
-    public OrderDetailResponse getOrderDetail(String orderId){
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-
-        User currentUser = this.getCurrentUser();
-
-        if(order.getCustomer() == null || !order.getCustomer().getId().equals(currentUser.getId()))
-            throw new AppException(ErrorCode.ORDER_DO_NOT_BELONG);
-
+    @Transactional(readOnly = true)
+    public OrderDetailResponse getOrderDetail(String orderId) {
+        Order order = getValidOwnedOrder(orderId);
         return orderMapper.toOrderDetailResponse(order);
-        }
+    }
 
-    public Page<OrderResponse> getAllMyOrder(Map<String, String> queryParams){
-            User myAccount = this.getCurrentUser();
+    @Transactional(readOnly = true)
+    public PageResponse<OrderResponse> getAllMyOrder(Map<String, String> queryParams) {
+        User myAccount = getCurrentUser();
 
-            int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
-            int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
-            Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
+        int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-            Specification<Order> filterOrderSpec = OrderSpecification.filterOrder(queryParams);
+        Specification<Order> filterOrderSpec = OrderSpecification.filterOrder(queryParams);
+        Specification<Order> customerSpec = (root, query, cb) -> cb.equal(root.get("customer"), myAccount);
 
-            Specification<Order> customerSpec = ((root, query, cb) ->
-                    cb.equal(root.get("customer"), myAccount));
+        Page<Order> orderPage = orderRepository.findAll(Specification.where(customerSpec).and(filterOrderSpec), pageable);
 
-            Page<Order> orderPage = orderRepository.findAll(Specification.where(customerSpec).and(filterOrderSpec), pageable);
+        return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
+    }
 
-            return orderPage.map(orderMapper::toOrderResponse);
-        }
-
-    public void cancelOrder(String orderId) {
+    public void cancelOrder(String orderId) throws Exception {
         Order order = getValidOwnedOrder(orderId);
 
-        OrderStatusEnum status = order.getOrderStatus();
-        if (status != OrderStatusEnum.PENDING && status != OrderStatusEnum.CONFIRMED) {
+        if (order.getOrderStatus() != OrderStatusEnum.PENDING && order.getOrderStatus() != OrderStatusEnum.CONFIRMED) { //dang tra hoac da xuat kho
             throw new AppException(ErrorCode.CAN_NOT_CANCEL_ORDER);
         }
 
-        //hoan tien
-        if (status == OrderStatusEnum.CONFIRMED ||
-                (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID)) {
-            // TODO: Xây dựng hàm gọi MoMo API hoàn tiền tại đây
-            // momoPaymentService.refund(order.getId(), order.getTotalAmount());
+        if (isEligibleForRefund(order)) {
+            paymentService.refund(order);
             order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
         }
 
         processInventoryRestoration(order, TransactionTypeEnum.CANCEL_ORDER, false);
         order.setOrderStatus(OrderStatusEnum.CANCELLED);
+        log.info("Order [{}] cancelled successfully", orderId);
     }
 
     public void returnOrder(String orderId) {
@@ -144,22 +135,20 @@ public class OrderService {
             throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
         }
 
-        // Trả hàng luôn đi kèm hoàn tiền
         if (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
-            // TODO: Xây dựng hàm gọi MoMo API hoàn tiền tại đây
+            // TODO: Gọi MoMo / VNPAY API Refund tại đây
             order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
         }
 
-        //hoan hang
         processInventoryRestoration(order, TransactionTypeEnum.RETURN_ORDER, true);
         order.setOrderStatus(OrderStatusEnum.RETURNED);
+        log.info("Order [{}] returned successfully", orderId);
     }
 
 
 
 
-
-    //utils
+    //HELPERS METHODS
     private User getCurrentUser() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -177,49 +166,54 @@ public class OrderService {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
     }
 
-    private List<InventoryTransaction> processOrderItemsAndInventory(
-            OrderCreationRequest request, Order order) {
+    private Order getValidOwnedOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        User currentUser = getCurrentUser();
+        if (order.getCustomer() == null || !order.getCustomer().getId().equals(currentUser.getId())) {
+            throw new AppException(ErrorCode.ORDER_DO_NOT_BELONG);
+        }
+
+        return order;
+    }
+
+    private void createInvoiceForOrder(Order order, String paymentMethodStr) {
+        Invoice invoice = Invoice.builder()
+                .order(order)
+                .amount(order.getTotalAmount())
+                .paymentMethod(PaymentMethodEnum.valueOf(paymentMethodStr))
+                .paymentStatus(PaymentStatusEnum.UNPAID)
+                .build();
+        invoiceRepository.save(invoice);
+    }
+
+    private boolean isEligibleForRefund(Order order) {
+        return order.getOrderStatus() == OrderStatusEnum.CONFIRMED ||
+                (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID);
+    }
+
+    private List<InventoryTransaction> processOrderItemsAndInventory(OrderCreationRequest request, Order order) {
         BigDecimal orderTotalAmount = BigDecimal.ZERO;
         BigDecimal orderTotalCogs = BigDecimal.ZERO;
+
         List<OrderDetail> ods = new ArrayList<>();
-        List<InventoryTransaction> transactionToSave = new ArrayList<>();
+        List<InventoryTransaction> transactionsToSave = new ArrayList<>();
 
         for (OrderDetailRequest odRequest : request.getOrderDetailRequests()) {
             String variantId = odRequest.getProductVariantId();
             int requireQty = odRequest.getQty();
 
+            //FIFO
             List<InventoryBatch> availableBatches = inventoryBatchRepository.findAllAvailableBatchesFIFO(variantId);
 
-            int actualTotalStock = availableBatches.stream()
-                    .mapToInt(InventoryBatch::getAvailableQty)
-                    .sum();
-
+            int actualTotalStock = availableBatches.stream().mapToInt(InventoryBatch::getAvailableQty).sum();
             if (actualTotalStock < requireQty) {
                 throw new AppException(ErrorCode.OUT_OF_STOCK);
             }
 
-            BigDecimal lineTotalCogs = BigDecimal.ZERO;
-            int remainingToFulFill = requireQty;
-
-            for (InventoryBatch b : availableBatches) {
-                if (remainingToFulFill == 0) break;
-
-                int qtyToTake = Math.min(b.getAvailableQty(), remainingToFulFill);
-
-                b.setAvailableQty(b.getAvailableQty() - qtyToTake);
-
-                BigDecimal costFromThisBatch = b.getUnitCost().multiply(BigDecimal.valueOf(qtyToTake));
-                lineTotalCogs = lineTotalCogs.add(costFromThisBatch);
-
-                InventoryTransaction transaction = InventoryTransaction.builder()
-                        .inventoryBatch(b)
-                        .changeQty(-qtyToTake)
-                        .transactionType(TransactionTypeEnum.RESERVE)
-                        .build();
-                transactionToSave.add(transaction);
-
-                remainingToFulFill -= qtyToTake;
-            }
+            //tru kho tam giu va tong COGS (tong phi san xuat )
+            BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
 
             ProductVariant variant = productVariantRepository.findById(variantId)
                     .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
@@ -245,49 +239,57 @@ public class OrderService {
         order.setTotalCogs(orderTotalCogs);
         order.setOrderDetails(ods);
 
-        return transactionToSave;
+        return transactionsToSave;
     }
 
-    private Order getValidOwnedOrder(String orderId) {
-        User currentUser = this.getCurrentUser();
+    private BigDecimal reserveStockAndCalculateCogs(List<InventoryBatch> batches, int requireQty, List<InventoryTransaction> transactionsToSave) {
+        BigDecimal lineTotalCogs = BigDecimal.ZERO;
+        int remainingToFulfill = requireQty;
 
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+        for (InventoryBatch batch : batches) {
+            if (remainingToFulfill == 0) break;
 
-        if (order.getCustomer() == null || !order.getCustomer().getId().equals(currentUser.getId())) {
-            throw new AppException(ErrorCode.ORDER_DO_NOT_BELONG);
+            int qtyToTake = Math.min(batch.getAvailableQty(), remainingToFulfill);
+            batch.setAvailableQty(batch.getAvailableQty() - qtyToTake);
+
+            BigDecimal costFromThisBatch = batch.getUnitCost().multiply(BigDecimal.valueOf(qtyToTake));
+            lineTotalCogs = lineTotalCogs.add(costFromThisBatch);
+
+            InventoryTransaction transaction = InventoryTransaction.builder()
+                    .inventoryBatch(batch)
+                    .changeQty(-qtyToTake)
+                    .transactionType(TransactionTypeEnum.RESERVE)
+                    .build();
+
+            transactionsToSave.add(transaction);
+            remainingToFulfill -= qtyToTake;
         }
 
-        return order;
+        return lineTotalCogs;
     }
 
     private void processInventoryRestoration(Order order, TransactionTypeEnum transactionType, boolean isPhysicalReturn) {
         List<InventoryTransaction> trans = inventoryTransactionRepository.findAllByReferenceId(order.getId());
-        List<InventoryTransaction> newTransToSave = new ArrayList<>();
 
-        for (InventoryTransaction tran : trans) {
-            if (tran.getChangeQty() >= 0) continue;
+        List<InventoryTransaction> newTransToSave = trans.stream()
+                .filter(tran -> tran.getChangeQty() < 0)
+                .map(tran -> {
+                    InventoryBatch b = tran.getInventoryBatch();
+                    int refundQty = Math.abs(tran.getChangeQty());
 
-            InventoryBatch b = tran.getInventoryBatch();
+                    b.setAvailableQty(b.getAvailableQty() + refundQty);
+                    if (isPhysicalReturn) {
+                        b.setPhysicalQty(b.getPhysicalQty() + refundQty);
+                    }
 
-            int refundQty = Math.abs(tran.getChangeQty());
-
-            b.setAvailableQty(b.getAvailableQty() + refundQty);
-
-            // Hoàn lại kho vật lý (chỉ áp dụng khi hàng đã xuất kho và bị trả về)
-            if (isPhysicalReturn) {
-                b.setPhysicalQty(b.getPhysicalQty() + refundQty);
-            }
-
-            InventoryTransaction newTran = InventoryTransaction.builder()
-                    .changeQty(refundQty)
-                    .inventoryBatch(b)
-                    .referenceId(order.getId())
-                    .transactionType(transactionType)
-                    .build();
-
-            newTransToSave.add(newTran);
-        }
+                    return InventoryTransaction.builder()
+                            .changeQty(refundQty)
+                            .inventoryBatch(b)
+                            .referenceId(order.getId())
+                            .transactionType(transactionType)
+                            .build();
+                })
+                .toList();
 
         inventoryTransactionRepository.saveAll(newTransToSave);
     }

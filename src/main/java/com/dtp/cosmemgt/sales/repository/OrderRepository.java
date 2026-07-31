@@ -15,6 +15,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,5 +39,5 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
             "where o.orderStatus = com.dtp.cosmemgt.sales.enums.OrderStatusEnum.CONFIRMED")
     Page<Order> findAllOrderToExport(Pageable pageable);
 
-    int getTotalProduct();
+    List<Order> findByOrderStatusAndCreatedAtBefore(OrderStatusEnum status, LocalDateTime thresholdTime);
 }

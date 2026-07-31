@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.sales.customer.controller;
 
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.sales.customer.dto.request.OrderCreationRequest;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
@@ -30,8 +31,8 @@ public class OrderController {
     }
 
     @GetMapping
-    public ApiResponse<Page<OrderResponse>> getAllMyOrders(@RequestParam Map<String, String> queryParams) {
-        return ApiResponse.<Page<OrderResponse>>builder()
+    public ApiResponse<PageResponse<OrderResponse>> getAllMyOrders(@RequestParam Map<String, String> queryParams) {
+        return ApiResponse.<PageResponse<OrderResponse>>builder()
                 .result(orderService.getAllMyOrder(queryParams))
                 .build();
     }
@@ -45,10 +46,10 @@ public class OrderController {
     }
 
     @PutMapping("/{orderId}/cancel")
-    public ApiResponse<Void> cancelOrder(@PathVariable String orderId) {
+    public ApiResponse<Void> cancelOrder(@PathVariable String orderId) throws Exception {
         orderService.cancelOrder(orderId);
         return ApiResponse.<Void>builder()
-                .message("Order cancelled successfully") // Có thể định nghĩa thêm message ở đây
+                .message("Order cancelled successfully")
                 .build();
     }
 

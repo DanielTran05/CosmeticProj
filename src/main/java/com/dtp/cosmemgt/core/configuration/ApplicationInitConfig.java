@@ -1,5 +1,7 @@
 package com.dtp.cosmemgt.core.configuration;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.dtp.cosmemgt.admin.constant.PredefinedRole;
 import com.dtp.cosmemgt.admin.entity.Role;
 import com.dtp.cosmemgt.admin.entity.User;

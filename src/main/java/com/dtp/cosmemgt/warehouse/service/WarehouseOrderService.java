@@ -10,6 +10,7 @@ import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.internal.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.sales.internal.mapper.WarehouseOrderMapper;
 import com.dtp.cosmemgt.sales.repository.OrderRepository;
@@ -136,7 +137,18 @@ public class WarehouseOrderService {
         o.setOrderStatus(OrderStatusEnum.COMPLETED);
     }
 
+    //hoan kho khi thanh toan FAILED
+    public void cancelOrderDueToPaymentFailure(String orderId) {
+        Order o = this.getOrder(orderId);
 
+        if(o.getOrderStatus() != OrderStatusEnum.PENDING) {
+            return;
+        }
+
+        o.setOrderStatus(OrderStatusEnum.CANCELLED);
+
+        this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
+    }
 
 
     //utils
@@ -169,7 +181,6 @@ public class WarehouseOrderService {
         List<InventoryTransaction> newTransToSave = new ArrayList<>();
 
         for (InventoryTransaction tran : trans) {
-            // Chỉ hoàn lại dựa trên các giao dịch xuất kho (tránh cộng dồn sai nếu có bug logic)
             if (tran.getChangeQty() >= 0) continue;
 
             InventoryBatch b = tran.getInventoryBatch();
@@ -178,7 +189,6 @@ public class WarehouseOrderService {
 
             b.setAvailableQty(b.getAvailableQty() + refundQty);
 
-            // hoan kho vat ly (hang giao bi tra ve)
             if (isPhysicalReturn) {
                 b.setPhysicalQty(b.getPhysicalQty() + refundQty);
             }
