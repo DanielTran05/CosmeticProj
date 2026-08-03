@@ -36,6 +36,8 @@ public class User extends BaseAuditEntity {
     @Size(min = 1, max = 100)
     String fullName;
 
+    String address;
+
     @Size(max = 10)
     String phoneNum;
 

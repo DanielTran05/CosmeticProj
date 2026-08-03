@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.adminController;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductVariantCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductVariantResponse;
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminProductVariantService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminProductVariantService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import lombok.AccessLevel;
@@ -11,11 +11,10 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/product_variants")
+@RequestMapping("/admin/product_variants")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j

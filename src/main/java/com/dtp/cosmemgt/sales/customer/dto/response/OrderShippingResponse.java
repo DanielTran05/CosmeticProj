@@ -9,9 +9,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ReviewResponse {
-    String productVariantId;
-    User customer;
-    int ratingStar;
-    String comment;
+public class OrderShippingResponse {
+    String trackingNumber;
+    String receiverName;
+    String receiverPhone;
+    String receiverAddress;
+    String shippingProvider;
 }

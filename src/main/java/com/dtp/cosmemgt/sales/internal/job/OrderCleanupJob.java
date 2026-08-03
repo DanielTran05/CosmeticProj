@@ -28,10 +28,10 @@ public class OrderCleanupJob {
     @Scheduled(fixedRate = 60000)
     @Transactional
     public void cleanupExpiredPendingOrders() {
-        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(15);
+        LocalDateTime expirationTime = LocalDateTime.now().minusMinutes(30);
 
         List<Order> expiredOrders = orderRepository.findByOrderStatusAndCreatedAtBefore(
-                OrderStatusEnum.PENDING, 
+                OrderStatusEnum.PENDING,
                 expirationTime
         );
 
@@ -40,7 +40,7 @@ public class OrderCleanupJob {
 
             for (Order order : expiredOrders) {
                 try {
-                    orderService.cancelOrderDueToPaymentFailure(order.getId());
+                    orderService.cancelOrderDueToPaymentFailure(order.getId(), false);
                     log.info("Successfully cancelled expired OrderId: {}", order.getId());
                 } catch (Exception e) {
                     log.error("Failed to cancel expired OrderId: {}", order.getId(), e);

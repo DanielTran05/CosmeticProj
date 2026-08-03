@@ -13,10 +13,14 @@ import com.dtp.cosmemgt.warehouse.entity.Supplier;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring",
-        builder = @Builder(disableBuilder = true))
+        builder = @Builder(disableBuilder = true),
+        uses = {OrderShippingMapper.class})
 public interface OrderMapper {
+    @Mapping(target = "orderShipping", source = "orderShipping")
     OrderResponse toOrderResponse(Order oder);
 
+    @Mapping(target = "orderDetailItemsResponses", source = "orderDetails")
+    @Mapping(target = "orderShippingResponse", source = "orderShipping")
     @Named("toOrderDetailResponse")
     OrderDetailResponse toOrderDetailResponse(Order order);                             //↓
 

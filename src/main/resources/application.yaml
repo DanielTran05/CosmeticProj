@@ -24,7 +24,7 @@ spring:
 
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
-  valid-duration: 3600 # in second
+  valid-duration: 36000 # in second
   refreshable-duration: 36000 # in seconds
   
 momo:
@@ -32,8 +32,8 @@ momo:
   access-key: F8BBA842ECF85
   secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
   redirect-url: http://localhost:3000
-  ipn-url: https://sasquatch-manifesto-specked.ngrok-free.dev/cosmeMgt/payments/ipn-url
-  api-endpoint: https://test-payment.vn/v2/gateway/api
+  ipn-url: https://unsounded-unchurchly-kian.ngrok-free.dev/cosmeMgt/payments/ipn-url
+  api-endpoint: https://test-payment.momo.vn/v2/gateway/api
   refund_url: /refund
 
 brevo:

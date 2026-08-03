@@ -5,7 +5,7 @@ import com.dtp.cosmemgt.sales.customer.mapper.OrderDetailMapper;
 import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.internal.dto.response.WarehouseOrderResponse;
-import com.dtp.cosmemgt.sales.internal.mapper.OrderShippingMapper;
+import com.dtp.cosmemgt.sales.customer.mapper.OrderShippingMapper;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

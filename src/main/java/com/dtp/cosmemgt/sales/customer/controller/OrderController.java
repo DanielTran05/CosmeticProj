@@ -37,7 +37,7 @@ public class OrderController {
                 .build();
     }
 
-    // 3. Xem chi tiết 1 đơn hàng
+    // Xem chi tiet don hang
     @GetMapping("/{orderId}")
     public ApiResponse<OrderDetailResponse> getOrderDetail(@PathVariable String orderId) {
         return ApiResponse.<OrderDetailResponse>builder()

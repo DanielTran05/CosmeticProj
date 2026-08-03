@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.internal.adminService;
+package com.dtp.cosmemgt.catalog.internal.service;
 
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
@@ -24,7 +24,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 
 @Service

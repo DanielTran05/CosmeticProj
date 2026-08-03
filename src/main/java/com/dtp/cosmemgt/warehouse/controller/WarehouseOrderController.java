@@ -12,7 +12,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/admin/warehouse/outbound/orders")
+@RequestMapping("/warehouse/outbound/orders")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class WarehouseOrderController {
@@ -30,7 +30,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // chi tiet don hang nhan hang
+    // chi tiet don hang de xuat hang
     @GetMapping("/{orderId}")
     public ApiResponse<WarehouseOrderResponse> getOrderDetailToExport(@PathVariable String orderId) {
         
@@ -51,7 +51,7 @@ public class WarehouseOrderController {
     }
 
     //xac nhan hoan hang                                                            COMPLETED||RETURN_REQUEST → RETURNED
-    @PutMapping("/{orderId}/return")
+    @PutMapping("/{orderId}/confirmReturn")
     public ApiResponse<Void> confirmReturnOrder(@PathVariable String orderId) throws Exception {
         
         warehouseOrderService.warehousConfirmReturnOrder(orderId);

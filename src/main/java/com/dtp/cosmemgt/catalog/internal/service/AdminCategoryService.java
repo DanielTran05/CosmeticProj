@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.internal.adminService;
+package com.dtp.cosmemgt.catalog.internal.service;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminCategoryResponse;

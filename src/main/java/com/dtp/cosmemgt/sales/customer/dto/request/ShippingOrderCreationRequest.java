@@ -10,9 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class OrderCreationRequest {
-    List<OrderDetailRequest> orderDetailRequests;
-    String paymentMethod;
-    ShippingOrderCreationRequest shippingOrderCreationRequest;
-    String note;
+public class ShippingOrderCreationRequest {
+    String receiverName;
+    String receiverPhone;
+    String receiverAddress;
 }
