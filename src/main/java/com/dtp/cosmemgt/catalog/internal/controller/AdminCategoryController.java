@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.adminController;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.CategoryCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminCategoryResponse;
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminCategoryService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminCategoryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/categories")
+@RequestMapping("/admin/categories")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class CategoryController {
+public class AdminCategoryController {
     AdminCategoryService categoryService;
 
     @PostMapping()

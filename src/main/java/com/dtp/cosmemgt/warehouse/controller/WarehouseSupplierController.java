@@ -12,11 +12,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/suppliers")
+@RequestMapping("/warehouse/suppliers")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class SupplierController {
+public class WarehouseSupplierController {
     SupplierService supplierService;
 
     @PostMapping()

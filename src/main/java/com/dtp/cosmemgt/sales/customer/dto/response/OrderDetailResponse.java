@@ -17,4 +17,5 @@ import java.util.List;
 public class OrderDetailResponse {
     String id;  //id cua order
     List<OrderDetailItemsResponse> orderDetailItemsResponses;   //list cac san pham cua no
+    OrderShippingResponse orderShippingResponse;
 }

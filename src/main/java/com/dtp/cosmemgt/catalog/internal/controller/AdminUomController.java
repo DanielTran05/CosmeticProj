@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.adminController;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.UomResponse;
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminUomService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminUomService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/uom")
+@RequestMapping("/admin/uom")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class UomController {
+public class AdminUomController {
     AdminUomService uomService;
 
     @PostMapping()

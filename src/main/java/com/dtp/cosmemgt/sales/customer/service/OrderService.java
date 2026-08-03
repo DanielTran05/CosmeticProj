@@ -11,17 +11,21 @@ import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.sales.customer.dto.request.OrderCreationRequest;
 import com.dtp.cosmemgt.sales.customer.dto.request.OrderDetailRequest;
+import com.dtp.cosmemgt.sales.customer.dto.request.PaymentFailedEvent;
+import com.dtp.cosmemgt.sales.customer.dto.request.ShippingOrderCreationRequest;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
 import com.dtp.cosmemgt.sales.entity.Invoice;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.entity.OrderDetail;
+import com.dtp.cosmemgt.sales.entity.OrderShipping;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.enums.PaymentMethodEnum;
 import com.dtp.cosmemgt.sales.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.repository.InvoiceRepository;
 import com.dtp.cosmemgt.sales.repository.OrderRepository;
+import com.dtp.cosmemgt.sales.repository.OrderShippingRepository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
@@ -31,6 +35,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -38,7 +43,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -60,6 +68,7 @@ public class OrderService {
     InventoryBatchRepository inventoryBatchRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
     InvoiceRepository invoiceRepository;
+    OrderShippingRepository orderShippingRepository;
 
     MailService mailService;
     PaymentService paymentService;
@@ -81,10 +90,10 @@ public class OrderService {
 
         createInvoiceForOrder(savedOrder, request.getPaymentMethod());
 
+        createOrderShipping(savedOrder, currentUser, request);
+
         transactionsToSave.forEach(tx -> tx.setReferenceId(savedOrder.getId()));
         inventoryTransactionRepository.saveAll(transactionsToSave);
-
-
 
         log.info("Order [{}] created successfully for user [{}]", savedOrder.getId(), currentUser.getId());
         return orderMapper.toOrderResponse(savedOrder);
@@ -152,7 +161,7 @@ public class OrderService {
     }
 
     //hoan kho khi thanh toan FAILED
-    public void cancelOrderDueToPaymentFailure(String orderId) {
+    public void cancelOrderDueToPaymentFailure(String orderId, boolean isFromPaymentFailedEvent) {
         Order o = orderRepository.findById(orderId)
                 .orElseThrow(() ->  new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -161,6 +170,12 @@ public class OrderService {
         }
 
         o.setOrderStatus(OrderStatusEnum.CANCELLED);
+
+        if(isFromPaymentFailedEvent) {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);
+        } else {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
+        }
 
         this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
     }
@@ -176,6 +191,7 @@ public class OrderService {
         }
 
         String userId = authentication.getName();
+        log.info("userId: {}", userId);
         if (userId == null || userId.isBlank()) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
@@ -203,6 +219,30 @@ public class OrderService {
                 .paymentStatus(PaymentStatusEnum.UNPAID)
                 .build();
         invoiceRepository.save(invoice);
+    }
+
+    private void createOrderShipping(Order order, User user, OrderCreationRequest request) {
+        log.info("Creating shipping info for order [{}] and user [{}]", order.getId(), user.getId());
+
+        OrderShipping odShipping = OrderShipping.builder()
+                .order(order)
+                .shippingProvider("DVVC")
+                .trackingNumber("DEMO_TRACKINGNO")
+                .build();
+
+        if(request.getShippingOrderCreationRequest() != null){
+            ShippingOrderCreationRequest shippingOrderCreationRequest = request.getShippingOrderCreationRequest();
+            odShipping.setReceiverAddress(shippingOrderCreationRequest.getReceiverAddress());
+            odShipping.setReceiverName(shippingOrderCreationRequest.getReceiverName());
+            odShipping.setReceiverPhone(shippingOrderCreationRequest.getReceiverPhone());
+        }else {
+            odShipping.setReceiverAddress(user.getAddress());
+            odShipping.setReceiverName(user.getFullName());
+            odShipping.setReceiverPhone(user.getPhoneNum());
+        }
+
+        orderShippingRepository.save(odShipping);
+        order.setOrderShipping(odShipping);
     }
 
     private boolean isEligibleForRefund(Order order) {
@@ -326,5 +366,14 @@ public class OrderService {
             """, user.getFullName(), order.getId(), order.getTotalAmount().longValue());
 
         mailService.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
+    }
+
+    //listener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)                  //tu tao transaction moi
+    public void handlePaymentFailedEvent(PaymentFailedEvent event) {
+        String orderId = event.getOrderId();
+        log.info("Received PaymentFailedEvent for Order ID: {}", orderId);
+        cancelOrderDueToPaymentFailure(orderId, true);
     }
 }

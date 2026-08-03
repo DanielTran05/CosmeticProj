@@ -5,18 +5,20 @@ import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.sales.customer.dto.request.PaymentCreationRequest;
+import com.dtp.cosmemgt.sales.customer.dto.request.PaymentFailedEvent;
 import com.dtp.cosmemgt.sales.customer.dto.response.PaymentResponse;
 import com.dtp.cosmemgt.sales.entity.Order;
 import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.repository.InvoiceRepository;
 import com.dtp.cosmemgt.sales.repository.OrderRepository;
-import com.dtp.cosmemgt.warehouse.service.WarehouseOrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -56,13 +58,17 @@ public class PaymentService {
     private String API_ENDPOINT;
     private String REQUEST_TYPE = "captureWallet";
 
+    ApplicationEventPublisher applicationEventPublisher;
+
     final OrderRepository orderRepository;
     final RestTemplate restTemplate;
-    OrderService orderService;
     final MailService mailService;
     final  ObjectMapper mapper;
 
     public PaymentResponse createPaymentRequest(PaymentCreationRequest request) throws Exception {
+        log.info("partner_code {}", PARTNER_CODE);
+        log.info("ipn url {}", IPN_URL);
+
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -175,8 +181,10 @@ public class PaymentService {
         }
     }
 
-
     public void handleIpn(String requestBody) {
+        log.info("partner_code {}", PARTNER_CODE);
+        log.info("ipn url {}", IPN_URL);
+
         try {
             JsonNode ipnData = mapper.readTree(requestBody);
             log.info("[MoMo IPN] Received payload: {}", ipnData.toString());
@@ -236,7 +244,7 @@ public class PaymentService {
                 log.warn("[MoMo IPN] Payment FAILED for OrderId: {}. Message: {}", realOrderId, message);
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
 
-                orderService.cancelOrderDueToPaymentFailure(realOrderId);
+                applicationEventPublisher.publishEvent(new PaymentFailedEvent(realOrderId, message));
             }
 
         } catch (Exception e) {

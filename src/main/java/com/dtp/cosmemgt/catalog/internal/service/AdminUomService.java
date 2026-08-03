@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.internal.adminService;
+package com.dtp.cosmemgt.catalog.internal.service;
 
 import com.dtp.cosmemgt.catalog.entity.UnitOfMeasure;
 import com.dtp.cosmemgt.catalog.internal.dto.request.UomCreationRequest;

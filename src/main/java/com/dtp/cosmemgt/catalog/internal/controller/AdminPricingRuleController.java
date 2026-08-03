@@ -1,8 +1,8 @@
-package com.dtp.cosmemgt.catalog.internal.adminController;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
 import com.dtp.cosmemgt.catalog.internal.dto.request.PricingRuleCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminPricingRuleResponse;
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminPricingRuleService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminPricingRuleService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +13,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/pricingRules")
+@RequestMapping("/admin/pricingRules")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class PricingRuleController {
+public class AdminPricingRuleController {
     AdminPricingRuleService pricingRuleService;
 
     @PostMapping()

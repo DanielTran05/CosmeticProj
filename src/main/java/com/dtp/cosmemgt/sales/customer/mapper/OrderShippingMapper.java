@@ -1,14 +1,12 @@
-package com.dtp.cosmemgt.sales.internal.mapper;
+package com.dtp.cosmemgt.sales.customer.mapper;
 
+import com.dtp.cosmemgt.sales.customer.dto.response.OrderShippingResponse;
 import com.dtp.cosmemgt.sales.entity.OrderShipping;
-import com.dtp.cosmemgt.sales.internal.dto.response.OrderShippingResponse;
 import org.mapstruct.Builder;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring",
         builder = @Builder(disableBuilder = true))
 public interface OrderShippingMapper {
     OrderShippingResponse toOrderShippingResponse(OrderShipping orderShipping);
-
 }

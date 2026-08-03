@@ -1,9 +1,9 @@
-package com.dtp.cosmemgt.catalog.internal.adminController;
+package com.dtp.cosmemgt.catalog.internal.controller;
 
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminProductVariantService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminProductVariantService;
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductCreationRequest;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductResponse;
-import com.dtp.cosmemgt.catalog.internal.adminService.AdminProductService;
+import com.dtp.cosmemgt.catalog.internal.service.AdminProductService;
 import com.dtp.cosmemgt.catalog.internal.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
@@ -17,11 +17,11 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/products")
+@RequestMapping("/admin/products")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
-public class ProductController {
+public class AdminProductController {
     AdminProductService productService;
     AdminProductVariantService productVariantService;
 

@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.internal.adminService;
+package com.dtp.cosmemgt.catalog.internal.service;
 
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.internal.dto.request.ProductCreationRequest;
@@ -9,7 +9,6 @@ import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.internal.mapper.AdminProductVariantMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.catalog.service.ProductCoreService;
-import com.dtp.cosmemgt.catalog.service.ProductVariantCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
