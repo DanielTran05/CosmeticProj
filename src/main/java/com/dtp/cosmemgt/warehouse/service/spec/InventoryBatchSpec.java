@@ -1,17 +1,10 @@
 package com.dtp.cosmemgt.warehouse.service.spec;
 
-import com.dtp.cosmemgt.catalog.entity.ProductVariant;
-import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
-import com.dtp.cosmemgt.core.exception.AppException;
-import com.dtp.cosmemgt.core.exception.ErrorCode;
-import com.dtp.cosmemgt.sales.entity.Order;
-import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import jakarta.persistence.criteria.Predicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.jpa.domain.Specification;
 
