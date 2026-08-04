@@ -1,8 +1,7 @@
 package com.dtp.cosmemgt.catalog.service.specification;
 
-import com.dtp.cosmemgt.catalog.entity.Product;
-import com.dtp.cosmemgt.sales.entity.Order;
-import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.order.entity.Order;
+import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;

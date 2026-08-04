@@ -2,13 +2,12 @@ package com.dtp.cosmemgt.warehouse.controller;
 
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
-import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
-import com.dtp.cosmemgt.sales.internal.dto.response.WarehouseOrderResponse;
+import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
+import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.service.WarehouseOrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

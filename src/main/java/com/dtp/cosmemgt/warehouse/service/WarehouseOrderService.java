@@ -6,15 +6,15 @@ import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
-import com.dtp.cosmemgt.sales.customer.dto.response.OrderResponse;
-import com.dtp.cosmemgt.sales.customer.mapper.OrderMapper;
-import com.dtp.cosmemgt.sales.customer.service.PaymentService;
-import com.dtp.cosmemgt.sales.entity.Order;
-import com.dtp.cosmemgt.sales.enums.OrderStatusEnum;
-import com.dtp.cosmemgt.sales.enums.PaymentStatusEnum;
-import com.dtp.cosmemgt.sales.internal.dto.response.WarehouseOrderResponse;
+import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
+import com.dtp.cosmemgt.sales.order.mapper.OrderMapper;
+import com.dtp.cosmemgt.sales.payment.service.PaymentService;
+import com.dtp.cosmemgt.sales.order.entity.Order;
+import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
+import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.mapper.WarehouseOrderMapper;
-import com.dtp.cosmemgt.sales.repository.OrderRepository;
+import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
@@ -108,7 +108,7 @@ public class WarehouseOrderService {
         if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
             paymentService.refund(o);
             o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-            sendOrderRefundEmail(o.getCustomer(), o);
+            mailService.sendOrderRefundEmail(o.getCustomer(), o);
         }
 
         this.processInventoryRestoration(o, TransactionTypeEnum.RETURN_ORDER, true);
@@ -128,7 +128,7 @@ public class WarehouseOrderService {
         if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
             paymentService.refund(o);
             o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-            sendOrderRefundEmail(o.getCustomer(), o);
+            mailService.sendOrderRefundEmail(o.getCustomer(), o);
         }
 
         this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
@@ -200,23 +200,5 @@ public class WarehouseOrderService {
         }
 
         inventoryTransactionRepository.saveAll(newTransToSave);
-    }
-
-    private void sendOrderRefundEmail(User user, Order order) {
-        String subject = "Hoàn tiền đơn hàng - Mã đơn #" + order.getId();
-        String htmlBody = String.format("""
-            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h2>Xin chào %s,</h2>
-                <p>Cảm ơn bạn đã đặt hàng tại <b>CosmeMgt</b>. Đơn hàng của bạn đã được hoàn tiền thành công!</p>
-                <ul>
-                    <li><b>Mã đơn hàng:</b> %s</li>
-                    <li><b>Tổng tiền:</b> %,d VNĐ</li>
-                    <li><b>Trạng thái:</b> Đã hoàn tiền</li>
-                </ul>
-                <p>Mọi thắc mắc xin vui lòng liên hệ CSKH. Trân trọng!</p>
-            </div>
-            """, user.getFullName(), order.getId(), order.getTotalAmount().longValue());
-
-        mailService.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
     }
 }
