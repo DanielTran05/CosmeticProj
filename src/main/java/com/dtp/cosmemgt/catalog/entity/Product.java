@@ -10,6 +10,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,6 +45,9 @@ public class Product extends BaseAuditEntity {
     @NotNull
     @Column(name = "abc_class", length = 5)
     String abcClass;
+
+    @OneToMany(mappedBy = "product", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    List<ProductVariant> productVariants = new ArrayList<>();
 
     String avatar;
 

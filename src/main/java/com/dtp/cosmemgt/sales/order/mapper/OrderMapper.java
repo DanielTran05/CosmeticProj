@@ -1,6 +1,6 @@
 package com.dtp.cosmemgt.sales.order.mapper;
 
-import com.dtp.cosmemgt.catalog.cus.dto.response.ProductVariantResponse;
+import com.dtp.cosmemgt.catalog.dto.response.ProductVariantResponse;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderDetailItemsResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderDetailResponse;

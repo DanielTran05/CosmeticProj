@@ -1,6 +1,6 @@
 package com.dtp.cosmemgt.sales.order.dto.response;
 
-import com.dtp.cosmemgt.catalog.cus.dto.response.ProductVariantResponse;
+import com.dtp.cosmemgt.catalog.dto.response.ProductVariantResponse;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 

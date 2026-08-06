@@ -26,10 +26,6 @@ public class Review{
     private Product product;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id")
-    ProductVariant productVariant;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(
         name = "customer_id",
         foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT)

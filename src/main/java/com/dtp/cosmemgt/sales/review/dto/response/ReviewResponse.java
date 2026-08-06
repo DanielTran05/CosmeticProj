@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.sales.review.dto.response;
 
+import com.dtp.cosmemgt.admin.dto.response.UserResponse;
 import com.dtp.cosmemgt.admin.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +11,8 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewResponse {
-    String productVariantId;
-    User customer;
+    String productId;
+    UserResponse customer;
     int ratingStar;
     String comment;
 }

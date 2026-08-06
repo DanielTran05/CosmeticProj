@@ -43,27 +43,49 @@ public class ReviewService {
 
     ReviewRepository reviewRepository;
     OrderRepository orderRepository;
+    ProductRepository productRepository;
 
     ReviewMapper reviewMapper;
 
+//    public ReviewResponse create(ReviewCreationRequest request) {
+//        ProductVariant pv = productVariantRepository.findById(request.getProductVariantId())
+//                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+//
+//        User u = currentUserService.getCurrentUser();
+//
+//        //check if user has bought a product (pv) yet
+//        if(!orderRepository.hasUserPurchasedProduct(u.getId(), pv.getId()))
+//            throw new AppException(ErrorCode.HAS_NOT_USED_YET);
+//
+//        //check if user has already reviewed this product variant
+//        if(reviewRepository.existsByCustomerAndProductVariant(u, pv))
+//            throw new AppException(ErrorCode.ONLY_ONE_REVIEW_FOR_CUS_PV);
+//
+//        Review r = reviewMapper.toReview(request);
+//        r.setCustomer(u);
+//        r.setProductVariant(pv);
+//        r.setProduct(pv.getProduct());
+//
+//        return reviewMapper.toReviewResponse(reviewRepository.save(r));
+//    }
+
     public ReviewResponse create(ReviewCreationRequest request) {
-        ProductVariant pv = productVariantRepository.findById(request.getProductVariantId())
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+        Product p = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
         User u = currentUserService.getCurrentUser();
 
-        //check if user has bought a product (pv) yet
-        if(!orderRepository.hasUserPurchasedProduct(u.getId(), pv.getId()))
+        if(!orderRepository.hasUserPurchasedAnyVariantOfProduct(u.getId(), p.getId()))
             throw new AppException(ErrorCode.HAS_NOT_USED_YET);
 
-        //check if user has already reviewed this product variant
-        if(reviewRepository.existsByCustomerAndProductVariant(u, pv))
-            throw new AppException(ErrorCode.ONLY_ONE_REVIEW_FOR_CUS_PV);
+        if(reviewRepository.existsByCustomerIdAndProductId(u.getId(), p.getId()))
+            throw new AppException(ErrorCode.ONLY_ONE_REVIEW_FOR_CUS_PRODUCT);
 
         Review r = reviewMapper.toReview(request);
         r.setCustomer(u);
-        r.setProductVariant(pv);
-        r.setProduct(pv.getProduct());
+        r.setProduct(p);
+        r.setRatingStar(request.getRatingStar());
+        r.setComment(request.getComment());
 
         return reviewMapper.toReviewResponse(reviewRepository.save(r));
     }
@@ -79,12 +101,12 @@ public class ReviewService {
         return PageResponse.of(pvResponse);
     }
 
-    public PageResponse<ReviewResponseRecord> getReviewsByProductId(String productId, Map<String, String> queryParams) {
+    public PageResponse<ReviewResponse> getReviewsByProductId(String productId, Map<String, String> queryParams) {
         int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<ReviewResponseRecord> reviewsPage = reviewRepository.findReviewsByProductId(productId, pageable);
+        Page<ReviewResponse> reviewsPage = reviewRepository.findReviewsByProductId(productId, pageable);
         return PageResponse.of(reviewsPage);
     }
 

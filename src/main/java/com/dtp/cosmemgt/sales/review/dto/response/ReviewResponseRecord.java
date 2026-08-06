@@ -1,7 +1,7 @@
 package com.dtp.cosmemgt.sales.review.dto.response;
 
 public record ReviewResponseRecord (
-        String reviewId,
+        int reviewId,
         String ProductId,
         String productVariantId,
         String customerId,

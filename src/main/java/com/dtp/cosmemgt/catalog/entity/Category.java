@@ -34,4 +34,6 @@ public class Category extends BaseAuditEntity {
 
     @Size(max = 255)
     String description;
+
+    String img;
 }
