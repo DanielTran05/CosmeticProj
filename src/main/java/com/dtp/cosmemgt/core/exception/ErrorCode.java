@@ -63,6 +63,7 @@ public enum ErrorCode {
     REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
     REVIEW_EXISTED(9002, "Review existed", HttpStatus.BAD_REQUEST),
     USER_HAS_NOT_REVIEWED_THIS_PRODUCT(9003, "User has not review this product", HttpStatus.BAD_REQUEST),
+    ONLY_ONE_REVIEW_FOR_CUS_PRODUCT(9004, "Only one review for one cus product", HttpStatus.BAD_REQUEST),
 
     //inventory transaction
     OUT_OF_STOCK(9100, "Out of stock", HttpStatus.BAD_REQUEST),

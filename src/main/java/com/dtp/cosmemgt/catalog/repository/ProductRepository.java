@@ -1,6 +1,8 @@
 package com.dtp.cosmemgt.catalog.repository;
 
+import com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -8,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -26,4 +29,21 @@ public interface ProductRepository extends JpaRepository<Product, String>,
 
     @Query(value = "select * from product where id = ?1", nativeQuery = true)
     Optional<Product> getProductById(String id);
+
+    @Query("""
+    SELECT new com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse(
+        pv.id, 
+        p.name, 
+        pv.variantName, 
+        SUM(od.quantity)
+    )
+    FROM OrderDetail od
+    JOIN od.productVariant pv
+    JOIN pv.product p
+    JOIN od.order o
+    WHERE o.orderStatus = 'CONFIRMED'
+    GROUP BY pv.id, p.name, pv.variantName
+    ORDER BY SUM(od.quantity) DESC
+    """)
+    List<BestSellerResponse> findBestSellingVariant(Pageable pageable);
 }

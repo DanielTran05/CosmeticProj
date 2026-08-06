@@ -20,12 +20,16 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecificationExecutor<Order> {
 
     @Query("select COUNT(o) > 0 " +
-            "from Order o JOIN o.orderDetails od " +
+            "from Order o " +
+            "join o.orderDetails od " +
+            "join od.productVariant pv " +
             "WHERE o.customer.id = :userId " +
-            "  AND od.productVariant.id = :productVariantId " +
-            "  AND o.orderStatus = 'COMPLETED'")
-    boolean hasUserPurchasedProduct(@Param("userId") String userId,
-                                    @Param("productVariantId") String productVariantId);
+            " AND pv.product.id = :productId " +
+            " AND o.orderStatus = 'COMPLETED'")
+    boolean hasUserPurchasedAnyVariantOfProduct(@Param("userId") String userId,
+                                    @Param("productId") String productId);
+
+
 
     List<Order> findAllByCustomer(User customer);
 

@@ -9,6 +9,7 @@ import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.admin.mapper.UserMapper;
 import com.dtp.cosmemgt.admin.repository.RoleRepository;
 import com.dtp.cosmemgt.admin.repository.UserRepository;
+import com.dtp.cosmemgt.core.commonService.CurrentUserService;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import lombok.AccessLevel;
@@ -33,6 +34,7 @@ import java.util.UUID;
 public class UserService {
     UserRepository userRepository;
     RoleRepository roleRepository;
+    CurrentUserService currentUserService;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
@@ -55,13 +57,9 @@ public class UserService {
     }
 
     public UserResponse getMyInfo() {
-        var context = SecurityContextHolder.getContext();
-        String name = context.getAuthentication().getName();
+        User u = currentUserService.getCurrentUser();
 
-        User user = userRepository.findByEmail(name).orElseThrow(() ->
-                new AppException(ErrorCode.USER_NOT_EXISTED));
-
-        return userMapper.toUserResponse(user);
+        return userMapper.toUserResponse(u);
     }
 
     @PostAuthorize("returnObject.username == authentication.name")

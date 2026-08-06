@@ -9,7 +9,7 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ReviewCreationRequest {
-    String productVariantId;
+    String productId;
     int ratingStar;
     String comment;
 }

@@ -45,7 +45,6 @@ public class ProductCoreService {
         Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        List<ProductVariant> pvs = productVariantRepository.findAllByProductId(p.getId());
-        return pvs;
+        return productVariantRepository.findAllByProductId(p.getId());
     }
 }

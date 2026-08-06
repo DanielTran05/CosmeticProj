@@ -38,9 +38,9 @@ public class ReviewController {
     }
 
     @GetMapping("/products/{productId}")
-    ApiResponse<PageResponse<ReviewResponseRecord>> getReviewsByProductId(@PathVariable String productId,
+    ApiResponse<PageResponse<ReviewResponse>> getReviewsByProductId(@PathVariable String productId,
                                                                           @RequestParam Map<String, String> queryParams) {
-        return ApiResponse.<PageResponse<ReviewResponseRecord>>builder()
+        return ApiResponse.<PageResponse<ReviewResponse>>builder()
                 .result(reviewService.getReviewsByProductId(productId, queryParams))
                 .build();
     }
