@@ -38,12 +38,17 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-    public UserResponse createUser(UserCreationRequest request) {
+    public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
         User user = userMapper.toUser(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         HashSet<Role> roles = new HashSet<>();
-        roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        if(isAdmin){
+            roleRepository.findById(PredefinedRole.WAREHOUSE_ROLE).ifPresent(roles::add);
+        }
+        else{
+            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
+        }
 
         user.setRoles(roles);
 
@@ -62,10 +67,8 @@ public class UserService {
         return userMapper.toUserResponse(u);
     }
 
-    @PostAuthorize("returnObject.username == authentication.name")
+    //@PostAuthorize("returnObject.username == authentication.name")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-//        User user = userRepository.findById(UUID.fromString(userId)).orElseThrow(
-//                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
@@ -95,4 +98,23 @@ public class UserService {
         return userMapper.toUserResponse(
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED)));
     }
+
+
+
+    //ADMIN
+    public UserResponse updateUserByAdmin(String userId, UserUpdateRequest request) {
+        User user = userRepository.findById(userId).orElseThrow(
+                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+
+        userMapper.updateUser(user, request);
+        if(request.getPassword() != null)
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        if(request.getRoles()!=null) {
+            var roles = roleRepository.findAllById(request.getRoles());
+            user.setRoles(new HashSet<>(roles));
+        }
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
+
 }

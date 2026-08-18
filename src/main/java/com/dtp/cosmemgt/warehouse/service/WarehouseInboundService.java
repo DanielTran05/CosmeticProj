@@ -1,6 +1,8 @@
 package com.dtp.cosmemgt.warehouse.service;
 
+import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
+import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
@@ -9,28 +11,28 @@ import com.dtp.cosmemgt.warehouse.dto.request.BatchCreationRequest;
 import com.dtp.cosmemgt.warehouse.dto.request.InventoryAdjustmentRequest;
 import com.dtp.cosmemgt.warehouse.dto.response.BatchResponse;
 import com.dtp.cosmemgt.warehouse.dto.response.InventoryTransactionResponse;
+import com.dtp.cosmemgt.warehouse.dto.response.ProductBatchGroupResponse;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
+import com.dtp.cosmemgt.warehouse.entity.Supplier;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
 import com.dtp.cosmemgt.warehouse.mapper.InventoryBatchMapper;
 import com.dtp.cosmemgt.warehouse.mapper.InventoryTransactionMapper;
 import com.dtp.cosmemgt.warehouse.repository.InventoryBatchRepository;
 import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
+import com.dtp.cosmemgt.warehouse.repository.SupplierRepository;
 import com.dtp.cosmemgt.warehouse.service.spec.InventoryBatchSpec;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -44,20 +46,28 @@ public class WarehouseInboundService {
     InventoryBatchRepository inventoryBatchRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
     ProductVariantRepository productVariantRepository;
+    SupplierRepository supplierRepository;
+    ProductRepository productRepository;
 
     //tao lo hang moi
     public BatchResponse create(BatchCreationRequest request){
         ProductVariant pv = productVariantRepository.findById(request.getProductVariantId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
 
+        Supplier supplier = supplierRepository.findById(request.getSupplierId())
+                .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_EXISTED));
+
+        // 3. Map request to Entity
         InventoryBatch b = inventoryBatchMapper.toInventoryBatch(request);
         b.setProductVariant(pv);
+        b.setSupplier(supplier);
 
         b.setPhysicalQty(request.getOriginalQty());
         b.setAvailableQty(request.getOriginalQty());
 
         b = inventoryBatchRepository.save(b);
 
+        // 4. Lưu lịch sử giao dịch
         InventoryTransaction tran = InventoryTransaction.builder()
                 .transactionType(TransactionTypeEnum.IMPORT)
                 .changeQty(request.getOriginalQty())
@@ -79,6 +89,53 @@ public class WarehouseInboundService {
         Page<InventoryBatch> batchesPage = inventoryBatchRepository.findAll(spec, pageable);
 
         return PageResponse.of(batchesPage.map(inventoryBatchMapper::toBatchResponse));
+    }
+
+    public PageResponse<ProductBatchGroupResponse> getBatchesGroupedByProduct(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Product> productPage = productRepository.findAll(pageable);
+        if (productPage.isEmpty()) {
+            return PageResponse.of(new PageImpl<>(new ArrayList<>(), pageable, productPage.getTotalElements()));
+        }
+        List<String> productIds = productPage.getContent().stream()
+                .map(Product::getId)
+                .toList();
+
+        // 1. Lấy dữ liệu phân trang từ DB
+        List<InventoryBatch> allBatches = inventoryBatchRepository.findAllByProductIds(productIds);
+
+        // 2. Sử dụng LinkedHashMap thay vì HashMap
+        Map<String, ProductBatchGroupResponse> groupMap = new LinkedHashMap<>();
+
+        for (Product p : productPage.getContent()) {
+            groupMap.put(String.valueOf(p.getId()), ProductBatchGroupResponse.builder()
+                    .productId(String.valueOf(p.getId()))
+                    .productName(p.getName())
+                    .batches(new ArrayList<>()) // Bắt đầu bằng mảng rỗng
+                    .build());
+        }
+
+        // 5. Đắp dữ liệu các Lô hàng vào đúng khuôn Sản phẩm tương ứng
+        for (InventoryBatch batch : allBatches) {
+            if (batch.getProductVariant() != null && batch.getProductVariant().getProduct() != null) {
+                String pId = String.valueOf(batch.getProductVariant().getProduct().getId());
+
+                BatchResponse batchRes = inventoryBatchMapper.toBatchResponse(batch);
+                batchRes.setVariantName(batch.getProductVariant().getVariantName());
+
+                // Nếu Map có chứa ID này (chắc chắn có) thì add lô hàng vào
+                if (groupMap.containsKey(pId)) {
+                    groupMap.get(pId).getBatches().add(batchRes);
+                }
+            }
+        }
+
+        // 3. Đóng gói lại thành Page và trả về
+        List<ProductBatchGroupResponse> groupedList = new ArrayList<>(groupMap.values());
+        Page<ProductBatchGroupResponse> groupedPage = new PageImpl<>(groupedList, pageable, productPage.getTotalElements());
+
+        return PageResponse.of(groupedPage);
     }
 
     // 2. Cảnh báo hạn sử dụng (FEFO - First Expired, First Out)

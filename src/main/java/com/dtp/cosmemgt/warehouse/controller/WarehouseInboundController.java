@@ -6,6 +6,9 @@ import com.dtp.cosmemgt.warehouse.dto.request.BatchCreationRequest;
 import com.dtp.cosmemgt.warehouse.dto.request.InventoryAdjustmentRequest;
 import com.dtp.cosmemgt.warehouse.dto.response.BatchResponse;
 import com.dtp.cosmemgt.warehouse.dto.response.InventoryTransactionResponse;
+import com.dtp.cosmemgt.warehouse.dto.response.ProductBatchGroupResponse;
+import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
+import com.dtp.cosmemgt.warehouse.repository.InventoryBatchRepository;
 import com.dtp.cosmemgt.warehouse.service.WarehouseInboundService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
@@ -16,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -25,6 +30,7 @@ import java.util.Map;
 public class WarehouseInboundController {
 
     WarehouseInboundService warehouseInboundService;
+    private final InventoryBatchRepository inventoryBatchRepository;
 
     @PostMapping("/batches")
     public ApiResponse<BatchResponse> createBatch(@RequestBody @Valid BatchCreationRequest request) {
@@ -38,6 +44,16 @@ public class WarehouseInboundController {
     public ApiResponse<PageResponse<BatchResponse>> getAllBatches(@RequestParam Map<String, String> queryParams) {
         return ApiResponse.<PageResponse<BatchResponse>>builder()
                 .result(warehouseInboundService.getAllBatches(queryParams))
+                .build();
+    }
+
+    @GetMapping("/batches/grouped")
+    public ApiResponse<PageResponse<ProductBatchGroupResponse>> getBatchesGroupedByProduct(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ApiResponse.<PageResponse<ProductBatchGroupResponse>>builder()
+                .result(warehouseInboundService.getBatchesGroupedByProduct(page, size))
                 .build();
     }
 

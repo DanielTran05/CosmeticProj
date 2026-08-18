@@ -54,6 +54,8 @@ public class PaymentService {
     private String IPN_URL;
     @Value("${momo.api-endpoint}")
     private String API_ENDPOINT;
+    @Value("${momo.IS_PAYMENT_MOCKING}")
+    private boolean IS_PAYMENT_MOCKING;
     private String REQUEST_TYPE = "captureWallet";
 
     ApplicationEventPublisher applicationEventPublisher;
@@ -64,9 +66,6 @@ public class PaymentService {
     final  ObjectMapper mapper;
 
     public PaymentResponse createPaymentRequest(PaymentCreationRequest request) throws Exception {
-        log.info("partner_code {}", PARTNER_CODE);
-        log.info("ipn url {}", IPN_URL);
-
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -126,6 +125,84 @@ public class PaymentService {
                 .build();
     }
 
+    public void handleIpn(String requestBody) {
+        try {
+            JsonNode ipnData = mapper.readTree(requestBody);
+            log.info("[MoMo IPN] Received payload: {}", ipnData.toString());
+
+            String partnerCode = ipnData.path("partnerCode").asText();
+            String momoOrderId = ipnData.path("orderId").asText();
+            String requestId = ipnData.path("requestId").asText();
+            long amount = ipnData.path("amount").asLong();
+            String orderInfo = ipnData.path("orderInfo").asText();
+            String orderType = ipnData.path("orderType").asText();
+            long transId = ipnData.path("transId").asLong();
+            int resultCode = ipnData.path("resultCode").asInt();
+            String message = ipnData.path("message").asText();
+            String payType = ipnData.path("payType").asText();
+            long responseTime = ipnData.path("responseTime").asLong();
+            String extraData = ipnData.has("extraData") ? ipnData.get("extraData").asText() : "";
+            String signatureFromMomo = ipnData.path("signature").asText();
+
+            String rawSignature = String.format(
+                    "accessKey=%s&amount=%d&extraData=%s&message=%s&orderId=%s&orderInfo=%s&orderType=%s&partnerCode=%s&payType=%s&requestId=%s&responseTime=%d&resultCode=%d&transId=%d",
+                    ACCESS_KEY, amount, extraData, message, momoOrderId, orderInfo, orderType, partnerCode, payType, requestId, responseTime, resultCode, transId
+            );
+
+            String mySignature = signHmacSHA256(rawSignature, SECRET_KEY);
+
+            if (!mySignature.equals(signatureFromMomo)) {
+                log.error("[MoMo IPN] Security Alert! Signature mismatch for MoMo OrderId: {}", momoOrderId);
+                return;
+            }
+
+            String[] parts = momoOrderId.split("_");
+            if (parts.length < 2) {
+                log.error("[MoMo IPN] Invalid orderId format from MoMo: {}", momoOrderId);
+                return;
+            }
+            String realOrderId = parts[1];
+
+            Order order = orderRepository.findById(realOrderId)
+                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+            if (order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+                log.warn("[MoMo IPN] Order {} is already PAID. IPN ignored.", realOrderId);
+                return;
+            }
+
+            //mocking
+            if(IS_PAYMENT_MOCKING){
+                order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
+                order.getInvoice().setTransactionId(String.valueOf(transId));
+
+                if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
+                    order.setOrderStatus(OrderStatusEnum.CONFIRMED);
+                }
+
+                mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
+            } else if (resultCode == 0) {
+                log.info("[MoMo IPN] Payment SUCCESS for OrderId: {}", realOrderId);
+                order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
+                order.getInvoice().setTransactionId(String.valueOf(transId));
+
+                if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
+                    order.setOrderStatus(OrderStatusEnum.CONFIRMED);
+                }
+
+                mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
+            } else {
+                log.warn("[MoMo IPN] Payment FAILED for OrderId: {}. Message: {}", realOrderId, message);
+                order.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
+
+                applicationEventPublisher.publishEvent(new PaymentFailedEvent(realOrderId, message));
+            }
+
+        } catch (Exception e) {
+            log.error("[MoMo IPN] Error processing IPN payload", e);
+        }
+    }
+
     public void refund(Order order) throws Exception {
         String transId = order.getInvoice().getTransactionId();
         Long amount = order.getTotalAmount().longValue();
@@ -176,77 +253,6 @@ public class PaymentService {
         } catch (Exception e) {
             log.error("[MoMo Refund] Error executing refund request", e);
             throw new RuntimeException("MoMo refund execution failed", e);
-        }
-    }
-
-    public void handleIpn(String requestBody) {
-        log.info("partner_code {}", PARTNER_CODE);
-        log.info("ipn url {}", IPN_URL);
-
-        try {
-            JsonNode ipnData = mapper.readTree(requestBody);
-            log.info("[MoMo IPN] Received payload: {}", ipnData.toString());
-
-            String partnerCode = ipnData.path("partnerCode").asText();
-            String momoOrderId = ipnData.path("orderId").asText();
-            String requestId = ipnData.path("requestId").asText();
-            long amount = ipnData.path("amount").asLong();
-            String orderInfo = ipnData.path("orderInfo").asText();
-            String orderType = ipnData.path("orderType").asText();
-            long transId = ipnData.path("transId").asLong();
-            int resultCode = ipnData.path("resultCode").asInt();
-            String message = ipnData.path("message").asText();
-            String payType = ipnData.path("payType").asText();
-            long responseTime = ipnData.path("responseTime").asLong();
-            String extraData = ipnData.has("extraData") ? ipnData.get("extraData").asText() : "";
-            String signatureFromMomo = ipnData.path("signature").asText();
-
-            String rawSignature = String.format(
-                    "accessKey=%s&amount=%d&extraData=%s&message=%s&orderId=%s&orderInfo=%s&orderType=%s&partnerCode=%s&payType=%s&requestId=%s&responseTime=%d&resultCode=%d&transId=%d",
-                    ACCESS_KEY, amount, extraData, message, momoOrderId, orderInfo, orderType, partnerCode, payType, requestId, responseTime, resultCode, transId
-            );
-
-            String mySignature = signHmacSHA256(rawSignature, SECRET_KEY);
-
-            if (!mySignature.equals(signatureFromMomo)) {
-                log.error("[MoMo IPN] Security Alert! Signature mismatch for MoMo OrderId: {}", momoOrderId);
-                return;
-            }
-
-            String[] parts = momoOrderId.split("_");
-            if (parts.length < 2) {
-                log.error("[MoMo IPN] Invalid orderId format from MoMo: {}", momoOrderId);
-                return;
-            }
-            String realOrderId = parts[1];
-
-            Order order = orderRepository.findById(realOrderId)
-                    .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
-
-            if (order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
-                log.warn("[MoMo IPN] Order {} is already PAID. IPN ignored.", realOrderId);
-                return;
-            }
-
-            if (resultCode == 0) {
-                log.info("[MoMo IPN] Payment SUCCESS for OrderId: {}", realOrderId);
-                order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
-                order.getInvoice().setTransactionId(String.valueOf(transId));
-
-                if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
-                    order.setOrderStatus(OrderStatusEnum.CONFIRMED);
-                }
-
-                mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
-            } else {
-                log.warn("[MoMo IPN] Payment FAILED for OrderId: {}. Message: {}", realOrderId, message);
-                order.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
-
-                applicationEventPublisher.publishEvent(new PaymentFailedEvent(realOrderId, message));
-            }
-
-        } catch (Exception e) {
-            log.error("[MoMo IPN] Error processing IPN payload", e);
         }
     }
 

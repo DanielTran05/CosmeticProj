@@ -17,8 +17,8 @@ public class ProductSpecification {
                         List<Predicate> predicates = new ArrayList<>();
 
                         //name like %nameValue%
-                        if(queryParams.containsKey("name") && !queryParams.get("name").isEmpty()){
-                            String nameSearch = "%"+queryParams.get("name").toLowerCase()+"%";
+                        if(queryParams.containsKey("kw") && !queryParams.get("kw").isEmpty()){
+                            String nameSearch = "%"+queryParams.get("kw").toLowerCase()+"%";
                             predicates.add(criteriaBuilder.like(
                                     criteriaBuilder.lower(root.get("name")),
                                     nameSearch));

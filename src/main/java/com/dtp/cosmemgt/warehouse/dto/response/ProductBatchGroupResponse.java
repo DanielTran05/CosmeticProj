@@ -2,16 +2,15 @@ package com.dtp.cosmemgt.warehouse.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SupplierResponse {
-    int id;
-    String name;
-    String contactName;
-    String phoneNum;
-    String address;
+public class ProductBatchGroupResponse {
+    String productId;
+    String productName;
+    List<BatchResponse> batches;
 }

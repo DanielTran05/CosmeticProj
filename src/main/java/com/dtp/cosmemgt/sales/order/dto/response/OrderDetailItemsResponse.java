@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetailItemsResponse {
-    int qty;
+    int quantity; //test
     BigDecimal purchasedPrice;
     ProductVariantResponse productVariant;
 }

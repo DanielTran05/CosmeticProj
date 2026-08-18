@@ -8,6 +8,7 @@ import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.mapper.AdminProductMapper;
 import com.dtp.cosmemgt.catalog.mapper.ProductVariantMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
+import com.dtp.cosmemgt.catalog.service.query.ProductCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;

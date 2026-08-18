@@ -49,10 +49,15 @@ public class WarehouseOrderService {
     OrderMapper orderMapper;
     WarehouseOrderMapper warehouseOrderMapper;
 
-    public PageResponse<OrderResponse> getAllOrderToExport(int page, int size){
+    public PageResponse<OrderResponse> getAllOrder(OrderStatusEnum status, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        Page<Order> orderPage;
 
-        Page<Order> orderPage = orderRepository.findAllOrderToExport(pageable);
+        if (status != null) {
+            orderPage = orderRepository.findByOrderStatus(status, pageable);
+        } else {
+            orderPage = orderRepository.findAll(pageable);
+        }
 
         return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
     }

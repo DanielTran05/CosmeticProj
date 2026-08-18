@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.catalog.service;
+package com.dtp.cosmemgt.catalog.service.query;
 
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;

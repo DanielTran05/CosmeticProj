@@ -6,7 +6,6 @@ import com.dtp.cosmemgt.catalog.dto.response.ProductResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.mapper.ProductMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
-import com.dtp.cosmemgt.catalog.service.ProductCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;

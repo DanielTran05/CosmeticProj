@@ -29,8 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
     boolean hasUserPurchasedAnyVariantOfProduct(@Param("userId") String userId,
                                     @Param("productId") String productId);
 
-
-
     List<Order> findAllByCustomer(User customer);
 
     @Query("select o " +
@@ -39,4 +37,7 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
     Page<Order> findAllOrderToExport(Pageable pageable);
 
     List<Order> findByOrderStatusAndCreatedAtBefore(OrderStatusEnum status, LocalDateTime thresholdTime);
+
+
+    Page<Order> findByOrderStatus(OrderStatusEnum status, Pageable pageable);
 }

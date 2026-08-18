@@ -16,5 +16,8 @@ public interface InventoryBatchMapper {
     InventoryBatch toInventoryBatch(BatchCreationRequest batchCreationRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(source = "productVariant.id", target = "productVariantId")
+    @Mapping(source = "supplier.name", target = "supplierName")
     BatchResponse toBatchResponse(InventoryBatch inventoryBatch);
 }
+    

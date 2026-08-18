@@ -3,6 +3,7 @@ package com.dtp.cosmemgt.warehouse.controller;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
+import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.service.WarehouseOrderService;
 import lombok.AccessLevel;
@@ -18,14 +19,15 @@ public class WarehouseOrderController {
 
     WarehouseOrderService warehouseOrderService;
 
-    //ds don hang cho xuat kho                                                  CONFIRMED
+    //ds don hang theo status
     @GetMapping
-    public ApiResponse<PageResponse<OrderResponse>> getAllOrderToExport(
+    public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
+            @RequestParam(required = false) OrderStatusEnum status,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        
+
         return ApiResponse.<PageResponse<OrderResponse>>builder()
-                .result(warehouseOrderService.getAllOrderToExport(page, size))
+                .result(warehouseOrderService.getAllOrder(status, page, size))
                 .build();
     }
 

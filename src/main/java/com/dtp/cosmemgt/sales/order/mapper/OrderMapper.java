@@ -13,6 +13,7 @@ import org.mapstruct.*;
         builder = @Builder(disableBuilder = true),
         uses = {OrderShippingMapper.class})
 public interface OrderMapper {
+    @Mapping(target = "orderDetailItemsResponses", source = "orderDetails") //test
     @Mapping(target = "orderShipping", source = "orderShipping")
     OrderResponse toOrderResponse(Order oder);
 
@@ -21,6 +22,7 @@ public interface OrderMapper {
     @Named("toOrderDetailResponse")
     OrderDetailResponse toOrderDetailResponse(Order order);                             //↓
 
+    @Mapping(source = "quantity", target = "quantity")
     OrderDetailItemsResponse toOrderDetailItemsResponse(OrderDetail orderDetail);       //↓
 
     @Mapping(source = "id", target = "id")

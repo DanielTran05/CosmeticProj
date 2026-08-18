@@ -35,6 +35,7 @@ momo:
   ipn-url: https://unsounded-unchurchly-kian.ngrok-free.dev/cosmeMgt/payments/ipn-url
   api-endpoint: https://test-payment.momo.vn/v2/gateway/api
   refund_url: /refund
+  IS_PAYMENT_MOCKING: true      #mock payment for testing
 
 brevo:
   api.key: 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

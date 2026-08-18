@@ -5,6 +5,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -17,4 +18,5 @@ public class OrderResponse {
     String orderStatus;
     LocalDateTime createdAt;
     OrderShippingResponse orderShipping;
+    List<OrderDetailItemsResponse> orderDetailItemsResponses;//test
 }

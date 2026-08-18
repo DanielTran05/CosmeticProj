@@ -14,8 +14,8 @@ import java.util.List;
 
 @Transactional
 @Repository
-public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, Integer>
-        , JpaSpecificationExecutor<InventoryBatch>{
+public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, Integer>,
+        JpaSpecificationExecutor<InventoryBatch>{
     //lay cac lo hang sap xep theo ngay cu nhat den moi nhat
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
@@ -29,4 +29,19 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
             LocalDate thresholdDate,
             int availableQty,
             Pageable pageable);
+
+    @Query("SELECT b FROM InventoryBatch b " +
+            "LEFT JOIN FETCH b.productVariant pv " +
+            "LEFT JOIN FETCH pv.product p " +
+            "LEFT JOIN FETCH b.supplier " +
+            "ORDER BY b.createdAt DESC")
+    Page<InventoryBatch> findAllWithVariantAndProduct(Pageable pageable);
+
+    @Query("SELECT b FROM InventoryBatch b " +
+            "LEFT JOIN FETCH b.productVariant pv " +
+            "LEFT JOIN FETCH pv.product p " +
+            "LEFT JOIN FETCH b.supplier " +
+            "where p.id in :productIds " +
+            "ORDER BY b.createdAt DESC")
+    List<InventoryBatch> findAllByProductIds(@Param("productIds") List<String> productIds);
 }
