@@ -11,6 +11,7 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 @Mapper(componentModel = "spring",  nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface UserMapper {
+    @Mapping(target = "roles", ignore = true)
     User toUser(UserCreationRequest request);
 
     UserResponse toUserResponse(User user);

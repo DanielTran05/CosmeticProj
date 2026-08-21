@@ -1,9 +1,6 @@
 package com.dtp.cosmemgt.admin.controller;
 
-import com.dtp.cosmemgt.admin.dto.request.AuthenticationRequest;
-import com.dtp.cosmemgt.admin.dto.request.IntrospectRequest;
-import com.dtp.cosmemgt.admin.dto.request.LogoutRequest;
-import com.dtp.cosmemgt.admin.dto.request.RefreshRequest;
+import com.dtp.cosmemgt.admin.dto.request.*;
 import com.dtp.cosmemgt.admin.dto.response.AuthenticationResponse;
 import com.dtp.cosmemgt.admin.dto.response.IntrospectResponse;
 import com.dtp.cosmemgt.admin.service.AuthenticationService;
@@ -50,5 +47,14 @@ public class AuthenticationController {
     ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
         authenticationService.logout(request);
         return ApiResponse.<Void>builder().build();
+    }
+
+    @PostMapping("/forgot-password/reset")
+    public ApiResponse<?> resetPassword(@RequestBody ForgotPasswordRequest request) {
+        authenticationService.resetPasswordWithOtp(request);
+
+        return ApiResponse.builder()
+                .message("Changed password successfully")
+                .build();
     }
 }

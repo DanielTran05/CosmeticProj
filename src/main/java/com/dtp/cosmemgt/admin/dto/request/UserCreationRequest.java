@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +21,5 @@ public class UserCreationRequest {
     String email;
     @Size(min = 6, message = "INVALID_PASSWORD")
     String password;
-//    @DobConstraint(min = 10, message = "INVALID_DOB")
-//    LocalDate dob;
+    Set<String> roles;
 }

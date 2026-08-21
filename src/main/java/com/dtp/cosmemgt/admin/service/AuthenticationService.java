@@ -1,9 +1,6 @@
 package com.dtp.cosmemgt.admin.service;
 
-import com.dtp.cosmemgt.admin.dto.request.AuthenticationRequest;
-import com.dtp.cosmemgt.admin.dto.request.IntrospectRequest;
-import com.dtp.cosmemgt.admin.dto.request.LogoutRequest;
-import com.dtp.cosmemgt.admin.dto.request.RefreshRequest;
+import com.dtp.cosmemgt.admin.dto.request.*;
 import com.dtp.cosmemgt.admin.dto.response.AuthenticationResponse;
 import com.dtp.cosmemgt.admin.dto.response.IntrospectResponse;
 import com.dtp.cosmemgt.admin.entity.InvalidatedToken;
@@ -181,5 +178,9 @@ public class AuthenticationService {
             });
 
         return stringJoiner.toString();
+    }
+
+    public void resetPasswordWithOtp(ForgotPasswordRequest request){
+
     }
 }
