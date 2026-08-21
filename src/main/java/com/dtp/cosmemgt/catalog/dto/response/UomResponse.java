@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UomResponse {
+    int id;
     String name;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;

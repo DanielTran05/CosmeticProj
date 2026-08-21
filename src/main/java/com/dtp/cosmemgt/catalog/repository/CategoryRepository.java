@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Transactional
@@ -24,4 +25,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
 
     @Query(value = "select * from category where id = ?1", nativeQuery = true)
     Optional<Category> getById(int id);
+
+    @Query(value = "select * from category", nativeQuery = true)
+    List<Category> findAllForAdmin();
 }

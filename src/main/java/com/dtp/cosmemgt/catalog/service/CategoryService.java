@@ -48,7 +48,7 @@ public class CategoryService {
     }
 
     public List<CategoryResponse> getAll(){
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllForAdmin();
         return categories.stream()
                 .map(categoryMapper::toCategoryResponse)
                 .toList();
