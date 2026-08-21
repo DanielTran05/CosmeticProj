@@ -51,7 +51,7 @@ public class AdminProductService {
     }
 
     public PageResponse<AdminProductResponse> getAll(Map<String, String> queryParams) {
-        Page<Product> rawProductPage = productCoreService.getAll(queryParams);
+        Page<Product> rawProductPage = productCoreService.getAll(queryParams, true);
 
         Page<AdminProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
 

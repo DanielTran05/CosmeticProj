@@ -31,8 +31,13 @@ public class ProductCoreService {
     ProductRepository productRepository;
     ProductVariantRepository productVariantRepository;
 
-    public Page<Product> getAll(Map<String, String> queryParams) {
-        Specification<Product> spec = ProductSpecification.filterProduct(queryParams);
+    public Page<Product> getAll(Map<String, String> queryParams, boolean isAdmin) {
+        Specification<Product> spec;
+        if(isAdmin) {
+            spec = ProductSpecification.filterProductForAdmin(queryParams);
+        }else{
+            spec = ProductSpecification.filterProductForCustomer(queryParams);
+        }
 
         int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;

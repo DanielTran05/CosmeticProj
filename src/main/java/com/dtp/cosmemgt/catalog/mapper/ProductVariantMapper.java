@@ -16,7 +16,7 @@ public interface ProductVariantMapper {
     ProductVariant toProductVariant(ProductVariantCreationRequest request);
 
     @Mapping(source = "product.id", target = "product")
-    @Mapping(source = "unitOfMeasure.id", target = "unitOfMeasure")
+    @Mapping(source = "unitOfMeasure.name", target = "unitOfMeasure")
     AdminProductVariantResponse toAdminProductVariantResponse(ProductVariant productVariant);
 
     @IgnoreAuditFields

@@ -72,14 +72,6 @@ public class AdminProductVariantService {
         return productVariantMapper.toAdminProductVariantResponse(pv);
     }
 
-//    public List<AdminProductVariantResponse> getAllVariantOfProduct(String productId) {
-//        List<ProductVariant> pvs = productVariantCoreService.getAllVariantOfProduct(productId);
-//
-//        return pvs.stream()
-//                .map(productVariantMapper::toProductVariantResponse)
-//                .toList();
-//    }
-
     public AdminProductVariantResponse update(String productVariantId, ProductVariantCreationRequest request){
         ProductVariant pv = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));

@@ -23,7 +23,6 @@ import java.util.Map;
 @Slf4j
 public class AdminProductController {
     AdminProductService productService;
-    AdminProductVariantService productVariantService;
 
     @PostMapping()
     ApiResponse<AdminProductResponse> create(@RequestBody ProductCreationRequest request) {

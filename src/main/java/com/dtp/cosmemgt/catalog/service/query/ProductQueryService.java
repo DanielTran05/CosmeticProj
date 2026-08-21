@@ -39,7 +39,7 @@ public class ProductQueryService {
     }
 
     public PageResponse<ProductResponse> getAll(Map<String, String> queryParams) {
-        Page<Product> rawProductPage = productCoreService.getAll(queryParams);
+        Page<Product> rawProductPage = productCoreService.getAll(queryParams, false);
 
         Page<ProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
 

@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 public class ProductSpecification {
 
-    public static Specification<Product> filterProduct(Map<String, String> queryParams){
+    public static Specification<Product> filterProductForAdmin(Map<String, String> queryParams){
         return (root, query, criteriaBuilder) -> {
                         List<Predicate> predicates = new ArrayList<>();
 
@@ -49,11 +49,20 @@ public class ProductSpecification {
                                         cateId));
                             }catch(NumberFormatException e){
                                 log.error("Invalid cateId value: {}", queryParams.get("cateId"), e);
-                            };
+                            }
                         }
 
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
+    }
+
+    public static Specification<Product> filterProductForCustomer(Map<String, String> params) {
+        Specification<Product> customerActiveSpec = (root, query, cb) -> cb.and(
+                cb.isNull(root.get("deletedAt")),
+                cb.isNull(root.get("category").get("deletedAt"))
+        );
+
+        return filterProductForAdmin(params).and(customerActiveSpec);
     }
 }

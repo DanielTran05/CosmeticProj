@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminProductResponse {
+    String id;
     String name;
     BigDecimal basePrice;
     String abcClass;

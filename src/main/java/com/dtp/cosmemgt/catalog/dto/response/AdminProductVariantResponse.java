@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AdminProductVariantResponse {
+    String id;
     String product;
     String unitOfMeasure;
     String sku;

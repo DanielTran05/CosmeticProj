@@ -22,7 +22,6 @@ import java.util.List;
 @Entity
 @Table(name = "product")
 @SQLDelete(sql = "UPDATE product SET deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("deleted_at IS NULL")
 public class Product extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

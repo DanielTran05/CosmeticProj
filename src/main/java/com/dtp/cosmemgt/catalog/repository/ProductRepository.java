@@ -2,7 +2,9 @@ package com.dtp.cosmemgt.catalog.repository;
 
 import com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
