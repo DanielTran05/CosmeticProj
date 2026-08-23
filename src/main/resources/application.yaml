@@ -38,7 +38,7 @@ momo:
   IS_PAYMENT_MOCKING: true      #mock payment for testing
 
 brevo:
-  api.key: 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
+  api.key: ${BREVO_API_KEY}
   sender:
     email: tranducphu.dtp@gmail.com
     name: Resto Restaurant
@@ -46,5 +46,5 @@ brevo:
 
 cloudinary:
   cloud_name: djhiau9nq
-  api_key: 213478935551515
-  api_secret: mLUq43xmb-kFsQarGlKUyMi3rVI
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET_KEY}
