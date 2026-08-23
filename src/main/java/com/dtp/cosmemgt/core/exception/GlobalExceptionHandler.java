@@ -1,16 +1,23 @@
 package com.dtp.cosmemgt.core.exception;
 
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import java.util.stream.Collectors;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @ControllerAdvice
 @Slf4j
@@ -80,6 +87,30 @@ public class GlobalExceptionHandler {
                         : errorCode.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = HttpMessageNotReadableException.class)
+    ResponseEntity<ApiResponse> handlingHttpMessageNotReadableException(HttpMessageNotReadableException exception) {
+        log.error("HttpMessageNotReadableException: ", exception);
+
+        ErrorCode errorCode = ErrorCode.INVALID_FORMAT;
+        String customMessage = errorCode.getMessage();
+
+        if (exception.getCause() instanceof InvalidFormatException invalidFormatException) {
+            String fieldName = invalidFormatException.getPath().stream()
+                    .map(JsonMappingException.Reference::getFieldName)
+                    .collect(Collectors.joining("."));
+
+            String expectedType = invalidFormatException.getTargetType().getSimpleName();
+
+            customMessage = String.format("Data type mismatch for field '%s'. Expected %s.", fieldName, expectedType);
+        }
+
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(customMessage);
+
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {

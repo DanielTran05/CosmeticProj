@@ -21,6 +21,9 @@ public interface ProductRepository extends JpaRepository<Product, String>,
                                         JpaSpecificationExecutor<Product> {
     boolean existsByName(String name);
 
+    @Query(value = "select p from Product p left join fetch p.productVariants where p.id = :productId")
+    Optional<Product> findByIdWithVariants(String productId);
+
     @Modifying
     @Query(value = "delete from product where id = ?1", nativeQuery = true)
     void hardDelById(String id);

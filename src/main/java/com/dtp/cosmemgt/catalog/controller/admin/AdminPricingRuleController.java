@@ -4,6 +4,7 @@ import com.dtp.cosmemgt.catalog.dto.request.PricingRuleCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminPricingRuleResponse;
 import com.dtp.cosmemgt.catalog.service.AdminPricingRuleService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,7 @@ public class AdminPricingRuleController {
     AdminPricingRuleService pricingRuleService;
 
     @PostMapping()
-    ApiResponse<AdminPricingRuleResponse> create(@RequestBody PricingRuleCreationRequest request) {
+    ApiResponse<AdminPricingRuleResponse> create(@RequestBody @Valid PricingRuleCreationRequest request) {
         return ApiResponse.<AdminPricingRuleResponse>builder()
                 .result(pricingRuleService.create(request))
                 .build();
@@ -43,7 +44,7 @@ public class AdminPricingRuleController {
 
     @PutMapping("/{pricingRuleId}")
     ApiResponse<AdminPricingRuleResponse> updateCate(@PathVariable int pricingRuleId,
-                                                     @RequestBody PricingRuleCreationRequest request) {
+                                                     @RequestBody @Valid PricingRuleCreationRequest request) {
         return ApiResponse.<AdminPricingRuleResponse>builder()
                 .result(pricingRuleService.update(pricingRuleId, request))
                 .build();

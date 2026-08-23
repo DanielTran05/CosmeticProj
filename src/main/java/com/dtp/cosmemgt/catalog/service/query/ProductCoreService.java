@@ -47,9 +47,9 @@ public class ProductCoreService {
     }
 
     public List<ProductVariant> getAllVariantOfProduct(String productId) {
-        Product p = productRepository.findById(productId)
-                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+       Product p = productRepository.findByIdWithVariants(productId)
+               .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        return productVariantRepository.findAllByProductId(p.getId());
+       return p.getProductVariants();
     }
 }

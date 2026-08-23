@@ -1,6 +1,9 @@
 package com.dtp.cosmemgt.catalog.dto.request;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -11,8 +14,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductCreationRequest {
-    @NotBlank(message = "PRODUCT_NAME_BLANK")
+public class ProductUpdateRequest {
     @Size(min = 1, max = 50)
     String name;
 
@@ -20,7 +22,6 @@ public class ProductCreationRequest {
     @Digits(integer = 9, fraction = 0, message = "BASE_PRICE_FORMAT_INVALID")
     BigDecimal basePrice;
 
-    @NotBlank(message = "ABC_CLASS_BLANK")
     @Size(min = 1, max = 1, message = "ABC_CLASS_INVALID_LENGTH")
     String abcClass;
 }

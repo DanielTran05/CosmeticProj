@@ -5,6 +5,7 @@ import com.dtp.cosmemgt.catalog.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.UomResponse;
 import com.dtp.cosmemgt.catalog.service.AdminUomService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class AdminUomController {
     AdminUomService uomService;
 
     @PostMapping()
-    ApiResponse<UomResponse> create(@RequestBody UomCreationRequest request) {
+    ApiResponse<UomResponse> create(@RequestBody @Valid UomCreationRequest request) {
         return ApiResponse.<UomResponse>builder()
                 .result(uomService.create(request))
                 .build();
@@ -44,7 +45,7 @@ public class AdminUomController {
 
     @PutMapping("/{uomId}")
     ApiResponse<UomResponse> updateUom(@PathVariable int uomId,
-                                             @RequestBody UomUpdateRequest request) {
+                                             @RequestBody @Valid UomUpdateRequest request) {
         return ApiResponse.<UomResponse>builder()
                 .result(uomService.update(uomId, request))
                 .build();

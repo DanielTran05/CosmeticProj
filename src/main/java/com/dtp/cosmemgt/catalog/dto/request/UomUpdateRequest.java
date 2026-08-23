@@ -1,6 +1,5 @@
 package com.dtp.cosmemgt.catalog.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +9,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UomCreationRequest {
-    @NotBlank
+public class UomUpdateRequest {
     @Size(min = 1, max = 10)
     String name;
 }

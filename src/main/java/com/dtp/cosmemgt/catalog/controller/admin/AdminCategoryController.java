@@ -5,6 +5,7 @@ import com.dtp.cosmemgt.catalog.dto.request.CategoryUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
 import com.dtp.cosmemgt.catalog.service.CategoryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -22,7 +23,7 @@ public class AdminCategoryController {
     CategoryService categoryService;
 
     @PostMapping()
-    ApiResponse<CategoryResponse> create(@RequestBody CategoryCreationRequest request) {
+    ApiResponse<CategoryResponse> create(@RequestBody @Valid CategoryCreationRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.create(request))
                 .build();
@@ -44,7 +45,7 @@ public class AdminCategoryController {
 
     @PutMapping("/{categoryId}")
     ApiResponse<CategoryResponse> updateCate(@PathVariable int categoryId,
-                                             @RequestBody CategoryUpdateRequest request) {
+                                             @RequestBody @Valid CategoryUpdateRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.update(categoryId, request))
                 .build();

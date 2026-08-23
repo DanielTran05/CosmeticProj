@@ -6,6 +6,7 @@ import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,7 +24,7 @@ public class AdminProductVariantController {
     AdminProductVariantService productVariantService;
 
     @PostMapping()
-    ApiResponse<AdminProductVariantResponse> create(@RequestBody ProductVariantCreationRequest request) {
+    ApiResponse<AdminProductVariantResponse> create(@RequestBody @Valid ProductVariantCreationRequest request) {
         return ApiResponse.<AdminProductVariantResponse>builder()
                 .result(productVariantService.create(request))
                 .build();
@@ -45,7 +46,7 @@ public class AdminProductVariantController {
 
     @PutMapping("/{productVariantId}")
     ApiResponse<AdminProductVariantResponse> updateProductVariant(@PathVariable String productVariantId,
-                                                                  @RequestBody ProductVariantUpdateRequest request) {
+                                                                  @RequestBody @Valid ProductVariantUpdateRequest request) {
         return ApiResponse.<AdminProductVariantResponse>builder()
                 .result(productVariantService.update(productVariantId, request))
                 .build();

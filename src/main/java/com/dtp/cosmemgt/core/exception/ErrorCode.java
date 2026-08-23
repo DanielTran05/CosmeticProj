@@ -19,10 +19,17 @@ public enum ErrorCode {
     INVALID_DOB(1008, "Your age must be at least {min}", HttpStatus.BAD_REQUEST),
     INVALID_REQUEST(1009, "Invalid request", HttpStatus.BAD_REQUEST),
     UPLOAD_FAILED(1100, "Img uploading failed", HttpStatus.BAD_REQUEST),
+    ROLE_NOT_EXIST(1101, "Role is not existed", HttpStatus.BAD_REQUEST),
+    INVALID_FORMAT(1012, "Invalid data format or mismatched type", HttpStatus.BAD_REQUEST),
 
     //cate
     CATEGORY_EXISTED(2001, "Category existed", HttpStatus.BAD_REQUEST),
     CATEGORY_NOT_EXISTED(2002, "Category not existed", HttpStatus.NOT_FOUND),
+    PARENT_ID_INVALID(2003, "Category parent ID is invalid", HttpStatus.BAD_REQUEST),
+    CATEGORY_MUST_NOT_BE_BLANK(2004, "Category name must not be blank", HttpStatus.BAD_REQUEST),
+    CATEGORY_NAME_INVALID_LENGTH(2005, "Category name must be between 8 and 100 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_DES_INVALID_LENGTH(2005, "Category name must be less than 225 characters", HttpStatus.BAD_REQUEST),
+
 
     //supplier
     SUPPLIER_EXISTED(3001, "Supplier existed", HttpStatus.BAD_REQUEST),
@@ -35,6 +42,13 @@ public enum ErrorCode {
     //product
     PRODUCT_EXISTED(5001, "Product existed", HttpStatus.BAD_REQUEST),
     PRODUCT_NOT_EXISTED(5002, "Product not existed", HttpStatus.NOT_FOUND),
+    PRODUCT_UNAVAILABLE(5003, "Product is unavailable", HttpStatus.BAD_REQUEST),
+    PRODUCT_NAME_BLANK(1012,"Product name must not be blank", HttpStatus.BAD_REQUEST),
+    BASE_PRICE_MIN_INVALID(1013, "Base price must be strictly greater than 0", HttpStatus.BAD_REQUEST),
+    BASE_PRICE_FORMAT_INVALID(1014, "Base price must be a whole number with up to 9 digits", HttpStatus.BAD_REQUEST),
+    ABC_CLASS_BLANK(1015, "ABC class is required", HttpStatus.BAD_REQUEST),
+    ABC_CLASS_INVALID_LENGTH(1016, "ABC class must be exactly 1 character", HttpStatus.BAD_REQUEST),
+
 
     //UOM
     UOM_EXISTED(6001, "UOM existed", HttpStatus.BAD_REQUEST),
@@ -44,6 +58,16 @@ public enum ErrorCode {
     PRODUCT_VARIANT_EXISTED(7001, "Product variant existed", HttpStatus.BAD_REQUEST),
     PRODUCT_VARIANT_NOT_EXISTED(7002, "Product variant not existed", HttpStatus.NOT_FOUND),
     PRODUCT_OR_UOM_NOT_EXISTED(7003, "Product or UOM not existed", HttpStatus.NOT_FOUND),
+    PRODUCT_BLANK(1017, "Product must not be blank", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_LENGTH(1018, "Product length must be between 1 and 36 characters", HttpStatus.BAD_REQUEST),
+    UNIT_OF_MEASURE_REQUIRED(1019, "Unit of measure is required", HttpStatus.BAD_REQUEST),
+    UNIT_OF_MEASURE_INVALID_RANGE(1020, "Unit of measure must be a 1-digit number", HttpStatus.BAD_REQUEST),
+    SKU_BLANK(1021, "SKU must not be blank", HttpStatus.BAD_REQUEST),
+    SKU_INVALID_LENGTH(1022, "SKU length must be between 1 and 25 characters", HttpStatus.BAD_REQUEST),
+    BARCODE_BLANK(1023, "Barcode must not be blank", HttpStatus.BAD_REQUEST),
+    BARCODE_INVALID_LENGTH(1024, "Barcode length must be between 1 and 11 characters", HttpStatus.BAD_REQUEST),
+    VARIANT_NAME_BLANK(1025, "Variant name must not be blank", HttpStatus.BAD_REQUEST),
+    VARIANT_NAME_INVALID_LENGTH(1026, "Variant name length must be between 1 and 225 characters", HttpStatus.BAD_REQUEST),
 
     //order
     ORDER_DO_NOT_BELONG(8001, "This order is not belong to you", HttpStatus.BAD_REQUEST),
@@ -54,6 +78,8 @@ public enum ErrorCode {
     CAN_NOT_RETURN_ORDER(8006, "Can not return order", HttpStatus.BAD_REQUEST),
     CAN_NOT_EXPORT_ORDER(8007, "Can not export order", HttpStatus.BAD_REQUEST),
     ORDER_HAS_BEEN_PAID(8008, "Order has been paid", HttpStatus.BAD_REQUEST),
+    INVALID_QUANTITY(8009, "Product quantity must be greater than zero", HttpStatus.BAD_REQUEST),
+    INVALID_REFUND_CONDITION(8010, "[ADMIN] Can not refund order", HttpStatus.BAD_REQUEST),
 
     //warehouse order
     CAN_NOT_CONFIRM_DELIVERED(8100, "Warehouse can not confirm un-delivered order", HttpStatus.BAD_REQUEST),

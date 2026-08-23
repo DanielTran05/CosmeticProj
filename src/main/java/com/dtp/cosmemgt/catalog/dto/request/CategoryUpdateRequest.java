@@ -1,6 +1,6 @@
 package com.dtp.cosmemgt.catalog.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,8 +10,10 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UomCreationRequest {
-    @NotBlank
-    @Size(min = 1, max = 10)
+public class CategoryUpdateRequest {
+    @Positive(message = "PARENT_ID_INVALID")
+    Integer parentId;
+
+    @Size(min=1, max=100)
     String name;
 }

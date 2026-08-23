@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.mapper;
 
+import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.ProductVariantResponse;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantCreationRequest;
@@ -23,7 +24,7 @@ public interface ProductVariantMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "unitOfMeasure", ignore = true)
-    void updateProductVariantFromRequest(ProductVariantCreationRequest request, @MappingTarget ProductVariant productVariant);
+    void updateProductVariantFromRequest(ProductVariantUpdateRequest request, @MappingTarget ProductVariant productVariant);
 
 
 

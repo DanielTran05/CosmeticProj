@@ -8,6 +8,7 @@ import com.dtp.cosmemgt.catalog.service.AdminProductService;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -26,7 +27,7 @@ public class AdminProductController {
     AdminProductService productService;
 
     @PostMapping()
-    ApiResponse<AdminProductResponse> create(@RequestBody ProductCreationRequest request) {
+    ApiResponse<AdminProductResponse> create(@RequestBody @Valid ProductCreationRequest request) {
         return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.create(request))
                 .build();
@@ -39,6 +40,13 @@ public class AdminProductController {
                 .build();
     }
 
+    @GetMapping("/{productId}/variants")
+    ApiResponse<List<AdminProductVariantResponse>> getAllVariantOfProduct(@PathVariable String productId) {
+        return ApiResponse.<List<AdminProductVariantResponse>>builder()
+                .result(productService.getAllVariantOfProduct(productId))
+                .build();
+    }
+
     @GetMapping("/{productId}")
     ApiResponse<AdminProductResponse> getProductById(@PathVariable String productId) {
         return ApiResponse.<AdminProductResponse>builder()
@@ -48,7 +56,7 @@ public class AdminProductController {
 
     @PutMapping("/{productId}")
     ApiResponse<AdminProductResponse> updateProduct(@PathVariable String productId,
-                                                    @RequestBody ProductUpdateRequest request) {
+                                                    @RequestBody @Valid ProductUpdateRequest request) {
         return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.update(productId, request))
                 .build();
@@ -75,14 +83,6 @@ public class AdminProductController {
         productService.hardDelProduct(productId);
         return ApiResponse.<Void>builder()
                 .message("Product with id " + productId + " has been hard deleted successfully.")
-                .build();
-    }
-
-
-    @GetMapping("/{productId}/variants")
-    ApiResponse<List<AdminProductVariantResponse>> getAllVariantOfProduct(@PathVariable String productId) {
-        return ApiResponse.<List<AdminProductVariantResponse>>builder()
-                .result(productService.getAllVariantOfProduct(productId))
                 .build();
     }
 }
