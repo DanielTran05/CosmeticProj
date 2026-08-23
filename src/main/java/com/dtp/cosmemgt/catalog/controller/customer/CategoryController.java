@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.controller.customer;
 
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.dto.response.CustomerCategoryResponse;
 import com.dtp.cosmemgt.catalog.service.query.CategoryQueryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import lombok.AccessLevel;
@@ -22,8 +23,8 @@ public class CategoryController {
     CategoryQueryService categoryQueryservice;
 
     @GetMapping()
-    ApiResponse<List<CategoryResponse>> getAll() {
-        return ApiResponse.<List<CategoryResponse>>builder()
+    ApiResponse<List<CustomerCategoryResponse>> getAll() {
+        return ApiResponse.<List<CustomerCategoryResponse>>builder()
                 .result(categoryQueryservice.getAll())
                 .build();
     }

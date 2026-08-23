@@ -33,9 +33,13 @@ public class ProductQueryService {
     ProductRepository productRepository;
 
     public ProductDetailResponse getProductById(String productId){
-        Product c = productRepository.findById(productId)
+        Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
-        return productMapper.toProductDetailResponse(c);
+
+        if(p.getDeletedAt()!=null)
+            throw new AppException(ErrorCode.PRODUCT_UNAVAILABLE);
+
+        return productMapper.toProductDetailResponse(p);
     }
 
     public PageResponse<ProductResponse> getAll(Map<String, String> queryParams) {

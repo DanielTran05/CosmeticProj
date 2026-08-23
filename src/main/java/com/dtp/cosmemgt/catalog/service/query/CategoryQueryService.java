@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.service.query;
 
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.dto.response.CustomerCategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.catalog.mapper.CategoryMapper;
 import com.dtp.cosmemgt.catalog.repository.CategoryRepository;
@@ -22,10 +23,10 @@ public class CategoryQueryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
 
-    public List<CategoryResponse> getAll() {
+    public List<CustomerCategoryResponse> getAll() {
         List<Category> categories = categoryRepository.findAll();
         return categories.stream()
-                .map(categoryMapper::toCategoryResponse)
+                .map(categoryMapper::toCustomerCategoryResponse)
                 .toList();
     }
 

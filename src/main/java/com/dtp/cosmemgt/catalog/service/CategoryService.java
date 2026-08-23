@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.service;
 
 import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.dto.request.CategoryUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.catalog.mapper.CategoryMapper;
@@ -11,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,9 +56,10 @@ public class CategoryService {
                 .toList();
     }
 
-    public CategoryResponse update(int categoryId, CategoryCreationRequest request){
+    public CategoryResponse update(int categoryId, CategoryUpdateRequest request){
         Category c = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
         c.setName(request.getName());
 
         if(request.getParentId()!=null) {

@@ -29,7 +29,6 @@ import java.util.Map;
 @Service
 public class ProductCoreService {
     ProductRepository productRepository;
-    ProductVariantRepository productVariantRepository;
 
     public Page<Product> getAll(Map<String, String> queryParams, boolean isAdmin) {
         Specification<Product> spec;
