@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.service;
 
+import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.entity.UnitOfMeasure;
@@ -31,7 +32,6 @@ import java.util.Map;
 @Transactional
 @Slf4j
 public class AdminProductVariantService {
-    ProductVariantCoreService productVariantCoreService;
     ProductVariantRepository productVariantRepository;
     ProductRepository productRepository;
     UomRepository uomRepository;
@@ -72,7 +72,7 @@ public class AdminProductVariantService {
         return productVariantMapper.toAdminProductVariantResponse(pv);
     }
 
-    public AdminProductVariantResponse update(String productVariantId, ProductVariantCreationRequest request){
+    public AdminProductVariantResponse update(String productVariantId, ProductVariantUpdateRequest request){
         ProductVariant pv = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
@@ -93,22 +93,32 @@ public class AdminProductVariantService {
         return productVariantMapper.toAdminProductVariantResponse(productVariantRepository.save(pv));
     }
 
-    public void sftDelUom(String productVariantId) {
+    public void sftDelProductVariant(String productVariantId) {
         ProductVariant pv = productVariantRepository.findById(productVariantId)
-                .orElseThrow(() -> new AppException(ErrorCode.UOM_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
         productVariantRepository.delete(pv);
     }
 
-    public void restoreUom(String productVariantId) {
+    public void restoreProductVariant(String productVariantId) {
         int rowsAffected = productVariantRepository.restoreById(productVariantId);
         if (rowsAffected == 0) {
-            throw new AppException(ErrorCode.UOM_NOT_EXISTED);
+            throw new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED);
         }
     }
 
-    public void hardDelUom(String productVariantId) {
+    public void hardDelProductVariant(String productVariantId) {
         ProductVariant pv = productVariantRepository.findByIdForAdmin(productVariantId)
-                .orElseThrow(() -> new AppException(ErrorCode.UOM_NOT_EXISTED));
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
         productVariantRepository.hardDelById(pv.getId());
+    }
+
+    public void checkProductVariantSftDeleted(String variantId){
+        ProductVariant variant = productVariantRepository.findById(variantId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+
+        if (variant.getDeletedAt() != null || variant.getProduct().getDeletedAt() != null) {
+            log.warn("[Order] Order failed, the variant has been deleted. Variant ID: {}", variantId);
+            throw new AppException(ErrorCode.PRODUCT_UNAVAILABLE);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.service;
 
+import com.dtp.cosmemgt.catalog.dto.request.UomUpdateRequest;
 import com.dtp.cosmemgt.catalog.entity.UnitOfMeasure;
 import com.dtp.cosmemgt.catalog.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.UomResponse;
@@ -48,7 +49,7 @@ public class AdminUomService {
                 .toList();
     }
 
-    public UomResponse update(int uomId, UomCreationRequest request){
+    public UomResponse update(int uomId, UomUpdateRequest request){
         UnitOfMeasure u = uomRepository.findById(uomId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         u.setName(request.getName());

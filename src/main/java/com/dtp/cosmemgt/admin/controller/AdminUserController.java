@@ -5,6 +5,7 @@ import com.dtp.cosmemgt.admin.dto.request.UserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.response.UserResponse;
 import com.dtp.cosmemgt.admin.service.UserService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import com.dtp.cosmemgt.core.dto.PageResponse;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -31,9 +32,12 @@ public class AdminUserController {
     }
 
     @GetMapping
-    ApiResponse<List<UserResponse>> getUsers() {
-        return ApiResponse.<List<UserResponse>>builder()
-                .result(userService.getUsers())
+    ApiResponse<PageResponse<UserResponse>> getUsers(
+            @RequestParam(defaultValue = "ALL") String role,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ApiResponse.<PageResponse<UserResponse>>builder()
+                .result(userService.getUsers(role, page, size))
                 .build();
     }
 
@@ -44,10 +48,14 @@ public class AdminUserController {
                 .build();
     }
 
-    @PutMapping("/{userId}")
-    ApiResponse<UserResponse> updateUserByAdmin(@PathVariable String userId, @RequestBody UserUpdateRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .result(userService.updateUserByAdmin(userId, request))
+    // Thêm vào AdminUserController.java
+    @PutMapping("/{userId}/toggle-status")
+    public ApiResponse<Void> toggleUserStatus(@PathVariable String userId) {
+        userService.toggleUserStatus(userId);
+        return ApiResponse.<Void>builder()
+                .message("Cập nhật trạng thái tài khoản thành công")
                 .build();
     }
+
+
 }

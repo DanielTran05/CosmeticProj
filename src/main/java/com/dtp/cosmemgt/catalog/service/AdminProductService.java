@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.service;
 
+import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductResponse;
@@ -8,6 +9,7 @@ import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.mapper.AdminProductMapper;
 import com.dtp.cosmemgt.catalog.mapper.ProductVariantMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
+import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.service.query.ProductCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
@@ -30,6 +32,7 @@ import java.util.Map;
 @Slf4j
 public class AdminProductService {
     ProductRepository productRepository;
+    ProductVariantRepository productVariantRepository;
     ProductCoreService productCoreService;
     ProductVariantMapper productVariantMapper;
     AdminProductMapper productMapper;
@@ -66,17 +69,22 @@ public class AdminProductService {
                 .toList();
     }
 
-    public AdminProductResponse update(String productId, ProductCreationRequest request){
-        Product c = productRepository.findById(productId)
+    public AdminProductResponse update(String productId, ProductUpdateRequest request){
+        Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
-        c.setName(request.getName());
 
-        return productMapper.toProductResponse(productRepository.save(c));
+        productMapper.updateProductFromRequest(request, p);
+
+        return productMapper.toProductResponse(productRepository.save(p));
     }
 
     public void sftDelProduct(String productId) {
         Product c = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
+
+        List<ProductVariant> pv = c.getProductVariants();
+        productVariantRepository.deleteAll(pv);
+
         productRepository.delete(c);
     }
 

@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.controller.admin;
 
 import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
+import com.dtp.cosmemgt.catalog.dto.request.CategoryUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
 import com.dtp.cosmemgt.catalog.service.CategoryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
@@ -43,7 +44,7 @@ public class AdminCategoryController {
 
     @PutMapping("/{categoryId}")
     ApiResponse<CategoryResponse> updateCate(@PathVariable int categoryId,
-                                             @RequestBody CategoryCreationRequest request) {
+                                             @RequestBody CategoryUpdateRequest request) {
         return ApiResponse.<CategoryResponse>builder()
                 .result(categoryService.update(categoryId, request))
                 .build();

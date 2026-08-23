@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.controller.admin;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantCreationRequest;
+import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
@@ -44,7 +45,7 @@ public class AdminProductVariantController {
 
     @PutMapping("/{productVariantId}")
     ApiResponse<AdminProductVariantResponse> updateProductVariant(@PathVariable String productVariantId,
-                                                                  @RequestBody ProductVariantCreationRequest request) {
+                                                                  @RequestBody ProductVariantUpdateRequest request) {
         return ApiResponse.<AdminProductVariantResponse>builder()
                 .result(productVariantService.update(productVariantId, request))
                 .build();
@@ -52,7 +53,7 @@ public class AdminProductVariantController {
 
     @DeleteMapping("/soft_del/{productVariantId}")
     ApiResponse<Void> softDeleteProductVariant(@PathVariable String productVariantId) {
-        productVariantService.sftDelUom(productVariantId);
+        productVariantService.sftDelProductVariant(productVariantId);
         return ApiResponse.<Void>builder()
                 .message("ProductVariant with id " + productVariantId + " has been soft deleted successfully.")
                 .build();
@@ -60,7 +61,7 @@ public class AdminProductVariantController {
 
     @PutMapping("/restore/{productVariantId}")
     ApiResponse<Void> restoreProductVariant(@PathVariable String productVariantId) {
-        productVariantService.restoreUom(productVariantId);
+        productVariantService.restoreProductVariant(productVariantId);
         return ApiResponse.<Void>builder()
                 .message("ProductVariant with id " + productVariantId + " has been restored successfully.")
                 .build();
@@ -68,7 +69,7 @@ public class AdminProductVariantController {
 
     @DeleteMapping("/hard_del/{productVariantId}")
     ApiResponse<Void> hardDelProductVariant(@PathVariable String productVariantId) {
-        productVariantService.hardDelUom(productVariantId);
+        productVariantService.hardDelProductVariant(productVariantId);
         return ApiResponse.<Void>builder()
                 .message("ProductVariant with id " + productVariantId + " has been hard deleted successfully.")
                 .build();

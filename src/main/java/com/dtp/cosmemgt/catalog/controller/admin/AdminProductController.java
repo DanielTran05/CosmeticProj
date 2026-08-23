@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.controller.admin;
 
+import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
 import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductResponse;
@@ -47,7 +48,7 @@ public class AdminProductController {
 
     @PutMapping("/{productId}")
     ApiResponse<AdminProductResponse> updateProduct(@PathVariable String productId,
-                                                    @RequestBody ProductCreationRequest request) {
+                                                    @RequestBody ProductUpdateRequest request) {
         return ApiResponse.<AdminProductResponse>builder()
                 .result(productService.update(productId, request))
                 .build();

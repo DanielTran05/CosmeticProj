@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.controller.admin;
 
+import com.dtp.cosmemgt.catalog.dto.request.UomUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.request.UomCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.UomResponse;
 import com.dtp.cosmemgt.catalog.service.AdminUomService;
@@ -43,7 +44,7 @@ public class AdminUomController {
 
     @PutMapping("/{uomId}")
     ApiResponse<UomResponse> updateUom(@PathVariable int uomId,
-                                             @RequestBody UomCreationRequest request) {
+                                             @RequestBody UomUpdateRequest request) {
         return ApiResponse.<UomResponse>builder()
                 .result(uomService.update(uomId, request))
                 .build();

@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.mapper;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
+import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
@@ -16,5 +17,5 @@ public interface AdminProductMapper {
 
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateProductFromRequest(ProductCreationRequest request, @MappingTarget Product product);
+    void updateProductFromRequest(ProductUpdateRequest request, @MappingTarget Product product);
 }
