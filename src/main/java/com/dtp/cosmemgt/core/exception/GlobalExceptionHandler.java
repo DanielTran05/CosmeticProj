@@ -4,6 +4,7 @@ import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+
 import java.util.stream.Collectors;
 
 import java.util.Map;
@@ -111,6 +114,16 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(customMessage);
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiResponse<String>> handleMaxSizeException(MaxUploadSizeExceededException exc) {
+        ApiResponse<String> response = ApiResponse.<String>builder()
+                .code(413) // Payload Too Large
+                .message("Kích thước file vượt quá giới hạn cho phép (Tối đa 5MB)!")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONTENT_TOO_LARGE).body(response);
     }
 
     private String mapAttribute(String message, Map<String, Object> attributes) {

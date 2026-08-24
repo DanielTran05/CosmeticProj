@@ -44,10 +44,92 @@ public class WarehouseOrderService {
     OrderRepository orderRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
     PaymentService paymentService;
-    MailService mailService;
 
     OrderMapper orderMapper;
     WarehouseOrderMapper warehouseOrderMapper;
+
+    //COMMAND
+
+    public void orderExportForShipping(String orderId){
+        Order o = this.getOrder(orderId);
+
+        if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED &&
+            o.getInvoice().getPaymentStatus() != PaymentStatusEnum.PAID)
+            throw new AppException(ErrorCode.CAN_NOT_EXPORT_ORDER);
+
+        o.setOrderStatus(OrderStatusEnum.SHIPPING);
+
+        //create new export inventory transaction
+        List<InventoryTransaction> orderInventoryTransactions = inventoryTransactionRepository
+                .findAllByReferenceId(o.getId());
+
+        this.createOrderExportTransaction(orderInventoryTransactions, o.getId());
+    }
+
+    public void warehousConfirmReturnOrder(String orderId) throws Exception {
+        Order o = this.getOrder(orderId);
+
+        if(o.getOrderStatus() != OrderStatusEnum.RETURN_REQUESTED) {
+            throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
+        }
+
+        if (o.getInvoice() != null &&
+                o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING_REFUND);
+        }
+
+        this.processInventoryRestoration(o, TransactionTypeEnum.RETURN_ORDER, true);
+
+        o.setOrderStatus(OrderStatusEnum.RETURNED);
+        log.info("Warehouse confirmed return and refunded order [{}]", orderId);
+    }
+
+    public void warehouseConfirmFailedOrder(String orderId){
+        Order o = getOrder(orderId);
+
+        if(o.getOrderStatus()!=OrderStatusEnum.DELIVERY_FAILED)
+            throw new AppException(ErrorCode.INVALID_STATUS_FOR_DELIVERY_FAILED);
+
+        if (o.getInvoice() != null &&
+                o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING_REFUND);
+        }
+
+        processInventoryRestoration(o, TransactionTypeEnum.RETURN_ORDER, true);
+
+        o.setOrderStatus(OrderStatusEnum.RETURNED);
+
+        log.info("Warehouse xác nhận đã nhập lại kho đơn hàng Boom [{}].", orderId);
+    }
+
+    public void cancelOrderFromWarehouse(String orderId) throws Exception {
+        Order o = this.getOrder(orderId);
+
+        if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED) {
+            throw new AppException(ErrorCode.CAN_NOT_CANCEL_ORDER);
+        }
+
+        if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING_REFUND);
+        }
+
+        this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
+
+        o.setOrderStatus(OrderStatusEnum.CANCELLED);
+        log.info("Warehouse cancelled and refunded order [{}]", orderId);
+    }
+
+    public void markOrderCompleted(String orderId){             //danh cho shipping provider
+        Order o = this.getOrder(orderId);
+
+        if(o.getOrderStatus() != OrderStatusEnum.SHIPPING)
+            throw new AppException(ErrorCode.CAN_NOT_MARK_ORDER_COMPLETED);
+
+        o.setOrderStatus(OrderStatusEnum.COMPLETED);
+    }
+
+
+    //QUERY
 
     public PageResponse<OrderResponse> getAllOrder(OrderStatusEnum status, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
@@ -68,89 +150,6 @@ public class WarehouseOrderService {
         return warehouseOrderMapper.toWarehouseOrderResponse(order);
     }
 
-    public void orderExportForShipping(String orderId){
-        Order o = this.getOrder(orderId);
-
-        if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED)
-            throw new AppException(ErrorCode.CAN_NOT_EXPORT_ORDER);
-
-        o.setOrderStatus(OrderStatusEnum.SHIPPING);
-
-        //export inventory transaction
-        List<InventoryTransaction> orderInventoryTransactions = inventoryTransactionRepository
-                .findAllByReferenceId(o.getId());
-
-        List<InventoryTransaction> newExportTrans = new ArrayList<>();
-
-        for(InventoryTransaction tran : orderInventoryTransactions){
-            if(tran.getChangeQty()>=0) continue;
-
-            InventoryBatch b = tran.getInventoryBatch();
-
-            int getExportQty = Math.abs(tran.getChangeQty());
-            b.setPhysicalQty(b.getPhysicalQty()-getExportQty);
-
-            InventoryTransaction exportLog = InventoryTransaction.builder()
-                    .inventoryBatch(b)
-                    .changeQty(-getExportQty)
-                    .referenceId(o.getId())
-                    .transactionType(TransactionTypeEnum.EXPORT)
-                    .build();
-            newExportTrans.add(exportLog);
-        }
-
-        inventoryTransactionRepository.saveAll(newExportTrans);
-    }
-
-    //confirm don huy tu nguoi dung
-    public void warehousConfirmReturnOrder(String orderId) throws Exception {
-        Order o = this.getOrder(orderId);
-
-        if(o.getOrderStatus() != OrderStatusEnum.RETURN_REQUESTED) {
-            throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
-        }
-
-        if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
-            paymentService.refund(o);
-            o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-            mailService.sendOrderRefundEmail(o.getCustomer(), o);
-        }
-
-        this.processInventoryRestoration(o, TransactionTypeEnum.RETURN_ORDER, true);
-
-        o.setOrderStatus(OrderStatusEnum.RETURNED);
-        log.info("Warehouse confirmed return and refunded order [{}]", orderId);
-    }
-
-    //huy don tu phia kho (do don hang hu hong)
-    public void cancelOrderFromWarehouse(String orderId) throws Exception {
-        Order o = this.getOrder(orderId);
-
-        if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED) {
-            throw new AppException(ErrorCode.CAN_NOT_CANCEL_ORDER);
-        }
-
-        if (o.getInvoice() != null && o.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
-            paymentService.refund(o);
-            o.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-            mailService.sendOrderRefundEmail(o.getCustomer(), o);
-        }
-
-        this.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
-
-        o.setOrderStatus(OrderStatusEnum.CANCELLED);
-        log.info("Warehouse cancelled and refunded order [{}]", orderId);
-    }
-
-    //xac nhan giao hang thanh cong (webhook goi ve)
-    public void confirmDelivered(String orderId){
-        Order o = this.getOrder(orderId);
-
-        if(o.getOrderStatus() != OrderStatusEnum.SHIPPING)
-            throw new AppException(ErrorCode.CAN_NOT_CONFIRM_DELIVERED);
-
-        o.setOrderStatus(OrderStatusEnum.COMPLETED);
-    }
 
     //utils
     private User getCurrentUser() {
@@ -205,5 +204,28 @@ public class WarehouseOrderService {
         }
 
         inventoryTransactionRepository.saveAll(newTransToSave);
+    }
+
+    private void createOrderExportTransaction(List<InventoryTransaction> transactions, String orderId){
+        List<InventoryTransaction> newExportTrans = new ArrayList<>();
+
+        for(InventoryTransaction tran : transactions){
+            if(tran.getChangeQty()>=0) continue;
+
+            InventoryBatch b = tran.getInventoryBatch();
+
+            int getExportQty = Math.abs(tran.getChangeQty());
+            b.setPhysicalQty(b.getPhysicalQty()-getExportQty);
+
+            InventoryTransaction exportLog = InventoryTransaction.builder()
+                    .inventoryBatch(b)
+                    .changeQty(-getExportQty)
+                    .referenceId(orderId)
+                    .transactionType(TransactionTypeEnum.EXPORT)
+                    .build();
+            newExportTrans.add(exportLog);
+        }
+
+        inventoryTransactionRepository.saveAll(newExportTrans);
     }
 }

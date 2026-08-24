@@ -12,6 +12,7 @@ import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentFailedEvent;
 import com.dtp.cosmemgt.sales.payment.service.PaymentService;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
+import com.dtp.cosmemgt.warehouse.service.WarehouseInboundService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -29,7 +30,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Slf4j
 public class CancelOrderService {
     CurrentUserService currentUserService;
-    PaymentService paymentService;
+    WarehouseInboundService warehouseInboundService;
     MailService mailService;
     ReturnOrderService returnOrderService;
 
@@ -44,14 +45,16 @@ public class CancelOrderService {
         }
 
         if (isEligibleForRefund(order)) {
-            paymentService.refund(order);
-            order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-            mailService.sendOrderRefundEmail(u, order);
+            order.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING_REFUND);
+            mailService.sendOrderConfirmRefundEmail(u, order);
+        } else {
+            if (order.getInvoice() != null) {
+                order.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);
+            }
         }
 
-        returnOrderService.processInventoryRestoration(order, TransactionTypeEnum.CANCEL_ORDER, false);
+        warehouseInboundService.processInventoryRestoration(order, TransactionTypeEnum.CANCEL_ORDER, false);
         order.setOrderStatus(OrderStatusEnum.CANCELLED);
-        order.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);   //ok
         log.info("Order [{}] cancelled successfully", orderId);
     }
 
@@ -66,12 +69,12 @@ public class CancelOrderService {
         o.setOrderStatus(OrderStatusEnum.CANCELLED);
 
         if(isFromPaymentFailedEvent) {
-            o.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);
-        } else {
             o.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
+        } else {
+            o.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);
         }
 
-        returnOrderService.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
+        warehouseInboundService.processInventoryRestoration(o, TransactionTypeEnum.CANCEL_ORDER, false);
     }
 
     private boolean isEligibleForRefund(Order order) {
@@ -90,7 +93,7 @@ public class CancelOrderService {
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)                  //tu tao transaction moi
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handlePaymentFailedEvent(PaymentFailedEvent event) {
         String orderId = event.getOrderId();
         log.info("Received PaymentFailedEvent for Order ID: {}", orderId);

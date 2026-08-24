@@ -4,6 +4,7 @@ import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.order.service.command.ReturnOrderService;
 import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.service.WarehouseOrderService;
 import lombok.AccessLevel;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 public class WarehouseOrderController {
 
     WarehouseOrderService warehouseOrderService;
+    ReturnOrderService returnOrderService;
+
 
     //ds don hang theo status
     @GetMapping
@@ -62,6 +65,17 @@ public class WarehouseOrderController {
                 .build();
     }
 
+    //xac nhan hoan hang huy
+    @PutMapping("/{orderId}/confirmDeliveryFailed")
+    public ApiResponse<Void> warehouseConfirmFailedOrder(@PathVariable String orderId) throws Exception {
+
+        warehouseOrderService.warehouseConfirmFailedOrder(orderId);
+
+        return ApiResponse.<Void>builder()
+                .message("Xác nhận nhận hàng hoàn thành công")
+                .build();
+    }
+
     //huy don tu kho                                                                  → CANCELED
     @PutMapping("/{orderId}/cancel")
     public ApiResponse<Void> cancelOrderFromWarehouse(@PathVariable String orderId) throws Exception {
@@ -77,10 +91,18 @@ public class WarehouseOrderController {
     @PutMapping("/{orderId}/deliver")
     public ApiResponse<Void> confirmDelivered(@PathVariable String orderId) {
         
-        warehouseOrderService.confirmDelivered(orderId);
+        warehouseOrderService.markOrderCompleted(orderId);
         
         return ApiResponse.<Void>builder()
                 .message("Xác nhận giao hàng thành công")
+                .build();
+    }
+
+    @PostMapping("/{orderId}/")
+    public ApiResponse<Void> mockShipperDeliveryFailed(@PathVariable String orderId) throws Exception {
+        returnOrderService.mockShipperDeliveryFailed(orderId);
+        return ApiResponse.<Void>builder()
+                .message("Order has been failed, delivery failed, wait for returning")
                 .build();
     }
 }

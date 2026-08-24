@@ -9,6 +9,8 @@ import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.entity.Order;
+import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.mapper.OrderMapper;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
 import lombok.AccessLevel;
@@ -23,6 +25,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -30,7 +33,7 @@ import java.util.Map;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Transactional
 @Slf4j
-public class CustomerOrderQueryService {
+public class OrderQueryService {
     CurrentUserService currentUserService;
 
     OrderRepository orderRepository;
@@ -59,6 +62,21 @@ public class CustomerOrderQueryService {
         return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
     }
 
+    // Dành cho Admin: Lấy tất cả đơn hàng, có hỗ trợ queryParams (ví dụ: ?status=SHIPPING)
+    @Transactional(readOnly = true)
+    public PageResponse<OrderResponse> getAllOrderAdmin(Map<String, String> queryParams) {
+        int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
+        int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        // Sử dụng lại OrderSpecification đã có sẵn
+        Specification<Order> filterOrderSpec = OrderSpecification.filterOrder(queryParams);
+
+        Page<Order> orderPage = orderRepository.findAll(filterOrderSpec, pageable);
+
+        return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
+    }
+
     private Order getValidOwnedOrder(User currentUser, String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -68,5 +86,14 @@ public class CustomerOrderQueryService {
         }
 
         return order;
+    }
+
+    public List<OrderResponse> getOrderAdminRefund(){
+        List<Order> manualRefundOrders = orderRepository.findByOrderStatusAndInvoice_PaymentStatus(
+                OrderStatusEnum.RETURNED,
+                PaymentStatusEnum.PENDING_REFUND
+        );
+
+        return manualRefundOrders.stream().map(orderMapper::toOrderResponse).toList();
     }
 }

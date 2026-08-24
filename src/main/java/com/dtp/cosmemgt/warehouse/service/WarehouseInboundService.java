@@ -7,6 +7,7 @@ import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
+import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.warehouse.dto.request.BatchCreationRequest;
 import com.dtp.cosmemgt.warehouse.dto.request.InventoryAdjustmentRequest;
 import com.dtp.cosmemgt.warehouse.dto.response.BatchResponse;
@@ -193,6 +194,37 @@ public class WarehouseInboundService {
         return inventoryBatchMapper.toBatchResponse(b);
     }
 
+    //hoan kho do don hang huy
+    public void processInventoryRestoration(Order order, TransactionTypeEnum transactionType, boolean isPhysicalReturn) {
+        List<InventoryTransaction> trans = inventoryTransactionRepository.findAllByReferenceId(order.getId());
 
+        List<InventoryTransaction> newTransToSave = trans.stream()
+                .filter(tran -> {
+                    if (isPhysicalReturn) {
+                        return tran.getTransactionType() == TransactionTypeEnum.EXPORT;
+                    } else {
+                        return tran.getTransactionType() == TransactionTypeEnum.RESERVE;
+                    }
+                })
+                .map(tran -> {
+                    InventoryBatch b = tran.getInventoryBatch();
+                    int refundQty = Math.abs(tran.getChangeQty());
 
+                    b.setAvailableQty(b.getAvailableQty() + refundQty);
+
+                    if (isPhysicalReturn) {
+                        b.setPhysicalQty(b.getPhysicalQty() + refundQty);
+                    }
+
+                    return InventoryTransaction.builder()
+                            .changeQty(refundQty)
+                            .inventoryBatch(b)
+                            .referenceId(order.getId())
+                            .transactionType(transactionType)
+                            .build();
+                })
+                .toList();
+
+        inventoryTransactionRepository.saveAll(newTransToSave);
+    }
 }

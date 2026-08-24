@@ -2,6 +2,7 @@ package com.dtp.cosmemgt.warehouse.service;
 
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
+import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.dto.request.OrderCreationRequest;
@@ -24,6 +25,8 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +38,57 @@ public class WarehouseReservationService {
     InventoryBatchRepository inventoryBatchRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
 
+    AdminProductVariantService variantService;
+
+//    public List<InventoryTransaction> reserveInventory(OrderCreationRequest request, Order order) {
+//        BigDecimal orderTotalAmount = BigDecimal.ZERO;
+//        BigDecimal orderTotalCogs = BigDecimal.ZERO;
+//
+//        List<OrderDetail> ods = new ArrayList<>();
+//        List<InventoryTransaction> transactionsToSave = new ArrayList<>();
+//
+//        for (OrderDetailRequest odRequest : request.getOrderDetailRequests()) {
+//            String variantId = odRequest.getProductVariantId();
+//            variantService.checkProductVariantSftDeleted(variantId);
+//            int requireQty = odRequest.getQty();
+//
+//            //FIFO
+//            List<InventoryBatch> availableBatches = inventoryBatchRepository.findAllAvailableBatchesFIFO(variantId);
+//
+//            int actualTotalStock = availableBatches.stream().mapToInt(InventoryBatch::getAvailableQty).sum();
+//            if (actualTotalStock < requireQty) {
+//                throw new AppException(ErrorCode.OUT_OF_STOCK);             //Don hang ban dang mua da het hang
+//            }
+//
+//            //tru kho reserve va tong COGS (tong phi san xuat )
+//            BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
+//
+//            ProductVariant variant = productVariantRepository.findById(variantId)
+//                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+//
+//            BigDecimal unitCogs = lineTotalCogs.divide(BigDecimal.valueOf(requireQty), 4, RoundingMode.HALF_UP);
+//            BigDecimal purchasedPrice = variant.getProduct().getBasePrice();
+//
+//            OrderDetail od = OrderDetail.builder()
+//                    .productVariant(variant)
+//                    .order(order)
+//                    .quantity(requireQty)
+//                    .purchasedPrice(purchasedPrice)
+//                    .unitCogs(unitCogs)
+//                    .build();
+//
+//            ods.add(od);
+//
+//            orderTotalAmount = orderTotalAmount.add(purchasedPrice.multiply(BigDecimal.valueOf(requireQty)));
+//            orderTotalCogs = orderTotalCogs.add(lineTotalCogs);
+//        }
+//
+//        order.setTotalAmount(orderTotalAmount);
+//        order.setTotalCogs(orderTotalCogs);
+//        order.setOrderDetails(ods);
+//
+//        return transactionsToSave;
+//    }
     public List<InventoryTransaction> reserveInventory(OrderCreationRequest request, Order order) {
         BigDecimal orderTotalAmount = BigDecimal.ZERO;
         BigDecimal orderTotalCogs = BigDecimal.ZERO;
@@ -42,23 +96,38 @@ public class WarehouseReservationService {
         List<OrderDetail> ods = new ArrayList<>();
         List<InventoryTransaction> transactionsToSave = new ArrayList<>();
 
+        List<String> requestedVariantIds = request.getOrderDetailRequests().stream()
+                .map(OrderDetailRequest::getProductVariantId)
+                .distinct()
+                .toList();
+
+        Map<String, ProductVariant> variantMap = productVariantRepository.findByIdIn(requestedVariantIds).stream()
+                .collect(Collectors.toMap(ProductVariant::getId, v -> v));  //ao1: [info-ao1], ao2: [info-ao2]
+
+        if (variantMap.size() != requestedVariantIds.size()) {
+            throw new AppException(ErrorCode.PRODUCT_VARIANT_UNAVAILABLE);
+        }
+
+        List<InventoryBatch> allBatches = inventoryBatchRepository.findAllAvailableBatchesFIFOForVariants(requestedVariantIds);
+        Map<String, List<InventoryBatch>> batchesByVariantMap = allBatches.stream()     //ao1: [b1, b2], ao2: [b1, b2]
+                .collect(Collectors.groupingBy(b -> b.getProductVariant().getId()));
+
         for (OrderDetailRequest odRequest : request.getOrderDetailRequests()) {
             String variantId = odRequest.getProductVariantId();
+            ProductVariant variant = variantMap.get(variantId);     //obj variant
             int requireQty = odRequest.getQty();
 
-            //FIFO
-            List<InventoryBatch> availableBatches = inventoryBatchRepository.findAllAvailableBatchesFIFO(variantId);
+
+            if(variant.getDeletedAt() != null) throw new AppException(ErrorCode.PRODUCT_VARIANT_UNAVAILABLE);
+
+            List<InventoryBatch> availableBatches = batchesByVariantMap.getOrDefault(variantId, new ArrayList<>());
 
             int actualTotalStock = availableBatches.stream().mapToInt(InventoryBatch::getAvailableQty).sum();
             if (actualTotalStock < requireQty) {
                 throw new AppException(ErrorCode.OUT_OF_STOCK);
             }
 
-            //tru kho reserve va tong COGS (tong phi san xuat )
             BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
-
-            ProductVariant variant = productVariantRepository.findById(variantId)
-                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
 
             BigDecimal unitCogs = lineTotalCogs.divide(BigDecimal.valueOf(requireQty), 4, RoundingMode.HALF_UP);
             BigDecimal purchasedPrice = variant.getProduct().getBasePrice();

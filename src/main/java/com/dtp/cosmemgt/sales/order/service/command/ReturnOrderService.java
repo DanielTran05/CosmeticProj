@@ -14,6 +14,7 @@ import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
 import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
+import com.dtp.cosmemgt.warehouse.service.WarehouseInboundService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -32,7 +33,10 @@ import java.util.List;
 public class ReturnOrderService {
     InventoryTransactionRepository inventoryTransactionRepository;
     CurrentUserService currentUserService;
+    WarehouseInboundService warehouseInboundService;
     OrderRepository orderRepository;
+
+    //customer
 
     public void returnOrder(String orderId) throws Exception {
         User u = currentUserService.getCurrentUser();
@@ -42,16 +46,42 @@ public class ReturnOrderService {
             throw new AppException(ErrorCode.CAN_NOT_RETURN_ORDER);
         }
 
-        LocalDateTime completedAt = order.getUpdatedAt();
-        if (completedAt == null || completedAt.plusDays(7).isBefore(LocalDateTime.now())) {
-            throw new AppException(ErrorCode.RETURN_PERIOD_EXPIRED);
-        }
+        this.checkValidOrderForReturning(order.getUpdatedAt());
 
         order.setOrderStatus(OrderStatusEnum.RETURN_REQUESTED);
-        log.info("Order [{}] return request submitted. Waiting for warehouse confirmation.", orderId);
+        log.info("[RETURN] Order [{}] return request submitted. Waiting for warehouse confirmation.", orderId);
+    }
+
+    public void cancelReturnRequest(String orderId) throws Exception {
+        User u = currentUserService.getCurrentUser();
+        Order order = getValidOwnedOrder(u, orderId);
+
+        if (order.getOrderStatus() != OrderStatusEnum.RETURN_REQUESTED) {
+            throw new AppException(ErrorCode.INVALID_STATUS_TO_CANCEL_RETURN); // Bạn nhớ thêm ErrorCode này nếu chưa có nhé
+        }
+
+        order.setOrderStatus(OrderStatusEnum.COMPLETED);
+
+        if (order.getInvoice() != null && order.getInvoice().getPaymentStatus() != PaymentStatusEnum.UNPAID) {
+            order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
+        }
+
+        log.info("Khách hàng [{}] đã hủy yêu cầu hoàn trả cho Đơn hàng [{}]. Đơn hàng quay về COMPLETED.", u.getId(), orderId);
+    }
+
+    public void mockShipperDeliveryFailed(String orderId){
+        Order o = orderRepository.findById(orderId)
+                .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if(o.getOrderStatus()!=OrderStatusEnum.SHIPPING)
+            throw new AppException(ErrorCode.INVALID_STATUS_FOR_DELIVERY_FAILED);
+
+        o.setOrderStatus(OrderStatusEnum.DELIVERY_FAILED);
+        log.info("Mock Shipper: Đơn hàng [{}] giao thất bại, đang quay đầu về kho.", orderId);
     }
 
     //helpers
+
     private boolean isEligibleForRefund(Order order) {
         return order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID;
     }
@@ -67,29 +97,9 @@ public class ReturnOrderService {
         return order;
     }
 
-    public void processInventoryRestoration(Order order, TransactionTypeEnum transactionType, boolean isPhysicalReturn) {
-        List<InventoryTransaction> trans = inventoryTransactionRepository.findAllByReferenceId(order.getId());
-
-        List<InventoryTransaction> newTransToSave = trans.stream()
-                .filter(tran -> tran.getChangeQty() < 0)
-                .map(tran -> {
-                    InventoryBatch b = tran.getInventoryBatch();
-                    int refundQty = Math.abs(tran.getChangeQty());
-
-                    b.setAvailableQty(b.getAvailableQty() + refundQty);
-                    if (isPhysicalReturn) {
-                        b.setPhysicalQty(b.getPhysicalQty() + refundQty);
-                    }
-
-                    return InventoryTransaction.builder()
-                            .changeQty(refundQty)
-                            .inventoryBatch(b)
-                            .referenceId(order.getId())
-                            .transactionType(transactionType)
-                            .build();
-                })
-                .toList();
-
-        inventoryTransactionRepository.saveAll(newTransToSave);
+    private void checkValidOrderForReturning(LocalDateTime orderCompletedDate){
+        if (orderCompletedDate == null || orderCompletedDate.plusDays(7).isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.RETURN_PERIOD_EXPIRED);
+        }
     }
 }
