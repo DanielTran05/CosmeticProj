@@ -1,8 +1,6 @@
 package com.dtp.cosmemgt.core.exception;
 
 import lombok.Getter;
-import org.apache.http.impl.BHttpConnectionBase;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -68,6 +66,7 @@ public enum ErrorCode {
     BARCODE_INVALID_LENGTH(1024, "Barcode length must be between 1 and 11 characters", HttpStatus.BAD_REQUEST),
     VARIANT_NAME_BLANK(1025, "Variant name must not be blank", HttpStatus.BAD_REQUEST),
     VARIANT_NAME_INVALID_LENGTH(1026, "Variant name length must be between 1 and 225 characters", HttpStatus.BAD_REQUEST),
+    PRODUCT_VARIANT_UNAVAILABLE(1027, "Product variant unavailable", HttpStatus.BAD_REQUEST),
 
     //order
     ORDER_DO_NOT_BELONG(8001, "This order is not belong to you", HttpStatus.BAD_REQUEST),
@@ -80,10 +79,27 @@ public enum ErrorCode {
     ORDER_HAS_BEEN_PAID(8008, "Order has been paid", HttpStatus.BAD_REQUEST),
     INVALID_QUANTITY(8009, "Product quantity must be greater than zero", HttpStatus.BAD_REQUEST),
     INVALID_REFUND_CONDITION(8010, "[ADMIN] Can not refund order", HttpStatus.BAD_REQUEST),
+    PAYMENT_METHOD_REQUIRED(8011, "Payment method is required", HttpStatus.BAD_REQUEST),
+    ORDER_DETAILS_REQUIRED(8012, "Order details list must not be empty", HttpStatus.BAD_REQUEST),
+    SHIPPING_ORDER_REQUIRED(8013, "Shipping order information is required", HttpStatus.BAD_REQUEST),
+    NOTE_INVALID_LENGTH(8014, "Note length must not exceed 500 characters", HttpStatus.BAD_REQUEST),
+    PRODUCT_VARIANT_ID_REQUIRED(8015, "Product variant ID is required", HttpStatus.BAD_REQUEST),
+    INVALID_UUID_FORMAT(8016, "Product variant ID must be a valid UUID format", HttpStatus.BAD_REQUEST),
+    QUANTITY_REQUIRED(8017, "Quantity is required", HttpStatus.BAD_REQUEST),
+    RECEIVER_NAME_REQUIRED(8018, "Receiver name is required", HttpStatus.BAD_REQUEST),
+    RECEIVER_NAME_INVALID_LENGTH(8019, "Receiver name length must be between 1 and 100 characters", HttpStatus.BAD_REQUEST),
+    RECEIVER_PHONE_REQUIRED(8020, "Receiver phone number is required", HttpStatus.BAD_REQUEST),
+    RECEIVER_PHONE_INVALID_FORMAT(8021, "Receiver phone number format is invalid", HttpStatus.BAD_REQUEST),
+    RECEIVER_ADDRESS_REQUIRED(8022, "Receiver address is required", HttpStatus.BAD_REQUEST),
+    RECEIVER_ADDRESS_INVALID_LENGTH(8023, "Receiver address length must be between 1 and 255 characters", HttpStatus.BAD_REQUEST),
+    INVALID_STATUS_FOR_DELIVERY_FAILED(8023, "Order can not be failed, invalid status", HttpStatus.BAD_REQUEST),
+
 
     //warehouse order
-    CAN_NOT_CONFIRM_DELIVERED(8100, "Warehouse can not confirm un-delivered order", HttpStatus.BAD_REQUEST),
+    CAN_NOT_MARK_ORDER_COMPLETED(8100, "Warehouse can not confirm un-delivered order", HttpStatus.BAD_REQUEST),
     RETURN_PERIOD_EXPIRED(8101, "Can not return order, return period expired", HttpStatus.BAD_REQUEST),
+    INVALID_STATUS_TO_CANCEL_RETURN(8102, "Can not cancel return request, invalid order status", HttpStatus.BAD_REQUEST),
+
 
     //review
     REVIEW_NOT_EXISTED(9001, "Review not existed", HttpStatus.BAD_REQUEST),
@@ -101,6 +117,8 @@ public enum ErrorCode {
     //momo payment
     MOMO_PAYMENT_FAILED(9300, "Payment has been failed", HttpStatus.BAD_REQUEST),
     MOMO_REFUND_FAILED(9301, "Refund has been failed", HttpStatus.BAD_REQUEST),
+    ORDER_ID_REQUIRED(9302, "Order for payment is required", HttpStatus.BAD_REQUEST),
+    INVALID_PAYMENT_REQUEST(9303, "Invalid payment request for checking status", HttpStatus.BAD_REQUEST),
 
 
 

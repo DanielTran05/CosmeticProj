@@ -36,6 +36,9 @@ public class Invoice {
     @Column(name = "payment_status")
     private PaymentStatusEnum paymentStatus;
 
+    @Column(name = "payment_request_id")
+    private String paymentRequestId;
+
     @Column(name = "transaction_id")
     private String transactionId;
 

@@ -25,6 +25,24 @@ import java.util.Map;
 public class MailService {
     BrevoMailClient brevoMailClient;
 
+    public void sendOrderConfirmRefundEmail(User user, Order order) {
+        String subject = "Hoàn tiền đơn hàng - Mã đơn #" + order.getId();
+        String htmlBody = String.format("""
+            <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2>Xin chào %s,</h2>
+                <p>Cảm ơn bạn đã đặt hàng tại <b>CosmeMgt</b>. Đơn hàng của bạn sẽ được hoàn tiền sau 2-3 ngày làm việc!</p>
+                <ul>
+                    <li><b>Mã đơn hàng:</b> %s</li>
+                    <li><b>Tổng tiền:</b> %,d VNĐ</li>
+                    <li><b>Trạng thái:</b> Đang hoàn tiền</li>
+                </ul>
+                <p>Cảm ơn bạn đã đặt hàng. Mọi thắc mắc liên hệ 1900....!</p>
+            </div>
+            """, user.getFullName(), order.getId(), order.getTotalAmount().longValue());
+
+        brevoMailClient.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
+    }
+
     public void sendOrderRefundEmail(User user, Order order) {
         String subject = "Hoàn tiền đơn hàng - Mã đơn #" + order.getId();
         String htmlBody = String.format("""

@@ -8,7 +8,8 @@ import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.service.command.CancelOrderService;
 import com.dtp.cosmemgt.sales.order.service.command.PlaceOrderService;
 import com.dtp.cosmemgt.sales.order.service.command.ReturnOrderService;
-import com.dtp.cosmemgt.sales.order.service.query.CustomerOrderQueryService;
+import com.dtp.cosmemgt.sales.order.service.query.OrderQueryService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -25,28 +26,15 @@ import java.util.Map;
 public class OrderController {
     PlaceOrderService placeOrderService;
     ReturnOrderService returnOrderService;
-    CustomerOrderQueryService customerOrderQueryService;
+    OrderQueryService customerOrderQueryService;
     CancelOrderService cancelOrderService;
 
+    //COMMAND
+
     @PostMapping
-    public ApiResponse<OrderResponse> createOrder(@RequestBody OrderCreationRequest request) {
+    public ApiResponse<OrderResponse> createOrder(@RequestBody @Valid OrderCreationRequest request) {
         return ApiResponse.<OrderResponse>builder()
                 .result(placeOrderService.create(request))
-                .build();
-    }
-
-    @GetMapping
-    public ApiResponse<PageResponse<OrderResponse>> getAllMyOrders(@RequestParam Map<String, String> queryParams) {
-        return ApiResponse.<PageResponse<OrderResponse>>builder()
-                .result(customerOrderQueryService.getAllMyOrder(queryParams))
-                .build();
-    }
-
-    // Xem chi tiet don hang
-    @GetMapping("/{orderId}")
-    public ApiResponse<OrderDetailResponse> getOrderDetail(@PathVariable String orderId) {
-        return ApiResponse.<OrderDetailResponse>builder()
-                .result(customerOrderQueryService.getOrderDetail(orderId))
                 .build();
     }
 
@@ -63,6 +51,31 @@ public class OrderController {
         returnOrderService.returnOrder(orderId);
         return ApiResponse.<Void>builder()
                 .message("Order returned successfully")
+                .build();
+    }
+
+    @PostMapping("/{orderId}/return/cancel")
+    public ApiResponse<Void> cancelReturnRequest(@PathVariable String orderId) throws Exception {
+        returnOrderService.cancelReturnRequest(orderId);
+        return ApiResponse.<Void>builder()
+                .message("Order returned successfully")
+                .build();
+    }
+
+
+    //QUERY
+
+    @GetMapping
+    public ApiResponse<PageResponse<OrderResponse>> getAllMyOrders(@RequestParam Map<String, String> queryParams) {
+        return ApiResponse.<PageResponse<OrderResponse>>builder()
+                .result(customerOrderQueryService.getAllMyOrder(queryParams))
+                .build();
+    }
+
+    @GetMapping("/{orderId}")
+    public ApiResponse<OrderDetailResponse> getOrderDetail(@PathVariable String orderId) {
+        return ApiResponse.<OrderDetailResponse>builder()
+                .result(customerOrderQueryService.getOrderDetail(orderId))
                 .build();
     }
 }

@@ -22,6 +22,12 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 5MB
+
 jwt:
   signerKey: "1TjXchw5FloESb63Kc+DFhTARvpWL4jUGCwfGWxuG5SIf/1y/LgJxHnMqaF6A/ij"
   valid-duration: 36000 # in second
@@ -29,8 +35,8 @@ jwt:
   
 momo:
   partner-code: MOMO
-  access-key: F8BBA842ECF85
-  secret-key: K951B6PE1waDMi640xX08PD3vg6EkVlz
+  access-key: ${MOMO_ACCESS_KEY}
+  secret-key: ${MOMO_ACCESS_SECRET_KEY}
   redirect-url: http://localhost:3000
   ipn-url: https://unsounded-unchurchly-kian.ngrok-free.dev/cosmeMgt/payments/ipn-url
   api-endpoint: https://test-payment.momo.vn/v2/gateway/api

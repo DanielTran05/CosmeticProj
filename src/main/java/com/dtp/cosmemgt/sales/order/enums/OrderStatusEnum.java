@@ -8,6 +8,7 @@ public enum OrderStatusEnum {
     CANCELLED,
     RETURN_REQUESTED,       //yeu cau tra hang cho hang ve kho
     RETURNED,
+    DELIVERY_FAILED,
 
     //PENDING: Khách vừa đặt xong, hàng vẫn nằm trên kệ (đã xí chỗ available_qty).
     //CONFIRMED (Đã xác nhận) thuộc về Luồng hàng hóa. Nó đại diện cho hành động: Hệ thống hoặc Admin đã ghi nhận đơn hàng hợp lệ và lệnh cho kho bắt đầu nhặt hàng để đóng gói.

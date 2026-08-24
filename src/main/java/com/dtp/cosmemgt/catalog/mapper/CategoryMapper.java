@@ -2,6 +2,7 @@ package com.dtp.cosmemgt.catalog.mapper;
 
 import com.dtp.cosmemgt.catalog.dto.request.CategoryCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.CategoryResponse;
+import com.dtp.cosmemgt.catalog.dto.response.CustomerCategoryResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.core.coreMapper.IgnoreAuditFields;
 import org.mapstruct.Mapper;
@@ -15,4 +16,5 @@ public interface CategoryMapper {
     Category toCategory(CategoryCreationRequest request);
 
     CategoryResponse toCategoryResponse(Category category);
+    CustomerCategoryResponse toCustomerCategoryResponse(Category category);
 }

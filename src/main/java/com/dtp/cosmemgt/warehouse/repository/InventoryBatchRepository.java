@@ -16,14 +16,23 @@ import java.util.List;
 @Repository
 public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, Integer>,
         JpaSpecificationExecutor<InventoryBatch>{
+
     //lay cac lo hang sap xep theo ngay cu nhat den moi nhat
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "javax.persistence.lock.timeout", value = "3000")})
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     @Query("select b " +
             "from InventoryBatch b " +
             "where b.productVariant.id = :variantId and availableQty > 0 " +
             "order by b.createdAt asc")
     List<InventoryBatch> findAllAvailableBatchesFIFO(@Param("variantId") String variantId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    @Query("select b " +
+            "from InventoryBatch b " +
+            "where b.productVariant.id in :variantIds and availableQty > 0 " +
+            "order by b.createdAt asc")
+    List<InventoryBatch> findAllAvailableBatchesFIFOForVariants(@Param("variantIds") List<String> variantIds);
 
     Page<InventoryBatch> findByExpirationDateLessThanEqualAndAvailableQtyGreaterThan(
             LocalDate thresholdDate,
@@ -44,4 +53,6 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
             "where p.id in :productIds " +
             "ORDER BY b.createdAt DESC")
     List<InventoryBatch> findAllByProductIds(@Param("productIds") List<String> productIds);
+
+
 }

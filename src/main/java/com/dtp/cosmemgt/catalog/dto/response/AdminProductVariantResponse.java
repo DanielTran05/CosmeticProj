@@ -17,6 +17,7 @@ public class AdminProductVariantResponse {
     String sku;
     String barcode;
     String variantName;
+    String img;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

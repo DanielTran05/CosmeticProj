@@ -25,4 +25,6 @@ public class ProductVariantUpdateRequest {
 
     @Size(min = 1, max = 225, message = "VARIANT_NAME_INVALID_LENGTH")
     String variantName;
+
+    String img;
 }
