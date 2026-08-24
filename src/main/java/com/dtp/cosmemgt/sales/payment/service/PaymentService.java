@@ -6,6 +6,7 @@ import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentCreationRequest;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentFailedEvent;
+import com.dtp.cosmemgt.sales.payment.dto.response.MoMoStatusResponse;
 import com.dtp.cosmemgt.sales.payment.dto.response.PaymentResponse;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
@@ -65,6 +66,10 @@ public class PaymentService {
     final MailService mailService;
     final  ObjectMapper mapper;
 
+    //NEU LINK THANH TOAN KO GUI VE DC THI SAU (re-try)
+    //NEU THANH TOAN THANH CONG KHONG GUI RESULT VE THI SAO (SERVER DIED)
+    //NEU THANH TOAN KHONG THANH CONG CHO PHEP THANH TOAN LAI KHONG
+
     public PaymentResponse createPaymentRequest(PaymentCreationRequest request) throws Exception {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -75,7 +80,6 @@ public class PaymentService {
 
         long amountToPay = order.getTotalAmount().longValue();
         String requestId = PARTNER_CODE + System.currentTimeMillis();
-
         String momoOrderId = "ORDER_" + order.getId() + "_" + System.currentTimeMillis();
         String orderInfo = "Thanh toan don hang " + order.getId();
         String extraData = "";
@@ -109,6 +113,7 @@ public class PaymentService {
                 Map.class
         );
 
+        //PAYMENT RESULT
         Map<String, Object> responseBody = response.getBody();
 
         if (responseBody == null || !Integer.valueOf(0).equals(responseBody.get("resultCode"))) {
@@ -118,6 +123,7 @@ public class PaymentService {
         }
 
         order.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING);
+        order.getInvoice().setPaymentRequestId(momoOrderId);
 
         return PaymentResponse.builder()
                 .payUrl(responseBody.get("payUrl").toString())
@@ -183,6 +189,7 @@ public class PaymentService {
                 mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
             } else if (resultCode == 0) {
                 log.info("[MoMo IPN] Payment SUCCESS for OrderId: {}", realOrderId);
+
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
                 order.getInvoice().setTransactionId(String.valueOf(transId));
 
@@ -239,12 +246,16 @@ public class PaymentService {
 
             Map<String, Object> responseBody = response.getBody();
 
-            if(response != null && Integer.valueOf(0).equals(responseBody.get("resultCode"))){
+            if(IS_PAYMENT_MOCKING){
+                log.info("[MOCK MOMO Refund] Refund successfully for Order {}", order.getId());
+
+                order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+            }
+            else if(response != null && Integer.valueOf(0).equals(responseBody.get("resultCode"))){
                 log.info("[MOMO Refund] Refund successfully for Order {}", order.getId());
 
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
             }else{
-                String error = responseBody != null ? (String) responseBody.get("message") : "Unknown error";
                 log.error("[MOMO Refund] Refund failed for OrderId {}", order.getId());
                 throw new AppException(ErrorCode.MOMO_REFUND_FAILED);
             }
@@ -254,6 +265,68 @@ public class PaymentService {
             log.error("[MoMo Refund] Error executing refund request", e);
             throw new RuntimeException("MoMo refund execution failed", e);
         }
+    }
+
+    public MoMoStatusResponse checkMoMoTransactionStatus(Order order) throws Exception {
+        String momoOrderId = order.getInvoice().getPaymentRequestId(); // Lấy ID đã lưu
+        if (momoOrderId == null) {
+            throw new AppException(ErrorCode.INVALID_PAYMENT_REQUEST);
+        }
+
+        String requestId = UUID.randomUUID().toString();
+        String rawSignature = String.format(
+                "accessKey=%s&orderId=%s&partnerCode=%s&requestId=%s",
+                ACCESS_KEY, momoOrderId, PARTNER_CODE, requestId
+        );
+        String signature = signHmacSHA256(rawSignature, SECRET_KEY);
+
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("partnerCode", PARTNER_CODE);
+        requestBody.put("requestId", requestId);
+        requestBody.put("orderId", momoOrderId);
+        requestBody.put("signature", signature);
+        requestBody.put("lang", "en");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
+
+        ResponseEntity<Map> response = restTemplate.postForEntity(
+                API_ENDPOINT + "/query",
+                entity,
+                Map.class
+        );
+
+        Map<String, Object> responseBody = response.getBody();
+
+        if (responseBody != null) {
+            int resultCode = (int) responseBody.getOrDefault("resultCode", -1);
+            String transId = String.valueOf(responseBody.get("transId"));
+
+            if (resultCode == 0) {
+                return new MoMoStatusResponse(true, transId);
+            }
+        }
+
+        return new MoMoStatusResponse(false, null);
+    }
+
+    //cac don thanh toan roi nhung server crash
+    public void rescueMissedPayment(Order order, String transId) {
+        if (order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
+            return;
+        }
+
+        log.info("[MoMo Rescue] Successfully rescued OrderId: {}. Marking as PAID.", order.getId());
+
+        order.getInvoice().setPaymentStatus(PaymentStatusEnum.PAID);
+        order.getInvoice().setTransactionId(transId);
+
+        if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
+            order.setOrderStatus(OrderStatusEnum.CONFIRMED);
+        }
+
+        mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
     }
 
     private static String signHmacSHA256(String data, String key) throws Exception {
