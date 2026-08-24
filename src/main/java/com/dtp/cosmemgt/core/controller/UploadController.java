@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@RequestMapping("/api/uploads")
+@RequestMapping("/uploads")
 @RequiredArgsConstructor
 public class UploadController {
     private final CloudinaryService cloudinaryUtils;
@@ -19,9 +19,10 @@ public class UploadController {
     @PostMapping(value = "/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<String> uploadImage(
             @RequestParam("file") MultipartFile file,
-            @RequestParam(value = "folder", defaultValue = "products") String folder) {
+            @RequestParam(value = "folder", defaultValue = "empty") String folder,
+            @RequestParam(value = "objectId", required = false) String objectId){
         
-        String imageUrl = cloudinaryUtils.uploadImg(file, folder);
+        String imageUrl = cloudinaryUtils.uploadImg(file, folder, objectId);
         return ApiResponse.<String>builder()
                 .result(imageUrl)
                 .build();

@@ -18,7 +18,7 @@ import java.util.Optional;
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, String>, JpaSpecificationExecutor<ProductVariant> {
     boolean existsByVariantName(String variantName);
 
-    List<ProductVariant> findAllByProductId(String productId);
+    List<ProductVariant> findByIdIn(List<String> variantIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM product_variant WHERE id = :id", nativeQuery = true)

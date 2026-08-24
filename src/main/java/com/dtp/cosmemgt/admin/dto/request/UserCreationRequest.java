@@ -17,9 +17,14 @@ public class UserCreationRequest {
     String fullName;
     String phoneNum;
     String address;
+
     @Size(min = 4, message = "USERNAME_INVALID")
     String email;
+
     @Size(min = 6, message = "INVALID_PASSWORD")
     String password;
+
     Set<String> roles;
+
+    String avatar;
 }

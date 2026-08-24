@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -31,6 +32,26 @@ public class CloudinaryService {
 
             return uploadResult.get("secure_url").toString();
         }catch(IOException e){
+            log.error("Error uploading img to Cloudinary", e);
+            throw new AppException(ErrorCode.UPLOAD_FAILED);
+        }
+    }
+
+    public String uploadImg(MultipartFile file, String folderName, String objectId) {
+        try {
+            Map<String, Object> uploadParams = new HashMap<>();
+            uploadParams.put("folder", "cosmemgt/" + folderName);
+            uploadParams.put("resource_type", "auto");
+            uploadParams.put("overwrite", true); // BẬT CỜ GHI ĐÈ
+
+            if (objectId != null && !objectId.trim().isEmpty()) {
+                uploadParams.put("public_id", objectId);
+            }
+
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
             log.error("Error uploading img to Cloudinary", e);
             throw new AppException(ErrorCode.UPLOAD_FAILED);
         }
