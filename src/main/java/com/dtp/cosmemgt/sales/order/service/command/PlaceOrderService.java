@@ -61,15 +61,14 @@ public class PlaceOrderService {
                 .customer(currentUser)
                 .orderStatus(OrderStatusEnum.PENDING)
                 .build();
+        Order savedOrder = orderRepository.save(order);
 
         List<InventoryTransaction> transactionsToSave = reservationService.reserveInventory(request, order);
-        Order savedOrder = orderRepository.save(order);
+        reservationService.persistReservedTransactions(transactionsToSave, savedOrder);
 
         invoiceService.createInvoiceForOrder(savedOrder, request.getPaymentMethod());
 
         orderShippingService.createOrderShipping(savedOrder, currentUser, request);
-
-        reservationService.persistReservedTransactions(transactionsToSave, savedOrder);
 
         log.info("Order [{}] created successfully for user [{}]", savedOrder.getId(), currentUser.getId());
         return orderMapper.toOrderResponse(savedOrder);
