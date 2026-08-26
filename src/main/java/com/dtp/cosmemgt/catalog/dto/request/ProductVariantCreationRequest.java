@@ -1,11 +1,11 @@
 package com.dtp.cosmemgt.catalog.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.validator.constraints.Range;
+
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -32,6 +32,11 @@ public class ProductVariantCreationRequest {
     @NotBlank(message = "VARIANT_NAME_BLANK")
     @Size(min = 1, max = 225, message = "VARIANT_NAME_INVALID_LENGTH")
     String variantName;
+
+    @NotNull(message = "UNIT_PRICE_REQUIRED")
+    @DecimalMin(value = "0.0", inclusive = false, message = "BASE_PRICE_MIN_INVALID")
+    @Digits(integer = 9, fraction = 0, message = "UNIT_PRICE_FORMAT_INVALID")
+    BigDecimal unitPrice;
 
     String img;
 }

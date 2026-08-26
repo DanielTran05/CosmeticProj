@@ -23,7 +23,6 @@ import java.util.Map;
 public class AdminOrderController {
     RefundOrderService refundOrderService;
     OrderQueryService orderQueryService;
-    ReturnOrderService returnOrderService;
 
     @GetMapping
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(@RequestParam Map<String, String> queryParams) {

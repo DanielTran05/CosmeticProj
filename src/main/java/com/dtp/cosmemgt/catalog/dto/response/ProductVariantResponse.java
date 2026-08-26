@@ -4,6 +4,8 @@ import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -12,6 +14,7 @@ import lombok.experimental.FieldDefaults;
 public class ProductVariantResponse {
     String id;
     String variantName;
+    BigDecimal unitPrice;
     String img;
     String oum;
 }

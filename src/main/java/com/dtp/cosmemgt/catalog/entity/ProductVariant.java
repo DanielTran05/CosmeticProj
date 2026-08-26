@@ -7,6 +7,8 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.SQLDelete;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -24,6 +26,11 @@ public class ProductVariant extends BaseAuditEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     Product product;
+
+    //@Basic(optional = false)
+    // @NotNull moi tao cac row cu ch cap nhat se bi sai
+    @Column(precision = 19, scale = 4)
+    BigDecimal unitPrice;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uom_id")
