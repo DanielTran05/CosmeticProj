@@ -3,6 +3,7 @@ package com.dtp.cosmemgt.catalog.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 public class AdminProductVariantResponse {
     String id;
     String product;
+    BigDecimal unitPrice;
     String unitOfMeasure;
     String sku;
     String barcode;

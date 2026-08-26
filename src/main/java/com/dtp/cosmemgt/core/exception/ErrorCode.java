@@ -67,6 +67,9 @@ public enum ErrorCode {
     VARIANT_NAME_BLANK(1025, "Variant name must not be blank", HttpStatus.BAD_REQUEST),
     VARIANT_NAME_INVALID_LENGTH(1026, "Variant name length must be between 1 and 225 characters", HttpStatus.BAD_REQUEST),
     PRODUCT_VARIANT_UNAVAILABLE(1027, "Product variant unavailable", HttpStatus.BAD_REQUEST),
+    UNIT_PRICE_FORMAT_INVALID(1028, "Unit price must be a whole number with up to 9 digits", HttpStatus.BAD_REQUEST),
+    UNIT_PRICE_REQUIRED(1029, "Unit price is required", HttpStatus.BAD_REQUEST),
+
 
     //order
     ORDER_DO_NOT_BELONG(8001, "This order is not belong to you", HttpStatus.BAD_REQUEST),

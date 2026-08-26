@@ -36,7 +36,7 @@ public class Product extends BaseAuditEntity {
     String name;
 
     @Basic(optional = false)
-    @NotNull
+    //@NotNull bo dan dan
     @Column(precision = 19, scale = 4)
     BigDecimal basePrice;
 

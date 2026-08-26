@@ -40,55 +40,6 @@ public class WarehouseReservationService {
 
     AdminProductVariantService variantService;
 
-//    public List<InventoryTransaction> reserveInventory(OrderCreationRequest request, Order order) {
-//        BigDecimal orderTotalAmount = BigDecimal.ZERO;
-//        BigDecimal orderTotalCogs = BigDecimal.ZERO;
-//
-//        List<OrderDetail> ods = new ArrayList<>();
-//        List<InventoryTransaction> transactionsToSave = new ArrayList<>();
-//
-//        for (OrderDetailRequest odRequest : request.getOrderDetailRequests()) {
-//            String variantId = odRequest.getProductVariantId();
-//            variantService.checkProductVariantSftDeleted(variantId);
-//            int requireQty = odRequest.getQty();
-//
-//            //FIFO
-//            List<InventoryBatch> availableBatches = inventoryBatchRepository.findAllAvailableBatchesFIFO(variantId);
-//
-//            int actualTotalStock = availableBatches.stream().mapToInt(InventoryBatch::getAvailableQty).sum();
-//            if (actualTotalStock < requireQty) {
-//                throw new AppException(ErrorCode.OUT_OF_STOCK);             //Don hang ban dang mua da het hang
-//            }
-//
-//            //tru kho reserve va tong COGS (tong phi san xuat )
-//            BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
-//
-//            ProductVariant variant = productVariantRepository.findById(variantId)
-//                    .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
-//
-//            BigDecimal unitCogs = lineTotalCogs.divide(BigDecimal.valueOf(requireQty), 4, RoundingMode.HALF_UP);
-//            BigDecimal purchasedPrice = variant.getProduct().getBasePrice();
-//
-//            OrderDetail od = OrderDetail.builder()
-//                    .productVariant(variant)
-//                    .order(order)
-//                    .quantity(requireQty)
-//                    .purchasedPrice(purchasedPrice)
-//                    .unitCogs(unitCogs)
-//                    .build();
-//
-//            ods.add(od);
-//
-//            orderTotalAmount = orderTotalAmount.add(purchasedPrice.multiply(BigDecimal.valueOf(requireQty)));
-//            orderTotalCogs = orderTotalCogs.add(lineTotalCogs);
-//        }
-//
-//        order.setTotalAmount(orderTotalAmount);
-//        order.setTotalCogs(orderTotalCogs);
-//        order.setOrderDetails(ods);
-//
-//        return transactionsToSave;
-//    }
     public List<InventoryTransaction> reserveInventory(OrderCreationRequest request, Order order) {
         BigDecimal orderTotalAmount = BigDecimal.ZERO;
         BigDecimal orderTotalCogs = BigDecimal.ZERO;
@@ -130,7 +81,8 @@ public class WarehouseReservationService {
             BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
 
             BigDecimal unitCogs = lineTotalCogs.divide(BigDecimal.valueOf(requireQty), 4, RoundingMode.HALF_UP);
-            BigDecimal purchasedPrice = variant.getProduct().getBasePrice();
+//            BigDecimal purchasedPrice = variant.getProduct().getBasePrice();
+            BigDecimal purchasedPrice = variant.getUnitPrice();
 
             OrderDetail od = OrderDetail.builder()
                     .productVariant(variant)
