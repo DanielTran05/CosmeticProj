@@ -9,6 +9,7 @@ import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
+import com.dtp.cosmemgt.core.utils.SlugUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -19,8 +20,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -32,8 +35,8 @@ public class ProductQueryService {
     ProductMapper productMapper;
     ProductRepository productRepository;
 
-    public ProductDetailResponse getProductById(String productId){
-        Product p = productRepository.findById(productId)
+    public ProductDetailResponse getProductBySlug(String slug){
+        Product p = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
         if(p.getDeletedAt()!=null)
@@ -54,4 +57,46 @@ public class ProductQueryService {
         Pageable topTwelve = PageRequest.of(0, 12);
         return productRepository.findBestSellingVariant(topTwelve);
     }
+
+//    @Transactional
+//    public void migrateAllProductSlugs() {
+//        // Lấy toàn bộ sản phẩm trong DB
+//        List<Product> products = productRepository.findAll();
+//
+//        // Set dùng để lưu trữ các slug đã tồn tại hoặc vừa được tạo ra
+//        Set<String> usedSlugs = new HashSet<>();
+//
+//        // Bước 1: Nạp các slug đã có sẵn (nếu có vài sản phẩm đã có slug) vào Set
+//        products.stream()
+//                .filter(p -> p.getSlug() != null && !p.getSlug().isEmpty())
+//                .map(Product::getSlug)
+//                .forEach(usedSlugs::add);
+//
+//        // Bước 2: Duyệt qua các sản phẩm chưa có slug
+//        boolean needsUpdate = false;
+//        for (Product product : products) {
+//            if (product.getSlug() == null || product.getSlug().isEmpty()) {
+//
+//                // Dùng class SlugUtils đã tạo ở bước trước
+//                String baseSlug = SlugUtils.toSlug(product.getName());
+//                String finalSlug = baseSlug;
+//
+//                // Nếu trùng, cộng thêm số -1, -2, -3... vào đuôi
+//                int counter = 1;
+//                while (usedSlugs.contains(finalSlug)) {
+//                    finalSlug = baseSlug + "-" + counter;
+//                    counter++;
+//                }
+//
+//                product.setSlug(finalSlug);
+//                usedSlugs.add(finalSlug); // Cập nhật lại kho lưu trữ bộ nhớ
+//                needsUpdate = true;
+//            }
+//        }
+//
+//        // Bước 3: Commit 1 lần duy nhất xuống DB
+//        if (needsUpdate) {
+//            productRepository.saveAll(products);
+//        }
+//    }
 }

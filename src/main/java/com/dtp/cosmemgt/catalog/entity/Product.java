@@ -35,6 +35,9 @@ public class Product extends BaseAuditEntity {
     @NotNull
     String name;
 
+    @Column(unique = true, length = 225)
+    String slug;
+
     @Basic(optional = false)
     //@NotNull bo dan dan
     @Column(precision = 19, scale = 4)

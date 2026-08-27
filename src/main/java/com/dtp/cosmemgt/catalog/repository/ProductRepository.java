@@ -21,6 +21,10 @@ public interface ProductRepository extends JpaRepository<Product, String>,
                                         JpaSpecificationExecutor<Product> {
     boolean existsByName(String name);
 
+    Optional<Product> findBySlug(String slug);
+
+    boolean existsBySlug(String slug);
+
     @Query(value = "select p from Product p left join fetch p.productVariants where p.id = :productId")
     Optional<Product> findByIdWithVariants(String productId);
 
@@ -35,20 +39,17 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     @Query(value = "select * from product where id = ?1", nativeQuery = true)
     Optional<Product> getProductById(String id);
 
-    @Query("""
-    SELECT new com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse(
-        pv.id, 
-        p.name, 
-        pv.variantName, 
-        SUM(od.quantity)
-    )
-    FROM OrderDetail od
-    JOIN od.productVariant pv
-    JOIN pv.product p
-    JOIN od.order o
-    WHERE o.orderStatus = 'CONFIRMED'
-    GROUP BY pv.id, p.name, pv.variantName
-    ORDER BY SUM(od.quantity) DESC
-    """)
+    @Query("select new com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse(" +
+            "p.id, p.name, p.slug, p.avatar, p.basePrice, SUM(od.quantity)) " +
+            "from OrderDetail od " +
+            "join od.order o " +
+            "join od.productVariant pv " +
+            "join pv.product p " +
+            "where o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
+            "and p.deletedAt is Null " +
+            "group by p.id, p.name, p.slug, p.avatar, p.basePrice " +
+            "order by sum(od.quantity) DESC")
     List<BestSellerResponse> findBestSellingVariant(Pageable pageable);
+
+    Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

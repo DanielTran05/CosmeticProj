@@ -1,6 +1,8 @@
 package com.dtp.cosmemgt.catalog.repository;
 
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -19,6 +21,11 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
     boolean existsByVariantName(String variantName);
 
     List<ProductVariant> findByIdIn(List<String> variantIds);
+
+    @Query("SELECT pv FROM ProductVariant pv WHERE " +
+            "LOWER(pv.product.name) LIKE LOWER(CONCAT('%', :kw, '%')) OR " +
+            "LOWER(pv.variantName) LIKE LOWER(CONCAT('%', :kw, '%'))")
+    Page<ProductVariant> searchByKeyword(@Param("kw") String kw, Pageable pageable);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query(value = "DELETE FROM product_variant WHERE id = :id", nativeQuery = true)

@@ -2,6 +2,7 @@ package com.dtp.cosmemgt.catalog.mapper;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.ProductVariantResponse;
+import com.dtp.cosmemgt.catalog.dto.response.SimpleVariantResponse;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
@@ -19,6 +20,9 @@ public interface ProductVariantMapper {
     @Mapping(source = "product.id", target = "product")
     @Mapping(source = "unitOfMeasure.name", target = "unitOfMeasure")
     AdminProductVariantResponse toAdminProductVariantResponse(ProductVariant productVariant);
+
+    @Mapping(source = "product.name", target = "productName")
+    SimpleVariantResponse toSimpleVariantResponse(ProductVariant productVariant);
 
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
