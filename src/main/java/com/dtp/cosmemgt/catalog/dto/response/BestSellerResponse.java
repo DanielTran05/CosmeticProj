@@ -1,8 +1,12 @@
 package com.dtp.cosmemgt.catalog.dto.response;
 
+import java.math.BigDecimal;
+
 public record BestSellerResponse(
-    String variantId,
+    String productId,
     String productName,
-    String variantName,
+    String slug,
+    String avatar,
+    BigDecimal basePrice,
     Long totalSold
 ) {}
