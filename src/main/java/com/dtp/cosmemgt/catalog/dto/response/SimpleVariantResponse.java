@@ -1,0 +1,16 @@
+package com.dtp.cosmemgt.catalog.dto.response;
+
+import lombok.*;
+import lombok.experimental.FieldDefaults;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class SimpleVariantResponse {
+    String id;
+    String productName;
+    String variantName;
+    String sku;
+}

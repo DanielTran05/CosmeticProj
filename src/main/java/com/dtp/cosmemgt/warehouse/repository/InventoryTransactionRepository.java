@@ -16,6 +16,6 @@ import java.util.List;
 public interface InventoryTransactionRepository extends JpaRepository<InventoryTransaction, Integer> {
     List<InventoryTransaction> findAllByReferenceId(String referenceId);
 
-    Page<InventoryTransaction> findAllByInventoryBatchId(String batchId, Pageable pageable);
+    Page<InventoryTransaction> findAllByInventoryBatchId(int batchId, Pageable pageable);
 
 }

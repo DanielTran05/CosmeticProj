@@ -49,11 +49,12 @@ public class WarehouseInboundController {
 
     @GetMapping("/batches/grouped")
     public ApiResponse<PageResponse<ProductBatchGroupResponse>> getBatchesGroupedByProduct(
+            @RequestParam(required = false) String kw,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size
     ) {
         return ApiResponse.<PageResponse<ProductBatchGroupResponse>>builder()
-                .result(warehouseInboundService.getBatchesGroupedByProduct(page, size))
+                .result(warehouseInboundService.getBatchesGroupedByProduct(kw, page, size))
                 .build();
     }
 
@@ -71,7 +72,7 @@ public class WarehouseInboundController {
     //lich su giao dich lo hang
     @GetMapping("/batches/{batchId}/transactions")
     public ApiResponse<PageResponse<InventoryTransactionResponse>> getBatchTransactions(
-            @PathVariable String batchId,
+            @PathVariable int batchId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ApiResponse.<PageResponse<InventoryTransactionResponse>>builder()

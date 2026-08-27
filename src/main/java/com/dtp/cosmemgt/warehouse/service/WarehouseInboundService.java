@@ -92,13 +92,19 @@ public class WarehouseInboundService {
         return PageResponse.of(batchesPage.map(inventoryBatchMapper::toBatchResponse));
     }
 
-    public PageResponse<ProductBatchGroupResponse> getBatchesGroupedByProduct(int page, int size) {
+    public PageResponse<ProductBatchGroupResponse> getBatchesGroupedByProduct(String kw, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
+        Page<Product> productPage;
 
-        Page<Product> productPage = productRepository.findAll(pageable);
+        if(kw!=null && !kw.trim().isEmpty())
+            productPage = productRepository.findByNameContainingIgnoreCase(kw.trim(), pageable);
+        else
+            productPage = productRepository.findAll(pageable);
+
         if (productPage.isEmpty()) {
             return PageResponse.of(new PageImpl<>(new ArrayList<>(), pageable, productPage.getTotalElements()));
         }
+
         List<String> productIds = productPage.getContent().stream()
                 .map(Product::getId)
                 .toList();
@@ -152,7 +158,7 @@ public class WarehouseInboundService {
     }
 
     // 3. Lịch sử vào ra của từng lô hàng
-    public PageResponse<InventoryTransactionResponse> getBatchTransactions(String batchId, int page, int size){
+    public PageResponse<InventoryTransactionResponse> getBatchTransactions(int batchId, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
         Page<InventoryTransaction> transactions = inventoryTransactionRepository

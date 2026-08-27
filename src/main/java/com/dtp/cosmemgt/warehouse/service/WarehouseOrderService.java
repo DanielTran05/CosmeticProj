@@ -2,7 +2,6 @@ package com.dtp.cosmemgt.warehouse.service;
 
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.admin.repository.UserRepository;
-import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -12,7 +11,7 @@ import com.dtp.cosmemgt.sales.payment.service.PaymentService;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
-import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
+import com.dtp.cosmemgt.warehouse.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.mapper.WarehouseOrderMapper;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
 import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;

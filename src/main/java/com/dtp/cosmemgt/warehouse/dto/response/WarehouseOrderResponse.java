@@ -1,4 +1,4 @@
-package com.dtp.cosmemgt.sales.review.dto.response;
+package com.dtp.cosmemgt.warehouse.dto.response;
 
 import com.dtp.cosmemgt.admin.dto.response.UserResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderDetailResponse;

@@ -5,7 +5,7 @@ import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.service.command.ReturnOrderService;
-import com.dtp.cosmemgt.sales.review.dto.response.WarehouseOrderResponse;
+import com.dtp.cosmemgt.warehouse.dto.response.WarehouseOrderResponse;
 import com.dtp.cosmemgt.warehouse.service.WarehouseOrderService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

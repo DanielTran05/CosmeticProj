@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.service;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
+import com.dtp.cosmemgt.catalog.dto.response.SimpleVariantResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.entity.UnitOfMeasure;
@@ -60,9 +61,34 @@ public class AdminProductVariantService {
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<ProductVariant> pvs = productVariantRepository.findAll(pageable);
-        Page<AdminProductVariantResponse> pvResponse = pvs.map(productVariantMapper::toAdminProductVariantResponse);
+        Page<ProductVariant> pvs;
 
+        if (queryParams.containsKey("kw") && !queryParams.get("kw").trim().isEmpty()) {
+            String kw = queryParams.get("kw").trim();
+            pvs = productVariantRepository.searchByKeyword(kw, pageable);
+        } else {
+            pvs = productVariantRepository.findAll(pageable);
+        }
+
+        Page<AdminProductVariantResponse> pvResponse = pvs.map(productVariantMapper::toAdminProductVariantResponse);
+        return PageResponse.of(pvResponse);
+    }
+
+    public PageResponse<SimpleVariantResponse> warehouseGetAll(Map<String, String> queryParams) {
+        int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
+        int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Page<ProductVariant> pvs;
+
+        if (queryParams.containsKey("kw") && !queryParams.get("kw").trim().isEmpty()) {
+            String kw = queryParams.get("kw").trim();
+            pvs = productVariantRepository.searchByKeyword(kw, pageable);
+        } else {
+            pvs = productVariantRepository.findAll(pageable);
+        }
+
+        Page<SimpleVariantResponse> pvResponse = pvs.map(productVariantMapper::toSimpleVariantResponse);
         return PageResponse.of(pvResponse);
     }
 

@@ -12,9 +12,10 @@ import java.time.LocalDate;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BatchResponse {
+    Integer id;
     String productVariantId;
     String variantName;
-    String supplierName;   // THÊM MỚI
+    String supplierName;
     BigDecimal unitCost;
     Integer originalQty;
     Integer physicalQty;
