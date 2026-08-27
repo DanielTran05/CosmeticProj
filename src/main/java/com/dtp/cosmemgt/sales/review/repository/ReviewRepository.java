@@ -31,7 +31,7 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
     @Query(value = "select * from review where id = ?1", nativeQuery = true)
     Optional<Review> getById(int id);
 
-    Page<ReviewResponse> findReviewsByProductId(String productId, Pageable pageable);
+    Page<Review> findReviewsByProductId(String productId, Pageable pageable);
 
     boolean existsByCustomerIdAndProductId(String customerId, String productId);
 }

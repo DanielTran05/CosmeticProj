@@ -3,6 +3,7 @@ package com.dtp.cosmemgt.sales.review.entity;
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
+import com.dtp.cosmemgt.core.baseEntity.BaseAuditEntity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -16,7 +17,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "review")
-public class Review{
+public class Review extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     int id;

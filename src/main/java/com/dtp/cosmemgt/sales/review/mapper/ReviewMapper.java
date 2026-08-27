@@ -14,6 +14,7 @@ public interface ReviewMapper {
     Review toReview(ReviewCreationRequest request);
 
     @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "customer.fullName", target = "customer")
     ReviewResponse toReviewResponse(Review review);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)

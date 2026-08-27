@@ -5,6 +5,8 @@ import com.dtp.cosmemgt.admin.entity.User;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -13,7 +15,8 @@ import lombok.experimental.FieldDefaults;
 public class ReviewResponse {
     int id;
     String productId;
-    UserResponse customer;
+    String customer;
     int ratingStar;
     String comment;
+    LocalDateTime createdAt;
 }

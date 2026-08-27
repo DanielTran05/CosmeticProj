@@ -38,7 +38,6 @@ import java.util.Map;
 @Transactional
 @Slf4j
 public class ReviewService {
-    ProductVariantRepository productVariantRepository;
     CurrentUserService currentUserService;
 
     ReviewRepository reviewRepository;
@@ -46,28 +45,6 @@ public class ReviewService {
     ProductRepository productRepository;
 
     ReviewMapper reviewMapper;
-
-//    public ReviewResponse create(ReviewCreationRequest request) {
-//        ProductVariant pv = productVariantRepository.findById(request.getProductVariantId())
-//                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
-//
-//        User u = currentUserService.getCurrentUser();
-//
-//        //check if user has bought a product (pv) yet
-//        if(!orderRepository.hasUserPurchasedProduct(u.getId(), pv.getId()))
-//            throw new AppException(ErrorCode.HAS_NOT_USED_YET);
-//
-//        //check if user has already reviewed this product variant
-//        if(reviewRepository.existsByCustomerAndProductVariant(u, pv))
-//            throw new AppException(ErrorCode.ONLY_ONE_REVIEW_FOR_CUS_PV);
-//
-//        Review r = reviewMapper.toReview(request);
-//        r.setCustomer(u);
-//        r.setProductVariant(pv);
-//        r.setProduct(pv.getProduct());
-//
-//        return reviewMapper.toReviewResponse(reviewRepository.save(r));
-//    }
 
     public ReviewResponse create(ReviewCreationRequest request) {
         Product p = productRepository.findById(request.getProductId())
@@ -106,8 +83,9 @@ public class ReviewService {
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        Page<ReviewResponse> reviewsPage = reviewRepository.findReviewsByProductId(productId, pageable);
-        return PageResponse.of(reviewsPage);
+        Page<Review> reviewsPage = reviewRepository.findReviewsByProductId(productId, pageable);
+        Page<ReviewResponse> reviewsPageResponse = reviewsPage.map(reviewMapper::toReviewResponse);
+        return PageResponse.of(reviewsPageResponse);
     }
 
     public ReviewResponse getReviewDetail(int reviewId) {
