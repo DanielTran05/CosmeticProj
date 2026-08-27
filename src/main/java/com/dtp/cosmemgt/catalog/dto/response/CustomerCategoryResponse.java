@@ -9,8 +9,9 @@ import lombok.experimental.FieldDefaults;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomerCategoryResponse {
-    int id;
-    int parentId;
+    Integer id;
+    Integer parentId;
     String name;
     String img;
+    Long productCount;
 }

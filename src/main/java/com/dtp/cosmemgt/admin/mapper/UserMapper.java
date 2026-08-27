@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.admin.mapper;
 
 import com.dtp.cosmemgt.admin.dto.request.UserCreationRequest;
+import com.dtp.cosmemgt.admin.dto.request.AdminUserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.request.UserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.response.UserResponse;
 import com.dtp.cosmemgt.admin.entity.User;
@@ -17,5 +18,7 @@ public interface UserMapper {
     UserResponse toUserResponse(User user);
 
     @Mapping(target = "roles", ignore = true)
+    void adminUpdateUser(@MappingTarget User user, AdminUserUpdateRequest request);
+
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 }

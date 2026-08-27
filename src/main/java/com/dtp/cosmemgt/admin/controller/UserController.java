@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.admin.controller;
 
+import com.dtp.cosmemgt.admin.dto.request.AdminUserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.request.UserCreationRequest;
 import com.dtp.cosmemgt.admin.dto.request.UserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.response.UserResponse;
@@ -11,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")

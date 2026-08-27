@@ -31,12 +31,13 @@ public class SecurityConfig {
             "/auth/logout",
             "/auth/refresh",
             "/uploads/**",
-            "/payments/ipn-url"
+            "/payments/ipn-url",
     };
 
     private final String[] PUBLIC_GET_ENDPOINTS = {
             "/categories/**",
-            "/products/**"
+            "/products/**",
+            "/reviews/**"
     };
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;

@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.admin.service;
 
 import com.dtp.cosmemgt.admin.constant.PredefinedRole;
+import com.dtp.cosmemgt.admin.dto.request.AdminUserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.request.UserCreationRequest;
 import com.dtp.cosmemgt.admin.dto.request.UserUpdateRequest;
 import com.dtp.cosmemgt.admin.dto.response.UserResponse;
@@ -22,9 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.HashSet;
@@ -128,14 +127,14 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
 
     //@PostAuthorize("returnObject.username == authentication.name")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
-        User user = userRepository.findById(userId).orElseThrow(
-                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
         userMapper.updateUser(user, request);
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        var roles = roleRepository.findAllById(request.getRoles());
-        user.setRoles(new HashSet<>(roles));
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
@@ -177,11 +176,11 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
         userRepository.save(user);
     }
 
-    public UserResponse updateUserByAdmin(String userId, UserUpdateRequest request) {
+    public UserResponse updateUserByAdmin(String userId, AdminUserUpdateRequest request) {
         User user = userRepository.findById(userId).orElseThrow(
                 () -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
-        userMapper.updateUser(user, request);
+        userMapper.adminUpdateUser(user, request);
 
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
@@ -189,4 +188,6 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
+
+
 }

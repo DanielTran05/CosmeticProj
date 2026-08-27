@@ -10,9 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdateRequest {
-    String password;
-    String fullName;
-    String address;
-    String phoneNum;
+public class AdminUserUpdateRequest {
+    List<String> roles;
 }
