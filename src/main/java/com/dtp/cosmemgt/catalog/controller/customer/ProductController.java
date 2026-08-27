@@ -6,6 +6,7 @@ import com.dtp.cosmemgt.catalog.dto.response.ProductResponse;
 import com.dtp.cosmemgt.catalog.service.query.ProductQueryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
+import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,15 +29,17 @@ public class ProductController {
         return productQueryService.getAll(queryParams);
     }
 
-    @GetMapping("/{productId}")
-    public ApiResponse<ProductDetailResponse> getProductById(@PathVariable String productId) {
+    @GetMapping("/{slug}")
+    public ApiResponse<ProductDetailResponse> getProductBySlug(@PathVariable String slug) {
         return ApiResponse.<ProductDetailResponse>builder()
-                .result(productQueryService.getProductById(productId))
+                .result(productQueryService.getProductBySlug(slug))
                 .build();
     }
 
     @GetMapping("/best-sellers")
-    public List<BestSellerResponse> get12BestSellingProducts() {
-        return productQueryService.top12BestSellingProducts();
-     }
+    public ApiResponse<List<BestSellerResponse>> get12BestSellingProducts() {
+        return ApiResponse.<List<BestSellerResponse>>builder()
+                .result(productQueryService.top12BestSellingProducts())
+                .build();
+    }
 }

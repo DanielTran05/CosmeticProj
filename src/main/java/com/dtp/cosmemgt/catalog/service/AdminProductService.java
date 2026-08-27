@@ -14,6 +14,7 @@ import com.dtp.cosmemgt.catalog.service.query.ProductCoreService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
+import com.dtp.cosmemgt.core.utils.SlugUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -39,6 +40,15 @@ public class AdminProductService {
 
     public AdminProductResponse create(ProductCreationRequest request) {
         Product c = productMapper.toProduct(request);
+
+        String baseSlug = SlugUtils.toSlug(request.getName());
+        String finalSlug = baseSlug;
+
+        if (productRepository.existsBySlug(baseSlug)) {
+            String randomStr = java.util.UUID.randomUUID().toString().substring(0, 5);
+            finalSlug = baseSlug + "-" + randomStr;
+        }
+        c.setSlug(finalSlug);
 
         if (productRepository.existsByName(c.getName())) {
             throw new AppException(ErrorCode.PRODUCT_EXISTED);

@@ -34,13 +34,29 @@ public class ProductCoreService {
         Specification<Product> spec;
         if(isAdmin) {
             spec = ProductSpecification.filterProductForAdmin(queryParams);
-        }else{
+        } else {
             spec = ProductSpecification.filterProductForCustomer(queryParams);
         }
 
         int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
-        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+
+        Sort sort = Sort.by("createdAt").descending();
+
+        if (queryParams.containsKey("sort") && queryParams.get("sort") != null && !queryParams.get("sort").isEmpty()) {
+            String[] sortParams = queryParams.get("sort").split(",");
+
+            String sortBy = sortParams[0].equals("price") ? "basePrice" : sortParams[0];
+            String sortDir = sortParams.length > 1 ? sortParams[1] : "asc";
+
+            if (sortDir.equalsIgnoreCase("desc")) {
+                sort = Sort.by(sortBy).descending();
+            } else {
+                sort = Sort.by(sortBy).ascending();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
 
         return productRepository.findAll(spec, pageable);
     }

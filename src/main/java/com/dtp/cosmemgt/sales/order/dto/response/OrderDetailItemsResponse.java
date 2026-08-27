@@ -12,6 +12,8 @@ import java.math.BigDecimal;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetailItemsResponse {
+    String slug;
+    String productName;
     int quantity; //test
     BigDecimal purchasedPrice;
     ProductVariantResponse productVariant;
