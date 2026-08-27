@@ -24,10 +24,7 @@ public class CategoryQueryService {
     CategoryMapper categoryMapper;
 
     public List<CustomerCategoryResponse> getAll() {
-        List<Category> categories = categoryRepository.findAll();
-        return categories.stream()
-                .map(categoryMapper::toCustomerCategoryResponse)
-                .toList();
+        return categoryRepository.findAllCustomerCate();
     }
 
 
