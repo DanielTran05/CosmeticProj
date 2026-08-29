@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 public class AdminProductResponse {
     String id;
     String name;
+    String category;
     BigDecimal basePrice;
     String abcClass;
     LocalDateTime createdAt;

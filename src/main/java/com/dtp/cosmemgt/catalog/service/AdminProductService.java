@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.service;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
+import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductResponse;
@@ -8,6 +9,7 @@ import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.mapper.AdminProductMapper;
 import com.dtp.cosmemgt.catalog.mapper.ProductVariantMapper;
+import com.dtp.cosmemgt.catalog.repository.CategoryRepository;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.service.query.ProductCoreService;
@@ -37,9 +39,13 @@ public class AdminProductService {
     ProductCoreService productCoreService;
     ProductVariantMapper productVariantMapper;
     AdminProductMapper productMapper;
+    CategoryRepository categoryRepository;
 
     public AdminProductResponse create(ProductCreationRequest request) {
-        Product c = productMapper.toProduct(request);
+        Product p = productMapper.toProduct(request);
+
+        Category cate = categoryRepository.findById(request.getCateId())
+                .orElseThrow(() ->new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
 
         String baseSlug = SlugUtils.toSlug(request.getName());
         String finalSlug = baseSlug;
@@ -48,13 +54,15 @@ public class AdminProductService {
             String randomStr = java.util.UUID.randomUUID().toString().substring(0, 5);
             finalSlug = baseSlug + "-" + randomStr;
         }
-        c.setSlug(finalSlug);
+        p.setSlug(finalSlug);
 
-        if (productRepository.existsByName(c.getName())) {
+        if (productRepository.existsByName(p.getName())) {
             throw new AppException(ErrorCode.PRODUCT_EXISTED);
         }
 
-        return productMapper.toProductResponse(productRepository.save(c));
+        p.setCategory(cate);
+
+        return productMapper.toProductResponse(productRepository.save(p));
     }
 
     public AdminProductResponse getProductById(String productId){
@@ -83,7 +91,11 @@ public class AdminProductService {
         Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
+        Category cate = categoryRepository.findById(request.getCateId())
+                .orElseThrow(() ->new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
+
         productMapper.updateProductFromRequest(request, p);
+        p.setCategory(cate);
 
         return productMapper.toProductResponse(productRepository.save(p));
     }

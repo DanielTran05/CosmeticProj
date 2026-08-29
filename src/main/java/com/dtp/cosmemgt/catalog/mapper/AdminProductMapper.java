@@ -13,6 +13,7 @@ public interface AdminProductMapper {
     @IgnoreAuditFields
     Product toProduct(ProductCreationRequest request);
 
+    @Mapping(source = "category.id", target = "category")
     AdminProductResponse toProductResponse(Product product);
 
     @IgnoreAuditFields
