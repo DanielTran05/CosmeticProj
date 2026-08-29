@@ -4,6 +4,7 @@ import com.dtp.cosmemgt.admin.dto.request.PermissionRequest;
 import com.dtp.cosmemgt.admin.dto.response.PermissionResponse;
 import com.dtp.cosmemgt.admin.service.PermissionService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,7 +22,7 @@ public class PermissionController {
     PermissionService permissionService;
 
     @PostMapping
-    ApiResponse<PermissionResponse> create(@RequestBody PermissionRequest request) {
+    ApiResponse<PermissionResponse> create(@RequestBody @Valid PermissionRequest request) {
         return ApiResponse.<PermissionResponse>builder()
                 .result(permissionService.create(request))
                 .build();

@@ -105,7 +105,7 @@ public class AdminProductService {
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
         List<ProductVariant> pv = c.getProductVariants();
-        productVariantRepository.deleteAll(pv);                 //had set in Variant entity (delete → update)
+        productVariantRepository.deleteAll(pv);
 
         productRepository.delete(c);
     }

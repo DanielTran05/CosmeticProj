@@ -65,7 +65,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //xac nhan hoan hang huy
+    //xac nhan hoan hang huy (boom)
     @PutMapping("/{orderId}/confirmDeliveryFailed")
     public ApiResponse<Void> warehouseConfirmFailedOrder(@PathVariable String orderId) throws Exception {
 

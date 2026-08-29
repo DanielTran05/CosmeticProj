@@ -39,55 +39,6 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-//    public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
-//        User user = userMapper.toUser(request);
-//        user.setPassword(passwordEncoder.encode(request.getPassword()));
-//
-//        HashSet<Role> roles = new HashSet<>();
-//        if(isAdmin){
-//            roleRepository.findById(PredefinedRole.WAREHOUSE_ROLE).ifPresent(roles::add);
-//        }
-//        else{
-//            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-//        }
-//
-//        user.setRoles(roles);
-//
-//        try {
-//            user = userRepository.save(user);
-//        } catch (DataIntegrityViolationException exception) {
-//            throw new AppException(ErrorCode.USER_EXISTED);
-//        }
-//
-//        return userMapper.toUserResponse(user);
-//    }
-//    public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
-//        User user = userMapper.toUser(request);
-//        user.setPassword(passwordEncoder.encode(request.getPassword()));
-//
-//        HashSet<Role> roles = new HashSet<>();
-//
-//        if (isAdmin) {
-//            if (request.getRoles() != null && !request.getRoles().isEmpty()) {
-//                var foundRoles = roleRepository.findAllById(request.getRoles());
-//                roles.addAll(foundRoles);
-//            } else {
-//                throw new AppException(ErrorCode.ROLE_NOT_EXIST);
-//            }
-//        } else {
-//            roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
-//        }
-//
-//        user.setRoles(roles);
-//
-//        try {
-//            user = userRepository.save(user);
-//        } catch (DataIntegrityViolationException exception) {
-//            throw new AppException(ErrorCode.USER_EXISTED);
-//        }
-//
-//        return userMapper.toUserResponse(user);
-//    }
 public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
     User user = userMapper.toUser(request);
     user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -125,7 +76,6 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
         return userMapper.toUserResponse(u);
     }
 
-    //@PostAuthorize("returnObject.username == authentication.name")
     public UserResponse updateUser(String userId, UserUpdateRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
@@ -188,6 +138,4 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
-
-
 }

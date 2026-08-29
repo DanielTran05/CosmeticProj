@@ -21,11 +21,8 @@ import java.util.List;
 @Slf4j
 public class CategoryQueryService {
     CategoryRepository categoryRepository;
-    CategoryMapper categoryMapper;
 
     public List<CustomerCategoryResponse> getAll() {
         return categoryRepository.findAllCustomerCate();
     }
-
-
 }

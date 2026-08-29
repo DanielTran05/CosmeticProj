@@ -28,7 +28,6 @@ public enum ErrorCode {
     CATEGORY_NAME_INVALID_LENGTH(2005, "Category name must be between 8 and 100 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_DES_INVALID_LENGTH(2005, "Category name must be less than 225 characters", HttpStatus.BAD_REQUEST),
 
-
     //supplier
     SUPPLIER_EXISTED(3001, "Supplier existed", HttpStatus.BAD_REQUEST),
     SUPPLIER_NOT_EXISTED(3002, "Supplier not existed", HttpStatus.NOT_FOUND),
@@ -123,7 +122,25 @@ public enum ErrorCode {
     ORDER_ID_REQUIRED(9302, "Order for payment is required", HttpStatus.BAD_REQUEST),
     INVALID_PAYMENT_REQUEST(9303, "Invalid payment request for checking status", HttpStatus.BAD_REQUEST),
 
+    EMAIL_REQUIRED(9400, "Email is required", HttpStatus.BAD_REQUEST),
+    EMAIL_INVALID_FORMAT(9401, "Invalid email format", HttpStatus.BAD_REQUEST),
+    PASSWORD_REQUIRED(9402, "Password is required", HttpStatus.BAD_REQUEST),
+    FULL_NAME_REQUIRED(9405, "Full name is required", HttpStatus.BAD_REQUEST),
+    FULL_NAME_INVALID_LENGTH(9406, "Full name must be between 2 and 100 characters", HttpStatus.BAD_REQUEST),
+    PHONE_NUM_REQUIRED(9407, "Phone number is required", HttpStatus.BAD_REQUEST),
+    PHONE_NUM_INVALID_FORMAT(9408, "Invalid phone number format", HttpStatus.BAD_REQUEST),
+    ADDRESS_INVALID_LENGTH(9409, "Address must not exceed 255 characters", HttpStatus.BAD_REQUEST),
+    AVATAR_INVALID_URL(9410, "Avatar must be a valid URL", HttpStatus.BAD_REQUEST),
 
+    // Token
+    TOKEN_REQUIRED(9500, "Token is required", HttpStatus.BAD_REQUEST),
+
+    // Role & Permission
+    ROLE_NAME_REQUIRED(9600, "Role name is required", HttpStatus.BAD_REQUEST),
+    ROLE_NAME_INVALID_LENGTH(9601, "Role name must be between 2 and 50 characters", HttpStatus.BAD_REQUEST),
+    PERMISSION_NAME_REQUIRED(9602, "Permission name is required", HttpStatus.BAD_REQUEST),
+    PERMISSION_NAME_INVALID_LENGTH(9603, "Permission name must be between 2 and 50 characters", HttpStatus.BAD_REQUEST),
+    DESCRIPTION_INVALID_LENGTH(9604, "Description must not exceed 255 characters", HttpStatus.BAD_REQUEST),
 
     ;
 
