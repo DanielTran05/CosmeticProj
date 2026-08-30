@@ -29,6 +29,10 @@ public class Order extends BaseAuditEntity {
     @JoinColumn(name = "customer_id")
     User customer;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "employee_id")
+    User employee;
+
     @Column(precision = 19, scale = 4)
     BigDecimal totalAmount;
 

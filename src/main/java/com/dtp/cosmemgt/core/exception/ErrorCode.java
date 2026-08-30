@@ -95,6 +95,8 @@ public enum ErrorCode {
     RECEIVER_ADDRESS_REQUIRED(8022, "Receiver address is required", HttpStatus.BAD_REQUEST),
     RECEIVER_ADDRESS_INVALID_LENGTH(8023, "Receiver address length must be between 1 and 255 characters", HttpStatus.BAD_REQUEST),
     INVALID_STATUS_FOR_DELIVERY_FAILED(8023, "Order can not be failed, invalid status", HttpStatus.BAD_REQUEST),
+    ORDER_IS_PROCESSING(8024, "Order is being packing", HttpStatus.BAD_REQUEST),
+    INVALID_EXPORTING_WH_STAFF(8024, "This order has been assigned to another Warehouse staff", HttpStatus.BAD_REQUEST),
 
 
     //warehouse order

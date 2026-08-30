@@ -16,6 +16,7 @@ public class OrderResponse {
     String id;
     BigDecimal totalAmount;
     String orderStatus;
+    String employeeName;
     LocalDateTime createdAt;
     OrderShippingResponse orderShipping;
     List<OrderDetailItemsResponse> orderDetailItemsResponses;//test

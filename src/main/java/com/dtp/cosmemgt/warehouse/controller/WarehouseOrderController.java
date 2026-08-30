@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/warehouse/outbound/orders")
 @RequiredArgsConstructor
@@ -34,12 +36,23 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // chi tiet don hang de xuat hang
+    // chi tiet don hang de soan hang
     @GetMapping("/{orderId}")
-    public ApiResponse<WarehouseOrderResponse> getOrderDetailToExport(@PathVariable String orderId) {
+    public ApiResponse<WarehouseOrderResponse> getOrderDetail(@PathVariable String orderId) {
         
         return ApiResponse.<WarehouseOrderResponse>builder()
                 .result(warehouseOrderService.getOrderDetailToExport(orderId))
+                .build();
+    }
+
+    //soan hang
+    @PutMapping("{orderId}/packing")
+    public ApiResponse<Void> packOrder(@PathVariable String orderId) {
+
+        warehouseOrderService.packOrder(orderId);
+
+        return ApiResponse.<Void>builder()
+                .message("Nhan don thanh cong")
                 .build();
     }
 

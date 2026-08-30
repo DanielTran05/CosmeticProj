@@ -48,9 +48,23 @@ public class WarehouseOrderService {
     WarehouseOrderMapper warehouseOrderMapper;
 
     //COMMAND
+    public void packOrder(String orderId) {
+        User u = this.getCurrentUser();
+
+        int res = orderRepository.assignOrderToEmployee(orderId, u);
+
+        if (res == 0) {
+            throw new AppException(ErrorCode.ORDER_IS_PROCESSING);
+        }
+    }
 
     public void orderExportForShipping(String orderId){
         Order o = this.getOrder(orderId);
+
+        User u = this.getCurrentUser();
+
+        if(o.getEmployee() != u)
+            throw new AppException(ErrorCode.INVALID_EXPORTING_WH_STAFF);
 
         if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED &&
             o.getInvoice().getPaymentStatus() != PaymentStatusEnum.PAID)
@@ -131,11 +145,16 @@ public class WarehouseOrderService {
     //QUERY
 
     public PageResponse<OrderResponse> getAllOrder(OrderStatusEnum status, int page, int size){
+        User u = this.getCurrentUser();
+
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
         Page<Order> orderPage;
 
         if (status != null) {
-            orderPage = orderRepository.findByOrderStatus(status, pageable);
+            if(status == OrderStatusEnum.PROCESSING)
+                orderPage = orderRepository.findAllByOrderStatusAndEmployeeOrderByCreatedAtAsc(status, u, pageable);
+            else
+                orderPage = orderRepository.findByOrderStatus(status, pageable);
         } else {
             orderPage = orderRepository.findAll(pageable);
         }

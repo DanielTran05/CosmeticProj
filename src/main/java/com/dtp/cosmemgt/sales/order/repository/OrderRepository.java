@@ -6,9 +6,7 @@ import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
-import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,9 +37,19 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
 
     List<Order> findByOrderStatusAndCreatedAtBefore(OrderStatusEnum status, LocalDateTime thresholdTime);
 
-
     Page<Order> findByOrderStatus(OrderStatusEnum status, Pageable pageable);
 
-
     List<Order> findByOrderStatusAndInvoice_PaymentStatus(OrderStatusEnum orderStatus, PaymentStatusEnum paymentStatus);
+
+    @Modifying
+    @Query("update Order o set o.orderStatus = 'PROCESSING', o.employee = :employee " +
+            "where o.id = :orderId AND o.orderStatus = 'CONFIRMED'")
+    int assignOrderToEmployee(@Param("orderId") String orderId, @Param("employee") User employee);
+
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = {"orderDetails", "orderShipping", "employee"})
+    Page<Order> findAllByOrderStatusAndEmployeeOrderByCreatedAtAsc(
+            OrderStatusEnum orderStatus,
+            User employee, Pageable pageable
+    );
 }

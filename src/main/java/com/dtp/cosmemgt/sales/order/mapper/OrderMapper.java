@@ -15,7 +15,8 @@ import org.mapstruct.*;
 public interface OrderMapper {
     @Mapping(target = "orderDetailItemsResponses", source = "orderDetails") //test
     @Mapping(target = "orderShipping", source = "orderShipping")
-    OrderResponse toOrderResponse(Order oder);
+    @Mapping(target = "employeeName", source = "employee.fullName")
+    OrderResponse toOrderResponse(Order order);
 
     @Mapping(target = "orderDetailItemsResponses", source = "orderDetails")
     @Mapping(target = "orderShippingResponse", source = "orderShipping")
