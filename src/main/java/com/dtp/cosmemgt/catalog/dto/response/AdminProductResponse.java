@@ -16,6 +16,7 @@ public class AdminProductResponse {
     String category;
     BigDecimal basePrice;
     String abcClass;
+    String description;
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
     LocalDateTime deletedAt;

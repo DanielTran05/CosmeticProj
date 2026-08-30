@@ -53,5 +53,6 @@ public class Product extends BaseAuditEntity {
 
     String avatar;
 
+    @Column(columnDefinition = "TEXT")
     String description;
 }

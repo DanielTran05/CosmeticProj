@@ -27,4 +27,6 @@ public class ProductCreationRequest {
     @NotBlank(message = "ABC_CLASS_BLANK")
     @Size(min = 1, max = 1, message = "ABC_CLASS_INVALID_LENGTH")
     String abcClass;
+
+    String description;
 }
