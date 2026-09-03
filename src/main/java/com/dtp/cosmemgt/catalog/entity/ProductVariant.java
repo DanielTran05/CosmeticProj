@@ -31,6 +31,9 @@ public class ProductVariant extends BaseAuditEntity {
     // @NotNull moi tao cac row cu ch cap nhat se bi sai
     @Column(precision = 19, scale = 4)
     BigDecimal unitPrice;
+
+    @Column(name = "discounted_price", precision = 38, scale = 2)
+    private BigDecimal discountedPrice;
     
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "uom_id")

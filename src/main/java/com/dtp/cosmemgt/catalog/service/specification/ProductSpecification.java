@@ -1,16 +1,23 @@
 package com.dtp.cosmemgt.catalog.service.specification;
 
 import com.dtp.cosmemgt.catalog.entity.Product;
+import com.dtp.cosmemgt.sales.promotion.repository.PromotionRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Slf4j
+@RequiredArgsConstructor
 public class ProductSpecification {
+
+    private final PromotionRepository promotionRepository;
 
     public static Specification<Product> filterProductForAdmin(Map<String, String> queryParams){
         return (root, query, criteriaBuilder) -> {
@@ -27,7 +34,10 @@ public class ProductSpecification {
                         if(queryParams.containsKey("minPrice") && queryParams.get("minPrice") != null){
                             try{
                                 Double minPrice = Double.parseDouble(queryParams.get("minPrice"));
-                                predicates.add(criteriaBuilder.ge(root.get("basePrice"), minPrice));
+                                predicates.add(criteriaBuilder.ge(
+                                        criteriaBuilder.coalesce(root.get("minDiscountedPrice"), root.get("minPrice")),
+                                        minPrice
+                                ));
                             }catch (NumberFormatException e){
                                 log.error("Invalid minPrice value: {}", queryParams.get("minPrice"), e);
                             }
@@ -36,7 +46,10 @@ public class ProductSpecification {
                         if(queryParams.containsKey("maxPrice") && queryParams.get("maxPrice") != null){
                             try{
                                 Double maxPrice = Double.parseDouble(queryParams.get("maxPrice"));
-                                predicates.add(criteriaBuilder.le(root.get("basePrice"), maxPrice));
+                                predicates.add(criteriaBuilder.le(
+                                        criteriaBuilder.coalesce(root.get("minDiscountedPrice"), root.get("minPrice")),
+                                        maxPrice
+                                ));
                             }catch (NumberFormatException e){
                                 log.error("Invalid maxPrice value: {}", queryParams.get("maxPrice"), e);
                             }
@@ -52,6 +65,10 @@ public class ProductSpecification {
                             }
                         }
 
+                        if((queryParams.containsKey("isDiscounted") && Boolean.parseBoolean((queryParams.get("isDiscounted"))))){
+                            predicates.add(criteriaBuilder.lessThan(root.get("minDiscountedPrice"), root.get("minPrice")));
+                        }
+
                         return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
 
@@ -59,6 +76,8 @@ public class ProductSpecification {
 
     public static Specification<Product> filterProductForCustomer(Map<String, String> params) {
         Specification<Product> customerActiveSpec = (root, query, cb) -> cb.and(
+
+
                 cb.isNull(root.get("deletedAt")),
                 cb.isNull(root.get("category").get("deletedAt"))
         );

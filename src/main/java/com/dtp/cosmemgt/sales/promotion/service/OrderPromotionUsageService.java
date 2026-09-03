@@ -1,0 +1,124 @@
+package com.dtp.cosmemgt.sales.promotion.service;
+
+import com.dtp.cosmemgt.catalog.entity.ProductVariant;
+import com.dtp.cosmemgt.core.exception.AppException;
+import com.dtp.cosmemgt.core.exception.ErrorCode;
+import com.dtp.cosmemgt.sales.promotion.dto.request.TargetItemRequest;
+import com.dtp.cosmemgt.sales.promotion.entity.Promotion;
+import com.dtp.cosmemgt.sales.promotion.entity.PromotionTargetItem;
+import com.dtp.cosmemgt.sales.promotion.repository.PromotionRepository;
+import com.dtp.cosmemgt.sales.promotion.utils.TargetItemsUtils;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+@Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
+public class OrderPromotionUsageService {
+    PromotionRepository promotionRepository;
+    AdminPromotionService adminPromotionService;
+    PromotionCalculator promotionCalculator;
+    TargetItemsUtils syncByTargetItems;
+
+    @Transactional
+    public void deductProductPromotions(List<ProductVariant> purchasedVariants) {
+        if (purchasedVariants == null || purchasedVariants.isEmpty()) return;
+
+        // 1. Gom ID sản phẩm và ID biến thể để truy vấn
+        List<String> productIds = purchasedVariants.stream()
+                .map(v -> v.getProduct().getId())
+                .distinct()
+                .toList();
+        List<String> variantIds = purchasedVariants.stream()
+                .map(ProductVariant::getId)
+                .toList();
+
+        Set<String> appliedPromotionIds = new HashSet<>();
+
+        // 2. Tìm ngược lại mã KM nào đang khớp với mức giá discountedPrice của biến thể
+        for (String productId : productIds) {
+            List<Promotion> activePromotions = promotionRepository.findActiveProductPromotions(
+                    productId, variantIds, LocalDateTime.now()
+            );
+
+            for (ProductVariant variant : purchasedVariants) {
+                if (!variant.getProduct().getId().equals(productId)
+                        || variant.getDiscountedPrice() == null) continue;
+
+                BigDecimal original = variant.getUnitPrice();
+                BigDecimal currentDiscounted = variant.getDiscountedPrice();
+
+                for (Promotion promo : activePromotions) {
+                    boolean isApplicable = promo.getTargetItems().stream()
+                            .map(PromotionTargetItem::getTargetId)
+                            .anyMatch(targetId -> targetId.equals(productId)
+                                    || targetId.equals(variant.getId()));
+
+                    if (isApplicable) {
+                        BigDecimal calculatedPrice = promotionCalculator.calculateDiscountedPrice(original, promo);
+                        if (calculatedPrice.compareTo(currentDiscounted) == 0) {
+                            appliedPromotionIds.add(promo.getId());
+                            break; 
+                        }
+                    }
+                }
+            }
+        }
+
+        // deduct limit usage
+        for (String promoId : appliedPromotionIds) {
+            int updatedRows = promotionRepository.incrementUsedCount(promoId);
+            
+            if (updatedRows == 0) {
+                throw new AppException(ErrorCode.PROMOTION_OUT_OF_USAGE);
+            }
+
+            // 4. Nếu vừa trừ xong mà chạm nóc (hết limit) -> Đánh thức hệ thống đồng bộ gỡ bỏ giá giảm
+            Promotion promotion = promotionRepository.findById(promoId).orElse(null);
+            if (promotion != null && promotion.getUsedCount().equals(promotion.getUsageLimit())) {
+                log.info("Mã giảm giá {} đã hết lượt. Kích hoạt tự động gỡ giảm giá...", promotion.getCode());
+
+                promotion.setIsActive(false);
+                promotionRepository.save(promotion);
+
+                if (promotion.getTargetItems() != null && !promotion.getTargetItems().isEmpty()) {
+                    List<TargetItemRequest> targets = promotion.getTargetItems().stream()
+                            .map(item -> new TargetItemRequest(item.getTargetId(), item.getTargetType()))
+                            .toList();
+                    syncByTargetItems.syncByTargetItems(targets);
+                }
+            }
+        }
+    }
+
+    @Transactional
+    public void deductOrderVoucher(String voucherCode) {
+        Promotion promo = promotionRepository.findByCode(voucherCode)
+                .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_EXISTED));
+
+        int updatedRows = promotionRepository.incrementUsedCount(promo.getId());
+        if (updatedRows == 0) {
+            throw new AppException(ErrorCode.PROMOTION_OUT_OF_USAGE);
+        }
+
+        Promotion updatedPromo = promotionRepository.findById(promo.getId()).orElse(null);
+
+        if (updatedPromo != null && updatedPromo.getUsedCount().equals(updatedPromo.getUsageLimit())) {
+            log.info("Mã Voucher Đơn hàng {} đã hết lượt. Chuyển isActive = false...", updatedPromo.getCode());
+
+            updatedPromo.setIsActive(false);
+            promotionRepository.save(updatedPromo);
+        }
+    }
+}

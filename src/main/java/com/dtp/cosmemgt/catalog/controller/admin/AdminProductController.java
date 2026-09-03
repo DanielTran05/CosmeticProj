@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.controller.admin;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
+import com.dtp.cosmemgt.catalog.dto.response.AdminSimpleProductResponse;
 import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductResponse;
@@ -37,6 +38,13 @@ public class AdminProductController {
     public ApiResponse<PageResponse<AdminProductResponse>> getAllProducts(@RequestParam Map<String, String> queryParams) {
         return ApiResponse.<PageResponse<AdminProductResponse>>builder()
                 .result(productService.getAll(queryParams))
+                .build();
+    }
+
+    @GetMapping("/simple-product")
+    public ApiResponse<PageResponse<AdminSimpleProductResponse>> getAllSimpleProducts(@RequestParam Map<String, String> queryParams) {
+        return ApiResponse.<PageResponse<AdminSimpleProductResponse>>builder()
+                .result(productService.getAllSimple(queryParams))
                 .build();
     }
 

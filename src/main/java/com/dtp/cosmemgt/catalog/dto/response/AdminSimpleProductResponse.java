@@ -2,22 +2,15 @@ package com.dtp.cosmemgt.catalog.dto.response;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ProductResponse {
+public class AdminSimpleProductResponse {
     String id;
     String name;
-    String slug;
-    BigDecimal basePrice;
-    String description;
-    BigDecimal minPrice;
-    BigDecimal minDiscountedPrice;
-    String representativeVariantId;
-    String representativeVariantImg;
 }

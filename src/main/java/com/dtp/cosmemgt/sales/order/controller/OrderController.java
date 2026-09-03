@@ -2,10 +2,13 @@ package com.dtp.cosmemgt.sales.order.controller;
 
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
+import com.dtp.cosmemgt.sales.order.dto.request.CartCalculateRequest;
 import com.dtp.cosmemgt.sales.order.dto.request.OrderCreationRequest;
+import com.dtp.cosmemgt.sales.order.dto.response.CartCalculateResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderDetailResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.service.command.CancelOrderService;
+import com.dtp.cosmemgt.sales.order.service.command.CartCalculationService;
 import com.dtp.cosmemgt.sales.order.service.command.PlaceOrderService;
 import com.dtp.cosmemgt.sales.order.service.command.ReturnOrderService;
 import com.dtp.cosmemgt.sales.order.service.query.OrderQueryService;
@@ -27,6 +30,7 @@ public class OrderController {
     PlaceOrderService placeOrderService;
     ReturnOrderService returnOrderService;
     OrderQueryService customerOrderQueryService;
+    CartCalculationService cartCalculationService;
     CancelOrderService cancelOrderService;
 
     //COMMAND
@@ -76,6 +80,13 @@ public class OrderController {
     public ApiResponse<OrderDetailResponse> getOrderDetail(@PathVariable String orderId) {
         return ApiResponse.<OrderDetailResponse>builder()
                 .result(customerOrderQueryService.getOrderDetail(orderId))
+                .build();
+    }
+
+    @PostMapping("/calculate")
+    public ApiResponse<CartCalculateResponse> calculateOrder(@RequestBody CartCalculateRequest request) {
+        return ApiResponse.<CartCalculateResponse>builder()
+                .result(cartCalculationService.calculate(request))
                 .build();
     }
 }

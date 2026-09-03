@@ -3,6 +3,7 @@ package com.dtp.cosmemgt.catalog.controller.admin;
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantCreationRequest;
 import com.dtp.cosmemgt.catalog.dto.request.ProductVariantUpdateRequest;
 import com.dtp.cosmemgt.catalog.dto.response.AdminProductVariantResponse;
+import com.dtp.cosmemgt.catalog.dto.response.SimpleVariantResponse;
 import com.dtp.cosmemgt.catalog.service.AdminProductVariantService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
@@ -34,6 +35,13 @@ public class AdminProductVariantController {
     ApiResponse<PageResponse<AdminProductVariantResponse>> getAll(@RequestParam Map<String, String> queryParams) {
         return ApiResponse.<PageResponse<AdminProductVariantResponse>>builder()
                 .result(productVariantService.getAll(queryParams))
+                .build();
+    }
+
+    @GetMapping("/simple")
+    public ApiResponse<PageResponse<SimpleVariantResponse>> getSimpleVariants(@RequestParam Map<String, String> params) {
+        return ApiResponse.<PageResponse<SimpleVariantResponse>>builder()
+                .result(productVariantService.warehouseGetAll(params))
                 .build();
     }
 

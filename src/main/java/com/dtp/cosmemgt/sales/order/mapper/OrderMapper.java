@@ -30,5 +30,6 @@ public interface OrderMapper {
 
     @Mapping(source = "id", target = "id")
     @Mapping(source = "variantName", target = "variantName")
+    @Mapping(target = "discountedPrice", source = "discountedPrice")
     ProductVariantResponse toProductVariantResponse (ProductVariant productVariant);    //↓
 }

@@ -24,6 +24,9 @@ public abstract class BaseAuditEntity {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "created_by", updatable = false)
+    private String createdBy;
+
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -32,5 +35,5 @@ public abstract class BaseAuditEntity {
     private LocalDateTime deletedAt;
 
     @Column(name = "deleted_by")
-    private Long deletedBy;
+    private String deletedBy;
 }

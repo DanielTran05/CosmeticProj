@@ -17,9 +17,6 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderCreationRequest {
-    @NotBlank(message = "PAYMENT_METHOD_REQUIRED")
-    String paymentMethod;
-
     @NotEmpty(message = "ORDER_DETAILS_REQUIRED")
     @Valid
     @Size(max=100)
@@ -28,6 +25,11 @@ public class OrderCreationRequest {
 
     @Valid
     ShippingOrderCreationRequest shippingOrderCreationRequest;
+
+    @NotBlank(message = "PAYMENT_METHOD_REQUIRED")
+    String paymentMethod;
+
+    String codeVoucher;
 
     @Size(max = 500, message = "NOTE_INVALID_LENGTH")
     String note;

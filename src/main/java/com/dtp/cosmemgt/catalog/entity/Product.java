@@ -55,4 +55,16 @@ public class Product extends BaseAuditEntity {
 
     @Column(columnDefinition = "TEXT")
     String description;
+
+    @Column(name = "min_price", precision = 38, scale = 2)
+    private BigDecimal minPrice;
+
+    @Column(name = "min_discounted_price", precision = 38, scale = 2)
+    private BigDecimal minDiscountedPrice;
+
+    @Column(name = "representative_variant_id")
+    private String representativeVariantId;
+
+    @Column(name = "representative_variant_img")
+    private String representativeVariantImg;
 }

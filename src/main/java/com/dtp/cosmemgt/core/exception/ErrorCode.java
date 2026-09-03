@@ -144,6 +144,15 @@ public enum ErrorCode {
     PERMISSION_NAME_INVALID_LENGTH(9603, "Permission name must be between 2 and 50 characters", HttpStatus.BAD_REQUEST),
     DESCRIPTION_INVALID_LENGTH(9604, "Description must not exceed 255 characters", HttpStatus.BAD_REQUEST),
 
+    // Promotion
+    PROMOTION_EXISTED(9700, "Promotion existed", HttpStatus.BAD_REQUEST),
+    PROMOTION_NOT_EXISTED(9701, "Promotion not existed", HttpStatus.NOT_FOUND),
+    PROMOTION_NOT_DELETED_OR_NOT_FOUND(9702, "Promotion is not deleted or not found", HttpStatus.BAD_REQUEST),
+    PROMOTION_TARGET_ITEMS_REQUIRED(9703, "Promotion target items are required for product/variant scope", HttpStatus.BAD_REQUEST),
+    PROMOTION_OUT_OF_USAGE(9704, "Promotion has reached its usage limit", HttpStatus.BAD_REQUEST),
+    INVALID_VOUCHER(9705, "Invalid voucher code", HttpStatus.BAD_REQUEST),
+
+
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

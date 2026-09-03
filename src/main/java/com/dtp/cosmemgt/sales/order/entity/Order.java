@@ -39,6 +39,11 @@ public class Order extends BaseAuditEntity {
     @Column(precision = 19, scale = 4)
     BigDecimal totalCogs;
 
+    @Column(precision = 19, scale = 4)
+    BigDecimal discountAmount;
+
+    String voucherCode;
+
     @Enumerated(EnumType.STRING)
     OrderStatusEnum orderStatus;
 
@@ -47,8 +52,8 @@ public class Order extends BaseAuditEntity {
     List<OrderDetail> orderDetails = new ArrayList<>();
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private OrderShipping orderShipping;
+    OrderShipping orderShipping;
 
     @OneToOne(mappedBy = "order", cascade = CascadeType.ALL)
-    private Invoice invoice;
+    Invoice invoice;
 }

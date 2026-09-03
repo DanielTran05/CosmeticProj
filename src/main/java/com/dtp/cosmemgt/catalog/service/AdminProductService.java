@@ -1,6 +1,7 @@
 package com.dtp.cosmemgt.catalog.service;
 
 import com.dtp.cosmemgt.catalog.dto.request.ProductUpdateRequest;
+import com.dtp.cosmemgt.catalog.dto.response.AdminSimpleProductResponse;
 import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.dto.request.ProductCreationRequest;
@@ -75,6 +76,14 @@ public class AdminProductService {
         Page<Product> rawProductPage = productCoreService.getAll(queryParams, true);
 
         Page<AdminProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
+
+        return PageResponse.of(dtoProductRes);
+    }
+
+    public PageResponse<AdminSimpleProductResponse> getAllSimple(Map<String, String> queryParams) {
+        Page<Product> rawProductPage = productCoreService.getAll(queryParams, true);
+
+        Page<AdminSimpleProductResponse> dtoProductRes = rawProductPage.map(productMapper::toAdminSimpleProductResponse);
 
         return PageResponse.of(dtoProductRes);
     }

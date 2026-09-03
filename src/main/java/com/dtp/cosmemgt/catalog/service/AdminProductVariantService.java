@@ -11,6 +11,7 @@ import com.dtp.cosmemgt.catalog.mapper.ProductVariantMapper;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.repository.UomRepository;
+import com.dtp.cosmemgt.catalog.service.command.ProductSyncService;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -37,6 +38,7 @@ public class AdminProductVariantService {
     ProductRepository productRepository;
     UomRepository uomRepository;
     ProductVariantMapper productVariantMapper;
+    ProductSyncService productSyncService;
 
     public AdminProductVariantResponse create(ProductVariantCreationRequest request) {
         //check
@@ -52,6 +54,8 @@ public class AdminProductVariantService {
         ProductVariant pv = productVariantMapper.toProductVariant(request);
         pv.setProduct(p);
         pv.setUnitOfMeasure(u);
+
+        productSyncService.syncProductPricing(pv.getProduct().getId());
 
         return productVariantMapper.toAdminProductVariantResponse(productVariantRepository.save(pv));
     }
@@ -116,13 +120,22 @@ public class AdminProductVariantService {
             pv.setUnitOfMeasure(u);
         }
 
+        productSyncService.syncProductPricing(pv.getProduct().getId());
+
         return productVariantMapper.toAdminProductVariantResponse(productVariantRepository.save(pv));
     }
 
     public void sftDelProductVariant(String productVariantId) {
         ProductVariant pv = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+
+        String productId = pv.getProduct().getId();
+
         productVariantRepository.delete(pv);
+
+        productVariantRepository.flush();
+
+        productSyncService.syncProductPricing(productId);
     }
 
     public void restoreProductVariant(String productVariantId) {
@@ -130,12 +143,22 @@ public class AdminProductVariantService {
         if (rowsAffected == 0) {
             throw new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED);
         }
+
+        ProductVariant pv = productVariantRepository.findById(productVariantId)
+                .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+
+        productSyncService.syncProductPricing(pv.getProduct().getId());
     }
 
     public void hardDelProductVariant(String productVariantId) {
         ProductVariant pv = productVariantRepository.findByIdForAdmin(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
+
+        String productId = pv.getProduct().getId();
+
         productVariantRepository.hardDelById(pv.getId());
+
+        productSyncService.syncProductPricing(productId);
     }
 
     public void checkProductVariantSftDeleted(String variantId){

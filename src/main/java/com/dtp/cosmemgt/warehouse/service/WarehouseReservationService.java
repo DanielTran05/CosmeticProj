@@ -38,8 +38,6 @@ public class WarehouseReservationService {
     InventoryBatchRepository inventoryBatchRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
 
-    AdminProductVariantService variantService;
-
     public List<InventoryTransaction> reserveInventory(OrderCreationRequest request, Order order) {
         BigDecimal orderTotalAmount = BigDecimal.ZERO;
         BigDecimal orderTotalCogs = BigDecimal.ZERO;
@@ -81,8 +79,10 @@ public class WarehouseReservationService {
             BigDecimal lineTotalCogs = reserveStockAndCalculateCogs(availableBatches, requireQty, transactionsToSave);
 
             BigDecimal unitCogs = lineTotalCogs.divide(BigDecimal.valueOf(requireQty), 4, RoundingMode.HALF_UP);
-//            BigDecimal purchasedPrice = variant.getProduct().getBasePrice();
-            BigDecimal purchasedPrice = variant.getUnitPrice();
+
+            BigDecimal purchasedPrice = (variant.getDiscountedPrice() != null)
+                    ? variant.getDiscountedPrice()
+                    : variant.getUnitPrice();
 
             OrderDetail od = OrderDetail.builder()
                     .productVariant(variant)
