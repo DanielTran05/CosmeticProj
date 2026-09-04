@@ -1,18 +1,18 @@
-package com.dtp.cosmemgt.sales.payment.service;
+package com.dtp.cosmemgt.sales.payment.service.impl;
 
-import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentCreationRequest;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentFailedEvent;
-import com.dtp.cosmemgt.sales.payment.dto.response.MoMoStatusResponse;
+import com.dtp.cosmemgt.sales.payment.dto.response.PaymentStatusResponse;
 import com.dtp.cosmemgt.sales.payment.dto.response.PaymentResponse;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
-import com.dtp.cosmemgt.sales.order.repository.InvoiceRepository;
+import com.dtp.cosmemgt.sales.payment.repository.InvoiceRepository;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
+import com.dtp.cosmemgt.sales.payment.service.IPaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -36,12 +36,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-@Service
+@Service("MOMO")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional
 @Slf4j
-public class PaymentService {
+public class MomoPaymentService implements IPaymentService {
     private final InvoiceRepository invoiceRepository;
     @Value("${momo.partner-code}")
     private String PARTNER_CODE;
@@ -70,7 +70,7 @@ public class PaymentService {
     //NEU THANH TOAN THANH CONG KHONG GUI RESULT VE THI SAO (SERVER DIED)
     //NEU THANH TOAN KHONG THANH CONG CHO PHEP THANH TOAN LAI KHONG
 
-    public PaymentResponse createPaymentRequest(PaymentCreationRequest request) throws Exception {
+    public PaymentResponse createPaymentRequest(PaymentCreationRequest request, String ipAddress) throws Exception {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -267,7 +267,7 @@ public class PaymentService {
         }
     }
 
-    public MoMoStatusResponse checkMoMoTransactionStatus(Order order) throws Exception {
+    public PaymentStatusResponse checkTransactionStatus(Order order) throws Exception {
         String momoOrderId = order.getInvoice().getPaymentRequestId(); // Lấy ID đã lưu
         if (momoOrderId == null) {
             throw new AppException(ErrorCode.INVALID_PAYMENT_REQUEST);
@@ -304,11 +304,11 @@ public class PaymentService {
             String transId = String.valueOf(responseBody.get("transId"));
 
             if (resultCode == 0) {
-                return new MoMoStatusResponse(true, transId);
+                return new PaymentStatusResponse(true, transId);
             }
         }
 
-        return new MoMoStatusResponse(false, null);
+        return new PaymentStatusResponse(false, null);
     }
 
     //cac don thanh toan roi nhung server crash
@@ -325,6 +325,8 @@ public class PaymentService {
         if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
             order.setOrderStatus(OrderStatusEnum.CONFIRMED);
         }
+
+        orderRepository.save(order);
 
         mailService.sendOrderConfirmationEmail(order.getCustomer(), order);
     }

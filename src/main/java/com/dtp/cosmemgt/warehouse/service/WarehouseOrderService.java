@@ -7,7 +7,7 @@ import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.mapper.OrderMapper;
-import com.dtp.cosmemgt.sales.payment.service.PaymentService;
+import com.dtp.cosmemgt.sales.payment.service.impl.MomoPaymentService;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
@@ -42,7 +42,7 @@ public class WarehouseOrderService {
     UserRepository userRepository;
     OrderRepository orderRepository;
     InventoryTransactionRepository inventoryTransactionRepository;
-    PaymentService paymentService;
+    MomoPaymentService momoPaymentService;
 
     OrderMapper orderMapper;
     WarehouseOrderMapper warehouseOrderMapper;

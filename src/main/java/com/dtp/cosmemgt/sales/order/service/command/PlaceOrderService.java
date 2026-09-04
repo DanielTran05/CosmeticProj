@@ -2,33 +2,20 @@ package com.dtp.cosmemgt.sales.order.service.command;
 
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
-import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.core.commonService.CurrentUserService;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.dto.request.CartCalculateRequest;
 import com.dtp.cosmemgt.sales.order.dto.request.OrderCreationRequest;
-import com.dtp.cosmemgt.sales.order.dto.request.OrderDetailRequest;
-import com.dtp.cosmemgt.sales.order.dto.request.ShippingOrderCreationRequest;
 import com.dtp.cosmemgt.sales.order.dto.response.CartCalculateResponse;
 import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.entity.OrderDetail;
-import com.dtp.cosmemgt.sales.order.entity.OrderShipping;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
-import com.dtp.cosmemgt.sales.order.enums.PaymentMethodEnum;
-import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.mapper.OrderMapper;
-import com.dtp.cosmemgt.sales.order.repository.InvoiceRepository;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
-import com.dtp.cosmemgt.sales.order.repository.OrderShippingRepository;
-import com.dtp.cosmemgt.sales.payment.entity.Invoice;
 import com.dtp.cosmemgt.sales.promotion.service.OrderPromotionUsageService;
-import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
 import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
-import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
-import com.dtp.cosmemgt.warehouse.repository.InventoryBatchRepository;
-import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
 import com.dtp.cosmemgt.warehouse.service.WarehouseReservationService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -37,9 +24,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

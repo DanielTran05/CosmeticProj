@@ -16,6 +16,8 @@ public class OrderResponse {
     String id;
     BigDecimal totalAmount;
     String orderStatus;
+    String paymentStatus;
+    String paymentMethod;
     String employeeName;
     LocalDateTime createdAt;
     OrderShippingResponse orderShipping;

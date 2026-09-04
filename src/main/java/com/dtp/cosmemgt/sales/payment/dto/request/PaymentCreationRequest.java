@@ -17,4 +17,6 @@ public class PaymentCreationRequest {
             message = "INVALID_UUID_FORMAT"
     )
     String orderId;
+
+    String paymentMethod;
 }

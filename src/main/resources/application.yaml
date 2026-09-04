@@ -45,17 +45,27 @@ momo:
   partner-code: MOMO
   access-key: ${MOMO_ACCESS_KEY}
   secret-key: ${MOMO_ACCESS_SECRET_KEY}
-  redirect-url: http://localhost:3000
+  redirect-url: http://localhost:3000/payment-result
   ipn-url: https://unsounded-unchurchly-kian.ngrok-free.dev/cosmeMgt/payments/ipn-url
   api-endpoint: https://test-payment.momo.vn/v2/gateway/api
   refund_url: /refund
   IS_PAYMENT_MOCKING: true      #mock payment for testing
 
+vnpay:
+  tmn-code: ${VNP_TMN_CODE}
+  hash-secret: ${VPN_HASH_SECRET}
+  pay-url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+  return-url: "http://localhost:3000/payment-result" # URL FE sẽ hứng kết quả sau khi khách thanh toán xong
+  api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction" # Dùng sau này nếu làm tính năng Hoàn tiền tự động
+  version: "2.1.0"
+  command: "pay"
+  order-type: "other"
+
 brevo:
   api.key: ${BREVO_API_KEY}
   sender:
     email: tranducphu.dtp@gmail.com
-    name: Resto Restaurant
+    name: Yesstyle
   brevo_url: https://api.brevo.com/v3/smtp/email
 
 cloudinary:

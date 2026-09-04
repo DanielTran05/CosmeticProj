@@ -23,7 +23,6 @@ public class WarehouseOrderController {
     WarehouseOrderService warehouseOrderService;
     ReturnOrderService returnOrderService;
 
-
     //ds don hang theo status
     @GetMapping
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
@@ -111,7 +110,7 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    @PostMapping("/{orderId}/")
+    @PostMapping("/{orderId}/mock-failed")
     public ApiResponse<Void> mockShipperDeliveryFailed(@PathVariable String orderId) throws Exception {
         returnOrderService.mockShipperDeliveryFailed(orderId);
         return ApiResponse.<Void>builder()

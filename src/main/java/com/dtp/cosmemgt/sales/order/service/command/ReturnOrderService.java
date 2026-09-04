@@ -2,17 +2,12 @@ package com.dtp.cosmemgt.sales.order.service.command;
 
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.core.commonService.CurrentUserService;
-import com.dtp.cosmemgt.core.commonService.MailService;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
-import com.dtp.cosmemgt.sales.payment.service.PaymentService;
-import com.dtp.cosmemgt.warehouse.entity.InventoryBatch;
-import com.dtp.cosmemgt.warehouse.entity.InventoryTransaction;
-import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
 import com.dtp.cosmemgt.warehouse.repository.InventoryTransactionRepository;
 import com.dtp.cosmemgt.warehouse.service.WarehouseInboundService;
 import lombok.AccessLevel;
@@ -23,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

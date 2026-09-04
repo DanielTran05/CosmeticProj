@@ -3,10 +3,10 @@ package com.dtp.cosmemgt.sales.order.job;
 import com.dtp.cosmemgt.sales.order.service.command.CancelOrderService;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
-import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum; // Thêm dòng này
+import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
-import com.dtp.cosmemgt.sales.payment.dto.response.MoMoStatusResponse; // Import class bạn tạo ở bước 3 trước đó
-import com.dtp.cosmemgt.sales.payment.service.PaymentService; // Thêm dòng này
+import com.dtp.cosmemgt.sales.payment.dto.response.PaymentStatusResponse;
+import com.dtp.cosmemgt.sales.payment.service.IPaymentService; // Đã đổi import
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +27,7 @@ public class OrderCleanupJob {
 
     OrderRepository orderRepository;
     CancelOrderService cancelOrderService;
-    PaymentService paymentService;
+    Map<String, IPaymentService> paymentServiceMap;
 
     @Scheduled(fixedRate = 60000)
     public void cleanupExpiredPendingOrders() {
@@ -41,25 +42,30 @@ public class OrderCleanupJob {
             return;
         }
 
-        log.info("Found {} expired pending orders. Checking MoMo status before cancellation...", expiredOrders.size());
+        log.info("Found {} order timeout, check Payment status before cancel...", expiredOrders.size());
 
         for (Order order : expiredOrders) {
             try {
                 if (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PENDING) {
 
-                    MoMoStatusResponse status = paymentService.checkMoMoTransactionStatus(order);
+                    String paymentMethod = order.getInvoice().getPaymentMethod().name();
+                    IPaymentService paymentService = paymentServiceMap.get(paymentMethod);
 
-                    if (status.isPaid()) {
-                        paymentService.rescueMissedPayment(order, status.getTransId());
-                        continue;
+                    if (paymentService != null) {
+                        PaymentStatusResponse status = paymentService.checkTransactionStatus(order);
+
+                        if (status.isPaid()) {
+                            paymentService.rescueMissedPayment(order, status.getTransId());
+                            continue;
+                        }
                     }
                 }
 
                 cancelOrderService.cancelOrderDueToPaymentFailure(order.getId(), false);
-                log.info("Successfully cancelled expired OrderId: {}", order.getId());
+                log.info("Cancelled successfully order timeout for OrderID: {}", order.getId());
 
             } catch (Exception e) {
-                log.error("Failed to process expired OrderId: {}", order.getId(), e);
+                log.error("Error occurred when cleanup OrderTimeout: {}", order.getId(), e);
             }
         }
     }

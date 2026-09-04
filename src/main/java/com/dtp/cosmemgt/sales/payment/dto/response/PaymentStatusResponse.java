@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class MoMoStatusResponse {
+public class PaymentStatusResponse {
     private boolean isPaid;
     private String transId;
 }

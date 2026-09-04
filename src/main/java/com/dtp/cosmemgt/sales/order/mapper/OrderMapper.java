@@ -16,6 +16,8 @@ public interface OrderMapper {
     @Mapping(target = "orderDetailItemsResponses", source = "orderDetails") //test
     @Mapping(target = "orderShipping", source = "orderShipping")
     @Mapping(target = "employeeName", source = "employee.fullName")
+    @Mapping(target = "paymentMethod", source = "invoice.paymentMethod")
+    @Mapping(target = "paymentStatus", source = "invoice.paymentStatus")
     OrderResponse toOrderResponse(Order order);
 
     @Mapping(target = "orderDetailItemsResponses", source = "orderDetails")

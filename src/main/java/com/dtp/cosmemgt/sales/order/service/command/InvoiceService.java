@@ -3,7 +3,7 @@ package com.dtp.cosmemgt.sales.order.service.command;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.PaymentMethodEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
-import com.dtp.cosmemgt.sales.order.repository.InvoiceRepository;
+import com.dtp.cosmemgt.sales.payment.repository.InvoiceRepository;
 import com.dtp.cosmemgt.sales.payment.entity.Invoice;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

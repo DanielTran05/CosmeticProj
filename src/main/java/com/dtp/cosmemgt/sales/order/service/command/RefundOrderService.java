@@ -5,15 +5,19 @@ import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
 import com.dtp.cosmemgt.sales.order.entity.Order;
 import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
+import com.dtp.cosmemgt.sales.order.enums.PaymentMethodEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
-import com.dtp.cosmemgt.sales.payment.service.PaymentService;
+import com.dtp.cosmemgt.sales.payment.service.IPaymentService;
+import com.dtp.cosmemgt.sales.payment.service.impl.MomoPaymentService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class RefundOrderService {
     OrderRepository orderRepository;
 
-    PaymentService paymentService;
     MailService mailService;
+    Map<String, IPaymentService> paymentServiceMap;
 
     public void adminManualConfirmRefund(String orderId) throws Exception {
         Order o = orderRepository.findById(orderId)
@@ -35,9 +39,18 @@ public class RefundOrderService {
             throw new AppException(ErrorCode.INVALID_REFUND_CONDITION);
         }
 
-        paymentService.refund(o);
+        IPaymentService paymentService = paymentServiceMap.get(o.getInvoice().getPaymentMethod().name());
 
-        mailService.sendOrderRefundEmail(o.getCustomer(), o);
+        if (paymentService == null) {
+            throw new AppException(ErrorCode.PAYMENT_METHOD_NOT_SUPPORTED);
+        }else{
+            paymentService.refund(o);
+        }
+
+        if (o.getInvoice().getPaymentMethod() == PaymentMethodEnum.VNPAY)
+            mailService.sendWaitingOrderRefundEmail(o.getCustomer(), o);
+        else
+              mailService.sendOrderRefundEmail(o.getCustomer(), o);
 
         log.info("Admin successfully processed refund for order [{}]", orderId);
     }

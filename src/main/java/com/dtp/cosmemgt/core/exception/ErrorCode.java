@@ -118,11 +118,13 @@ public enum ErrorCode {
     INVENTORY_BATCH_NOT_EXISTED(9200, "Batch is not existed", HttpStatus.BAD_REQUEST),
     INVALID_ADJUSTMENT_QTY(9201, "Invalid adjustment quantity", HttpStatus.BAD_REQUEST),
 
-    //momo payment
+    //payment
     MOMO_PAYMENT_FAILED(9300, "Payment has been failed", HttpStatus.BAD_REQUEST),
     MOMO_REFUND_FAILED(9301, "Refund has been failed", HttpStatus.BAD_REQUEST),
     ORDER_ID_REQUIRED(9302, "Order for payment is required", HttpStatus.BAD_REQUEST),
     INVALID_PAYMENT_REQUEST(9303, "Invalid payment request for checking status", HttpStatus.BAD_REQUEST),
+    PAYMENT_METHOD_NOT_SUPPORTED(9304, "Payment method is not supported", HttpStatus.BAD_REQUEST),
+    STATUS_CHECK_NOT_SUPPORTED(9305, "Status check is not supported for this payment method", HttpStatus.BAD_REQUEST),
 
     EMAIL_REQUIRED(9400, "Email is required", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_FORMAT(9401, "Invalid email format", HttpStatus.BAD_REQUEST),

@@ -10,7 +10,6 @@ import com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum;
 import com.dtp.cosmemgt.sales.order.enums.PaymentStatusEnum;
 import com.dtp.cosmemgt.sales.order.repository.OrderRepository;
 import com.dtp.cosmemgt.sales.payment.dto.request.PaymentFailedEvent;
-import com.dtp.cosmemgt.sales.payment.service.PaymentService;
 import com.dtp.cosmemgt.warehouse.enums.TransactionTypeEnum;
 import com.dtp.cosmemgt.warehouse.service.WarehouseInboundService;
 import lombok.AccessLevel;
