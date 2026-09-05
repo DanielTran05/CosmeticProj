@@ -153,6 +153,7 @@ public enum ErrorCode {
     PROMOTION_TARGET_ITEMS_REQUIRED(9703, "Promotion target items are required for product/variant scope", HttpStatus.BAD_REQUEST),
     PROMOTION_OUT_OF_USAGE(9704, "Promotion has reached its usage limit", HttpStatus.BAD_REQUEST),
     INVALID_VOUCHER(9705, "Invalid voucher code", HttpStatus.BAD_REQUEST),
+    PROMOTION_MIN_ORDER_AMOUNT_NOT_ALLOWED(9706, "Promotion minimum order amount is not allowed for this scope", HttpStatus.BAD_REQUEST)
 
 
     ;

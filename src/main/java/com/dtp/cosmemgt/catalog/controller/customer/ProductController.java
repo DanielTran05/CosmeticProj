@@ -1,12 +1,11 @@
 package com.dtp.cosmemgt.catalog.controller.customer;
 
-import com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse;
+import com.dtp.cosmemgt.catalog.dto.response.ProductCardResponse;
 import com.dtp.cosmemgt.catalog.dto.response.ProductDetailResponse;
 import com.dtp.cosmemgt.catalog.dto.response.ProductResponse;
 import com.dtp.cosmemgt.catalog.service.query.ProductQueryService;
 import com.dtp.cosmemgt.core.dto.ApiResponse;
 import com.dtp.cosmemgt.core.dto.PageResponse;
-import com.dtp.cosmemgt.sales.order.dto.response.OrderResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -37,9 +36,16 @@ public class ProductController {
     }
 
     @GetMapping("/best-sellers")
-    public ApiResponse<List<BestSellerResponse>> get12BestSellingProducts() {
-        return ApiResponse.<List<BestSellerResponse>>builder()
-                .result(productQueryService.top12BestSellingProducts())
+    public ApiResponse<List<ProductCardResponse>> get12BestSellingProducts() {
+        return ApiResponse.<List<ProductCardResponse>>builder()
+                .result(productQueryService.getTop12BestSellers())
+                .build();
+    }
+
+    @GetMapping("/sale")
+    public ApiResponse<List<ProductCardResponse>> get12SaleProduct() {
+        return ApiResponse.<List<ProductCardResponse>>builder()
+                .result(productQueryService.getTop12SaleProducts())
                 .build();
     }
 }

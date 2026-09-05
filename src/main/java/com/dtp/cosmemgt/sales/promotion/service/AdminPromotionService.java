@@ -56,6 +56,11 @@ public class AdminPromotionService {
             throw new AppException(ErrorCode.PROMOTION_TARGET_ITEMS_REQUIRED);
         }
 
+        if((request.getScopeType() == ScopeType.PRODUCT || request.getScopeType() == ScopeType.VARIANT)
+            && request.getMinOrderAmount() != null) {
+            throw new AppException(ErrorCode.PROMOTION_MIN_ORDER_AMOUNT_NOT_ALLOWED);
+        }
+
         Promotion pr = promotionMapper.toPromotion(request);
         pr.setCreatedBy(currentUserService.getCurrentUser().getId());
         pr.setIsActive(request.getIsActive());
@@ -166,8 +171,8 @@ public class AdminPromotionService {
         Promotion pr = promotionRepository.findById(promotionId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_EXISTED));
         pr.setDeletedBy(currentUserService.getCurrentUser().getId());
+        pr.setIsActive(false);
 
-        // 1. Lưu lại danh sách target trước khi xóa
         List<TargetItemRequest> targetsToSync = new ArrayList<>();
         if ((pr.getScopeType() == ScopeType.PRODUCT || pr.getScopeType() == ScopeType.VARIANT)
                 && pr.getTargetItems() != null) {
@@ -176,13 +181,9 @@ public class AdminPromotionService {
                     .toList();
         }
 
-        // 2. Xóa mềm
         promotionRepository.delete(pr);
-
-        // 3. Ép Hibernate đẩy lệnh xóa xuống DB ngay lập tức
         promotionRepository.flush();
 
-        // 4. Gọi đồng bộ để các sản phẩm này quay về giá gốc (hoặc giá của mã KM khác)
         if (!targetsToSync.isEmpty()) {
             syncByTargetItems.syncByTargetItems(targetsToSync);
         }

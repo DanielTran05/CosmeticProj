@@ -25,7 +25,6 @@ import java.util.Map;
 public class PromotionController {
     PromotionService promotionService;
 
-
     @GetMapping("/order-vouchers")
     ApiResponse<List<PromotionResponse>> getOrderVouchers() {
         return ApiResponse.<List<PromotionResponse>>builder()

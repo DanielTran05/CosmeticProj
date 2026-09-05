@@ -22,8 +22,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "promotion")
-@SQLDelete(sql = "UPDATE promotion SET deleted_at = NOW() WHERE id = ?")
-@SQLRestriction("deleted_at IS NULL")
+@SQLDelete(sql = "UPDATE promotion SET deleted_at = NOW(), is_active = false WHERE id = ?")
 public class Promotion extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

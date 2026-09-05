@@ -1,6 +1,5 @@
 package com.dtp.cosmemgt.catalog.repository;
 
-import com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +20,18 @@ public interface ProductRepository extends JpaRepository<Product, String>,
                                         JpaSpecificationExecutor<Product> {
     boolean existsByName(String name);
 
+    @Query(value = """
+        SELECT DISTINCT p.* FROM product p
+        JOIN product_variant pv ON p.id = pv.product_id
+        JOIN promotion_target_item pti ON (pti.target_id = p.id AND pti.target_type = 'PRODUCT') 
+                                       OR (pti.target_id = pv.id AND pti.target_type = 'VARIANT')
+        JOIN promotion promo ON pti.promotion_id = promo.id
+        WHERE promo.is_active = true 
+        AND CURRENT_TIMESTAMP BETWEEN promo.start_date AND promo.end_date 
+        limit 12 
+    """, nativeQuery = true)
+    List<Product> findProductCurrentlyOnSale();
+
     Optional<Product> findBySlug(String slug);
 
     boolean existsBySlug(String slug);
@@ -39,17 +50,16 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     @Query(value = "select * from product where id = ?1", nativeQuery = true)
     Optional<Product> getProductById(String id);
 
-    @Query("select new com.dtp.cosmemgt.catalog.dto.response.BestSellerResponse(" +
-            "p.id, p.name, p.slug, p.avatar, p.basePrice, SUM(od.quantity)) " +
-            "from OrderDetail od " +
-            "join od.order o " +
-            "join od.productVariant pv " +
-            "join pv.product p " +
-            "where o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
-            "and p.deletedAt is Null " +
-            "group by p.id, p.name, p.slug, p.avatar, p.basePrice " +
-            "order by sum(od.quantity) DESC")
-    List<BestSellerResponse> findBestSellingVariant(Pageable pageable);
+    @Query("SELECT p, SUM(od.quantity) " +
+            "FROM OrderDetail od " +
+            "JOIN od.order o " +
+            "JOIN od.productVariant pv " +
+            "JOIN pv.product p " +
+            "WHERE o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
+            "AND p.deletedAt IS NULL " +
+            "GROUP BY p " +
+            "ORDER BY SUM(od.quantity) DESC")
+    List<Object[]> findBestSellingProductsWithTotalSold(Pageable pageable);
 
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

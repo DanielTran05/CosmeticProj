@@ -1,0 +1,10 @@
+Promotion:
+    San pham bi xoa → add promo
+    check tru so luot dung
+    order < > min
+
+
+Promo ----> PromoItem ----> Variants
+                      ----> Product ----> Variants
+                     
+Logic get 12 sale items:

@@ -21,6 +21,7 @@ public class AdminPromotionResponse {
     String name;
     String discountType;
     BigDecimal discountValue;
+    BigDecimal minOrderAmount;
     String scopeType;       //filter
     Integer usageLimit;
     Integer usedCount;
