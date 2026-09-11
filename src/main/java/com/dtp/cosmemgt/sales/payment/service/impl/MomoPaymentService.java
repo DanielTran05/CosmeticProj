@@ -74,6 +74,12 @@ public class MomoPaymentService implements IPaymentService {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
+        if (order.getOrderStatus() == OrderStatusEnum.CANCELLED) {
+            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+        if (order.getOrderStatus() != OrderStatusEnum.PENDING) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_BE_PAID);
+        }
         if (order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
             throw new AppException(ErrorCode.ORDER_HAS_BEEN_PAID);
         }
@@ -201,8 +207,6 @@ public class MomoPaymentService implements IPaymentService {
             } else {
                 log.warn("[MoMo IPN] Payment FAILED for OrderId: {}. Message: {}", realOrderId, message);
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
-
-                applicationEventPublisher.publishEvent(new PaymentFailedEvent(realOrderId, message));
             }
 
         } catch (Exception e) {
@@ -250,6 +254,7 @@ public class MomoPaymentService implements IPaymentService {
                 log.info("[MOCK MOMO Refund] Refund successfully for Order {}", order.getId());
 
                 order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+                mailService.sendWaitingOrderRefundEmail(order.getCustomer(), order);
             }
             else if(response != null && Integer.valueOf(0).equals(responseBody.get("resultCode"))){
                 log.info("[MOMO Refund] Refund successfully for Order {}", order.getId());

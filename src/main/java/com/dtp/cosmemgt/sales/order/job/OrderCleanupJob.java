@@ -42,12 +42,15 @@ public class OrderCleanupJob {
             return;
         }
 
-        log.info("Found {} order timeout, check Payment status before cancel...", expiredOrders.size());
+        log.info("Found {} order timeout, checking payment status before cancellation...", expiredOrders.size());
 
         for (Order order : expiredOrders) {
             try {
-                if (order.getInvoice() != null && order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PENDING) {
+                PaymentStatusEnum paymentStatus = order.getInvoice() != null
+                        ? order.getInvoice().getPaymentStatus()
+                        : null;
 
+                if (paymentStatus == PaymentStatusEnum.PENDING || paymentStatus == PaymentStatusEnum.FAILED) {
                     String paymentMethod = order.getInvoice().getPaymentMethod().name();
                     IPaymentService paymentService = paymentServiceMap.get(paymentMethod);
 
@@ -62,10 +65,10 @@ public class OrderCleanupJob {
                 }
 
                 cancelOrderService.cancelOrderDueToPaymentFailure(order.getId(), false);
-                log.info("Cancelled successfully order timeout for OrderID: {}", order.getId());
+                log.info("Cancelled successfully timeout OrderID: {}", order.getId());
 
             } catch (Exception e) {
-                log.error("Error occurred when cleanup OrderTimeout: {}", order.getId(), e);
+                log.error("Error occurred when cleaning up timeout OrderID: {}", order.getId(), e);
             }
         }
     }

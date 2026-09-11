@@ -24,6 +24,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -51,6 +53,13 @@ public class VNPayPaymentService implements IPaymentService {
     public PaymentResponse createPaymentRequest(PaymentCreationRequest request, String ipAddress) throws Exception {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
+
+        if (order.getOrderStatus() == OrderStatusEnum.CANCELLED) {
+            throw new AppException(ErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+        if (order.getOrderStatus() != OrderStatusEnum.PENDING) {
+            throw new AppException(ErrorCode.ORDER_CANNOT_BE_PAID);
+        }
 
         if (order.getInvoice().getPaymentStatus() == PaymentStatusEnum.PAID) {
             throw new AppException(ErrorCode.ORDER_HAS_BEEN_PAID);
@@ -324,25 +333,34 @@ public class VNPayPaymentService implements IPaymentService {
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(requestBody, headers);
 
         // bypass SSL certificate validation for testing purposes
-        RestTemplate sslRestTemplate = createTrustAllRestTemplate();
-        ResponseEntity<Map> response = sslRestTemplate.postForEntity(vnPayConfig.getApiUrl(), entity, Map.class);
+        try{
+            RestTemplate sslRestTemplate = createTrustAllRestTemplate();
+            ResponseEntity<Map> response = sslRestTemplate.postForEntity(vnPayConfig.getApiUrl(), entity, Map.class);
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null) {
-            String vnp_ResponseCode = (String) responseBody.get("vnp_ResponseCode");
-            String vnp_Message = (String) responseBody.get("vnp_Message");
+            Map<String, Object> responseBody = response.getBody();
+            if (responseBody != null) {
+                String vnp_ResponseCode = (String) responseBody.get("vnp_ResponseCode");
+                String vnp_Message = (String) responseBody.get("vnp_Message");
 
-            log.info("[VNPAY Refund] Order: {}, ResponseCode: {}, Message: {}", vnp_TxnRef, vnp_ResponseCode, vnp_Message);
+                log.info("[VNPAY Refund] Order: {}, ResponseCode: {}, Message: {}", vnp_TxnRef, vnp_ResponseCode, vnp_Message);
 
-            if ("00".equals(vnp_ResponseCode)) {
-                order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
-                mailService.sendWaitingOrderRefundEmail(order.getCustomer(), order);
-            } else {
-                log.error("[VNPAY Refund] Lỗi từ VNPAY: {}", vnp_Message);
-                throw new RuntimeException("Lỗi hoàn tiền VNPAY: " + vnp_Message);
+                if ("00".equals(vnp_ResponseCode)) {
+                    order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+                    mailService.sendWaitingOrderRefundEmail(order.getCustomer(), order);
+                } else if ("02".equals(vnp_ResponseCode) || "94".equals(vnp_ResponseCode)) {
+                    log.warn("[VNPAY Refund] Đơn {} đã hoàn tiền từ trước (có thể do lỗi network lần gọi trước). Đồng bộ lại DB.", vnp_TxnRef);
+                    order.getInvoice().setPaymentStatus(PaymentStatusEnum.REFUNDED);
+                } else {
+                    log.error("[VNPAY Refund] Lỗi từ VNPAY: {}", vnp_Message);
+                    order.getInvoice().setPaymentStatus(PaymentStatusEnum.PENDING_REFUND);
+                }
             }
-        }
+        } catch (RestClientException e) {
+            log.error("[VNPAY Refund] Lỗi Network khi gọi VNPAY cho đơn {}: {}", vnp_TxnRef, e.getMessage());
+        } catch (Exception e) {
+            log.error("[VNPAY Refund] Lỗi không xác định: {}", e.getMessage());
     }
+}
 
     private RestTemplate createTrustAllRestTemplate() {
         try {

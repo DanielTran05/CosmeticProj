@@ -125,6 +125,8 @@ public enum ErrorCode {
     INVALID_PAYMENT_REQUEST(9303, "Invalid payment request for checking status", HttpStatus.BAD_REQUEST),
     PAYMENT_METHOD_NOT_SUPPORTED(9304, "Payment method is not supported", HttpStatus.BAD_REQUEST),
     STATUS_CHECK_NOT_SUPPORTED(9305, "Status check is not supported for this payment method", HttpStatus.BAD_REQUEST),
+    ORDER_CANNOT_BE_PAID(9306, "Order cannot be paid", HttpStatus.BAD_REQUEST),
+    ORDER_ALREADY_CANCELLED(9307, "Order has been cancelled", HttpStatus.BAD_REQUEST),
 
     EMAIL_REQUIRED(9400, "Email is required", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID_FORMAT(9401, "Invalid email format", HttpStatus.BAD_REQUEST),

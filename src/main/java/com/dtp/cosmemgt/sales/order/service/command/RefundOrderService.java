@@ -47,10 +47,7 @@ public class RefundOrderService {
             paymentService.refund(o);
         }
 
-        if (o.getInvoice().getPaymentMethod() == PaymentMethodEnum.VNPAY)
-            mailService.sendWaitingOrderRefundEmail(o.getCustomer(), o);
-        else
-              mailService.sendOrderRefundEmail(o.getCustomer(), o);
+        //da xoa mail do refund handle roi
 
         log.info("Admin successfully processed refund for order [{}]", orderId);
     }

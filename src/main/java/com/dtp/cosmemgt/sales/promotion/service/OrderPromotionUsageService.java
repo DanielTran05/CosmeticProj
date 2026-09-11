@@ -121,4 +121,75 @@ public class OrderPromotionUsageService {
             promotionRepository.save(updatedPromo);
         }
     }
+
+    @Transactional
+    public void restoreProductPromotions(List<ProductVariant> purchasedVariants) {
+        if (purchasedVariants == null || purchasedVariants.isEmpty()) return;
+
+        List<String> productIds = purchasedVariants.stream()
+                .map(v -> v.getProduct().getId())
+                .distinct()
+                .toList();
+        List<String> variantIds = purchasedVariants.stream()
+                .map(ProductVariant::getId)
+                .toList();
+
+        Set<String> appliedPromotionIds = new HashSet<>();
+
+        // 1. Quét tìm các mã khuyến mãi liên quan
+        for (String productId : productIds) {
+            List<Promotion> activePromotions = promotionRepository.findActiveProductPromotions(
+                    productId, variantIds, LocalDateTime.now()
+            );
+
+            for (ProductVariant variant : purchasedVariants) {
+                if (!variant.getProduct().getId().equals(productId) || variant.getDiscountedPrice() == null) continue;
+
+                BigDecimal original = variant.getUnitPrice();
+                BigDecimal currentDiscounted = variant.getDiscountedPrice();
+
+                for (Promotion promo : activePromotions) {
+                    boolean isApplicable = promo.getTargetItems().stream()
+                            .map(PromotionTargetItem::getTargetId)
+                            .anyMatch(targetId -> targetId.equals(productId) || targetId.equals(variant.getId()));
+
+                    if (isApplicable) {
+                        BigDecimal calculatedPrice = promotionCalculator.calculateDiscountedPrice(original, promo);
+                        if (calculatedPrice.compareTo(currentDiscounted) == 0) {
+                            appliedPromotionIds.add(promo.getId());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // 2. Trả lại lượt sử dụng (decrementUsedCount) và bật lại isActive nếu mã từng bị ngắt
+        for (String promoId : appliedPromotionIds) {
+            Promotion promotion = promotionRepository.findById(promoId).orElse(null);
+            if (promotion != null && promotion.getUsedCount() > 0) {
+                promotion.setUsedCount(promotion.getUsedCount() - 1);
+                if (!promotion.getIsActive()) {
+                    promotion.setIsActive(true);
+                }
+                promotionRepository.save(promotion);
+                log.info("Hoàn trả 1 lượt dùng cho mã: {}", promotion.getCode());
+            }
+        }
+    }
+
+    @Transactional
+    public void restoreOrderVoucher(String voucherCode) {
+        if (voucherCode == null || voucherCode.isBlank()) return;
+
+        Promotion promo = promotionRepository.findByCode(voucherCode).orElse(null);
+        if (promo != null && promo.getUsedCount() > 0) {
+            promo.setUsedCount(promo.getUsedCount() - 1);
+            if (!promo.getIsActive()) {
+                promo.setIsActive(true);
+            }
+            promotionRepository.save(promo);
+            log.info("Hoàn trả 1 lượt dùng cho Voucher đơn hàng: {}", voucherCode);
+        }
+    }
 }
