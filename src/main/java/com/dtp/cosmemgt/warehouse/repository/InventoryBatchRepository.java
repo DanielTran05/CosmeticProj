@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Transactional
@@ -18,14 +19,6 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
         JpaSpecificationExecutor<InventoryBatch>{
 
     //lay cac lo hang sap xep theo ngay cu nhat den moi nhat
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
-    @Query("select b " +
-            "from InventoryBatch b " +
-            "where b.productVariant.id = :variantId and availableQty > 0 " +
-            "order by b.createdAt asc")
-    List<InventoryBatch> findAllAvailableBatchesFIFO(@Param("variantId") String variantId);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
     @Query("select b " +
@@ -54,5 +47,19 @@ public interface InventoryBatchRepository extends JpaRepository<InventoryBatch, 
             "ORDER BY b.createdAt DESC")
     List<InventoryBatch> findAllByProductIds(@Param("productIds") List<String> productIds);
 
+    //statistic
 
+    //dinh gia ton kho
+    @Query("SELECT " +
+            "COALESCE(SUM(b.physicalQty), 0), " +
+            "COALESCE(SUM(b.physicalQty * b.unitCost), 0) " +
+            "FROM InventoryBatch b")
+    List<Object[]> getTotalInventoryValue();
+
+    @Query("SELECT b " +
+            "FROM InventoryBatch b " +
+            "WHERE b.physicalQty > 0 " +
+            "AND b.expirationDate BETWEEN CURRENT_DATE AND :alertDate " +
+            "ORDER BY b.expirationDate ASC")
+    List<InventoryBatch> getNearExpiryBatches(@Param("alertDate") LocalDate alertDate);
 }

@@ -57,4 +57,29 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
             OrderStatusEnum orderStatus,
             User employee, Pageable pageable
     );
+
+    //statistic
+    @Query(value = "SELECT " +
+            "COUNT(id) AS total_orders, " +
+            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS successful_orders, " +
+            "COALESCE(SUM(CASE WHEN order_status IN ('CANCELLED', 'RETURNED', 'DELIVERY_FAILED') THEN 1 ELSE 0 END), 0) AS failed_returned_orders, " +
+            "COALESCE(SUM(CASE WHEN order_status IN ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'RETURN_REQUESTED') THEN 1 ELSE 0 END), 0) AS in_progress_orders, " +
+            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN total_amount ELSE 0 END), 0) AS total_revenue, " +
+            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN total_cogs ELSE 0 END), 0) AS total_cogs " +
+            "FROM \"order\" " +
+            "WHERE created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    List<Object[]> getAllOrderFinancialStatistic(@Param("startDate") LocalDateTime startDate,
+                                                 @Param("endDate") LocalDateTime endDate);
+
+
+    @Query(value = "SELECT " +
+        "EXTRACT(MONTH FROM created_at) AS month_val, " +
+        "COALESCE(SUM(total_amount), 0) AS total_revenue, " +
+        "COALESCE(SUM(total_cogs), 0) AS total_cogs " +
+        "FROM \"order\" " +
+        "WHERE order_status = 'COMPLETED' " +
+        "AND EXTRACT(YEAR FROM created_at) = :year " +
+        "GROUP BY EXTRACT(MONTH FROM created_at) " +
+        "ORDER BY month_val", nativeQuery = true)
+    List<Object[]> getMonthlyStatisticsByYear(@Param("year") int year);
 }

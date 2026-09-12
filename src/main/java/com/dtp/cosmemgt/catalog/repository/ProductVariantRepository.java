@@ -12,6 +12,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,4 +38,23 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     @Query(value = "SELECT * FROM product_variant WHERE id = :id", nativeQuery = true)
     Optional<ProductVariant> findByIdForAdmin(@Param("id") String id);
+
+    //statistic
+
+    @Query(value = "SELECT " +
+            "pv.sku AS SKU, " +
+            "pv.variant_name AS variantName, " +
+            "SUM(od.quantity) AS totalSold, " +
+            "SUM(od.quantity * od.purchased_price) AS totalRevenue " +
+            "FROM order_detail od " +
+            "JOIN \"order\" o ON od.order_id = o.id " +
+            "JOIN product_variant pv ON od.variant_id = pv.id " +
+            "JOIN product p ON p.id = pv.product_id " +
+            "WHERE o.order_status = 'COMPLETED' " +
+            "AND o.created_at BETWEEN :startDate AND :endDate " +
+            "GROUP BY pv.id, pv.sku, pv.variant_name " +
+            "ORDER BY totalSold DESC " +
+            "LIMIT 5", nativeQuery = true)
+    List<Object[]> getTopSellingVariants(@Param("startDate") LocalDateTime startDate,
+                                         @Param("endDate") LocalDateTime endDate);
 }
