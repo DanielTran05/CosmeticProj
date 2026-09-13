@@ -22,6 +22,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,7 @@ public class AdminProductService {
     AdminProductMapper productMapper;
     CategoryRepository categoryRepository;
 
+    @CacheEvict(value = "Products", allEntries = true)
     public AdminProductResponse create(ProductCreationRequest request) {
         Product p = productMapper.toProduct(request);
 
@@ -96,6 +99,7 @@ public class AdminProductService {
                 .toList();
     }
 
+    @CacheEvict(value = "Products", allEntries = true)
     public AdminProductResponse update(String productId, ProductUpdateRequest request){
         Product p = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
@@ -109,6 +113,7 @@ public class AdminProductService {
         return productMapper.toProductResponse(productRepository.save(p));
     }
 
+    @CacheEvict(value = "Products", allEntries = true)
     public void sftDelProduct(String productId) {
         Product c = productRepository.findById(productId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
@@ -119,6 +124,7 @@ public class AdminProductService {
         productRepository.delete(c);
     }
 
+    @CacheEvict(value = "Products", allEntries = true)
     public void restoreProduct(String productId) {
         int rowsAffected = productRepository.restoreById(productId);
         if (rowsAffected == 0) {

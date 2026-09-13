@@ -9,6 +9,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class CategoryQueryService {
     CategoryRepository categoryRepository;
 
+    @Cacheable(value = "Categories", key = "'all'", unless = "#result == null || #result.isEmpty()", sync = true)
     public List<CustomerCategoryResponse> getAll() {
         return categoryRepository.findAllCustomerCate();
     }

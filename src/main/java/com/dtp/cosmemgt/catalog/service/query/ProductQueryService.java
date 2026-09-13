@@ -1,9 +1,6 @@
 package com.dtp.cosmemgt.catalog.service.query;
 
-import com.dtp.cosmemgt.catalog.dto.response.ProductCardResponse;
-import com.dtp.cosmemgt.catalog.dto.response.ProductDetailResponse;
-import com.dtp.cosmemgt.catalog.dto.response.ProductResponse;
-import com.dtp.cosmemgt.catalog.dto.response.ProductSaleResponse;
+import com.dtp.cosmemgt.catalog.dto.response.*;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.mapper.ProductMapper;
@@ -11,7 +8,6 @@ import com.dtp.cosmemgt.catalog.repository.ProductRepository;
 import com.dtp.cosmemgt.core.dto.PageResponse;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
-import com.dtp.cosmemgt.core.utils.SlugUtils;
 import com.dtp.cosmemgt.sales.promotion.entity.Promotion;
 import com.dtp.cosmemgt.sales.promotion.entity.PromotionTargetItem;
 import com.dtp.cosmemgt.sales.promotion.enums.DiscountType;
@@ -21,15 +17,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -42,53 +39,79 @@ public class ProductQueryService {
     PromotionCalculator promotionCalculator;
     ProductMapper productMapper;
     ProductRepository productRepository;
+    RedisTemplate<String, Object> redisTemplate;
 
+    @Cacheable(
+            value = "Products",
+            key = "'slug_' + #slug",
+            unless = "#result == null",
+            sync = true
+    )
     public ProductDetailResponse getProductBySlug(String slug){
+        String cacheKey = "products::" + slug;
+        Object cachedData = redisTemplate.opsForValue().get(cacheKey);
+
+        if (cachedData != null) {
+            if ("NULL_VALUE".equals(cachedData))
+                return null;
+            return (ProductDetailResponse) cachedData;
+        }
+
         Product p = productRepository.findBySlug(slug)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        if(p.getDeletedAt()!=null)
+        if (p.getDeletedAt() != null)
             throw new AppException(ErrorCode.PRODUCT_UNAVAILABLE);
 
-        return productMapper.toProductDetailResponse(p);
+        ProductDetailResponse response = productMapper.toProductDetailResponse(p);
+
+        long finalTtl = 10 + new Random().nextInt(4);
+        redisTemplate.opsForValue().set(cacheKey, response, finalTtl, TimeUnit.MINUTES);
+
+        return response;
     }
 
+    @Cacheable(
+            value = "Products",
+            condition = "#queryParams.get('keyword') == null && #queryParams.get('minPrice') == null",
+            key = "'page_' + (#queryParams['page'] ?: '0') + '_size_' + (#queryParams['size'] ?: '10')",
+            unless = "#result == null || #result.content == null || #result.content.isEmpty()"
+    )
     public PageResponse<ProductResponse> getAll(Map<String, String> queryParams) {
         Page<Product> rawProductPage = productCoreService.getAll(queryParams, false);
-
         Page<ProductResponse> dtoProductRes = rawProductPage.map(productMapper::toProductResponse);
-
         return PageResponse.of(dtoProductRes);
     }
 
-    public List<ProductCardResponse> getTop12BestSellers() {
-        Pageable topTwelve = PageRequest.of(0, 12);
+    @Cacheable(
+            value = "Products",
+            key = "'top12_bestsellers'",
+            unless = "#result == null || #result.items == null || #result.items.isEmpty()"
+    )
+    public ProductCardListResponse getTop12BestSellers() {
+        List<BestSellerProductProjection> results = productRepository.findTop12BestSellingProducts();
 
-        // Kết quả trả về là List các mảng Object, mỗi mảng có 2 phần tử: [Product, Long]
-        List<Object[]> results = productRepository.findBestSellingProductsWithTotalSold(topTwelve);
-
-        return results.stream()
-                .map(record -> {
-                    Product product = (Product) record[0];
-                    Long totalSold = (Long) record[1];
-
-                    // Ném Entity vào hàm dùng chung để tính toán khuyến mãi
-                    return buildProductCard(product, totalSold);
-                })
+        List<ProductCardResponse> cards = results.stream()
+                .map(record -> buildProductCard(record.getProduct(), record.getTotalSold()))
                 .toList();
+
+        return ProductCardListResponse.of(cards);
     }
 
-    // Đối với API Hàng Khuyến mãi, không có tổng lượt bán thì truyền null hoặc 0L
+    //san pham dang giam gia
+    @Cacheable(
+            value = "Products",
+            key = "'top12_saleproduct'",
+            unless = "#result == null || #result.isEmpty()"
+    )
     public List<ProductCardResponse> getTop12SaleProducts() {
-        // Sửa lại theo Native Query chuẩn Limit 12 hôm trước
         List<Product> onSaleProducts = productRepository.findProductCurrentlyOnSale();
 
         return onSaleProducts.stream()
-                .map(product -> buildProductCard(product, 0L)) // Mặc định lượt bán = 0
+                .map(product -> buildProductCard(product, 0L))
                 .toList();
     }
 
-    // Hàm lõi tái sử dụng (Entity -> DTO)
     private ProductCardResponse buildProductCard(Product product, Long totalSold) {
         List<String> variantIds = product.getProductVariants().stream()
                 .map(ProductVariant::getId)
@@ -102,7 +125,6 @@ public class ProductQueryService {
         BigDecimal minDiscountedPrice = null;
         String bestBadge = "";
         String thumbnail = "";
-        // Long totalSold = tính tổng soldCount từ các variant nếu cần...
 
         for (ProductVariant variant : product.getProductVariants()) {
             BigDecimal original = variant.getUnitPrice();

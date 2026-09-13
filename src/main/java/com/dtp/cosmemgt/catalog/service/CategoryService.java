@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +27,7 @@ import java.util.List;
 public class CategoryService {
     CategoryRepository categoryRepository;
     CategoryMapper categoryMapper;
-
+    @CacheEvict(value = "Categories", allEntries = true)
     public CategoryResponse create(CategoryCreationRequest request) {
         Category c = categoryMapper.toCategory(request);
 
@@ -73,12 +74,14 @@ public class CategoryService {
         return categoryMapper.toCategoryResponse(categoryRepository.save(c));
     }
 
+    @CacheEvict(value = "Categories", allEntries = true)
     public void sftDelCate(int categoryId) {
         Category c = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
         categoryRepository.delete(c);
     }
 
+    @CacheEvict(value = "Categories", allEntries = true)
     public void restoreCate(int categoryId) {
         int rowsAffected = categoryRepository.restoreById(categoryId);
         if (rowsAffected == 0) {
@@ -86,6 +89,7 @@ public class CategoryService {
         }
     }
 
+    @CacheEvict(value = "Categories", allEntries = true)
     public void hardDelCate(int categoryId) {
         Category c = categoryRepository.getById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));

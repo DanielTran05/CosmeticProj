@@ -50,6 +50,7 @@ public enum ErrorCode {
     //UOM
     UOM_EXISTED(6001, "UOM existed", HttpStatus.BAD_REQUEST),
     UOM_NOT_EXISTED(6002, "UOM not existed", HttpStatus.NOT_FOUND),
+    UOM_IN_USE(6003, "Uom is in use", HttpStatus.BAD_REQUEST),
 
     //product variant
     PRODUCT_VARIANT_EXISTED(7001, "Product variant existed", HttpStatus.BAD_REQUEST),

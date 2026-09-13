@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.controller.customer;
 
+import com.dtp.cosmemgt.catalog.dto.response.ProductCardListResponse;
 import com.dtp.cosmemgt.catalog.dto.response.ProductCardResponse;
 import com.dtp.cosmemgt.catalog.dto.response.ProductDetailResponse;
 import com.dtp.cosmemgt.catalog.dto.response.ProductResponse;
@@ -36,8 +37,8 @@ public class ProductController {
     }
 
     @GetMapping("/best-sellers")
-    public ApiResponse<List<ProductCardResponse>> get12BestSellingProducts() {
-        return ApiResponse.<List<ProductCardResponse>>builder()
+    public ApiResponse<ProductCardListResponse> get12BestSellingProducts() {
+        return ApiResponse.<ProductCardListResponse>builder()
                 .result(productQueryService.getTop12BestSellers())
                 .build();
     }

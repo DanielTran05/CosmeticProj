@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.catalog.repository;
 
+import com.dtp.cosmemgt.catalog.dto.response.BestSellerProductProjection;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,9 @@ public interface ProductRepository extends JpaRepository<Product, String>,
 
     boolean existsBySlug(String slug);
 
-    @Query(value = "select p from Product p left join fetch p.productVariants where p.id = :productId")
+    @Query(value = "select p " +
+            "from Product p left join fetch p.productVariants " +
+            "where p.id = :productId and p.deletedAt is not null")
     Optional<Product> findByIdWithVariants(String productId);
 
     @Modifying
@@ -50,7 +53,7 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     @Query(value = "select * from product where id = ?1", nativeQuery = true)
     Optional<Product> getProductById(String id);
 
-    @Query("SELECT p, SUM(od.quantity) " +
+    @Query("SELECT p AS product, SUM(od.quantity) AS totalSold " +
             "FROM OrderDetail od " +
             "JOIN od.order o " +
             "JOIN od.productVariant pv " +
@@ -59,7 +62,7 @@ public interface ProductRepository extends JpaRepository<Product, String>,
             "AND p.deletedAt IS NULL " +
             "GROUP BY p " +
             "ORDER BY SUM(od.quantity) DESC")
-    List<Object[]> findBestSellingProductsWithTotalSold(Pageable pageable);
+    List<BestSellerProductProjection> findTop12BestSellingProducts();
 
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);
 }

@@ -21,6 +21,8 @@ import java.util.Optional;
 public interface ProductVariantRepository extends JpaRepository<ProductVariant, String>, JpaSpecificationExecutor<ProductVariant> {
     boolean existsByVariantName(String variantName);
 
+    boolean existsByUnitOfMeasureId(int uom);
+
     List<ProductVariant> findByIdIn(List<String> variantIds);
 
     @Query("SELECT pv FROM ProductVariant pv WHERE " +
