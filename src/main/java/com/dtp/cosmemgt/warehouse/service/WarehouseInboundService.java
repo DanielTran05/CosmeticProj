@@ -50,7 +50,6 @@ public class WarehouseInboundService {
     SupplierRepository supplierRepository;
     ProductRepository productRepository;
 
-    //tao lo hang moi
     public BatchResponse create(BatchCreationRequest request){
         ProductVariant pv = productVariantRepository.findById(request.getProductVariantId())
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_VARIANT_NOT_EXISTED));
@@ -80,7 +79,6 @@ public class WarehouseInboundService {
         return inventoryBatchMapper.toBatchResponse(b);
     }
 
-    // 1. Xem danh sách lô hàng (Áp dụng Spec)
     public PageResponse<BatchResponse> getAllBatches(Map<String, String> queryParams){
         int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
@@ -109,21 +107,18 @@ public class WarehouseInboundService {
                 .map(Product::getId)
                 .toList();
 
-        // 1. Lấy dữ liệu phân trang từ DB
         List<InventoryBatch> allBatches = inventoryBatchRepository.findAllByProductIds(productIds);
 
-        // 2. Sử dụng LinkedHashMap thay vì HashMap
         Map<String, ProductBatchGroupResponse> groupMap = new LinkedHashMap<>();
 
         for (Product p : productPage.getContent()) {
             groupMap.put(String.valueOf(p.getId()), ProductBatchGroupResponse.builder()
                     .productId(String.valueOf(p.getId()))
                     .productName(p.getName())
-                    .batches(new ArrayList<>()) // Bắt đầu bằng mảng rỗng
+                    .batches(new ArrayList<>())
                     .build());
         }
 
-        // 5. Đắp dữ liệu các Lô hàng vào đúng khuôn Sản phẩm tương ứng
         for (InventoryBatch batch : allBatches) {
             if (batch.getProductVariant() != null && batch.getProductVariant().getProduct() != null) {
                 String pId = String.valueOf(batch.getProductVariant().getProduct().getId());
@@ -131,33 +126,30 @@ public class WarehouseInboundService {
                 BatchResponse batchRes = inventoryBatchMapper.toBatchResponse(batch);
                 batchRes.setVariantName(batch.getProductVariant().getVariantName());
 
-                // Nếu Map có chứa ID này (chắc chắn có) thì add lô hàng vào
                 if (groupMap.containsKey(pId)) {
                     groupMap.get(pId).getBatches().add(batchRes);
                 }
             }
         }
 
-        // 3. Đóng gói lại thành Page và trả về
         List<ProductBatchGroupResponse> groupedList = new ArrayList<>(groupMap.values());
         Page<ProductBatchGroupResponse> groupedPage = new PageImpl<>(groupedList, pageable, productPage.getTotalElements());
 
         return PageResponse.of(groupedPage);
     }
 
-    // 2. Cảnh báo hạn sử dụng (FEFO - First Expired, First Out)
-    public PageResponse<BatchResponse> getExpiringBatches(int daysThreshold, int page, int size){
+    public PageResponse<BatchResponse> getExpiringBatches(int daysThreshold, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("expirationDate").ascending());
 
-        LocalDate thresholdDate = LocalDate.now().plusDays(daysThreshold);
+        LocalDate today = LocalDate.now();
+        LocalDate thresholdDate = today.plusDays(daysThreshold);
 
         Page<InventoryBatch> expiringBatches = inventoryBatchRepository
-                .findByExpirationDateLessThanEqualAndAvailableQtyGreaterThan(thresholdDate, 0, pageable);
+                .findByExpirationDateBetweenAndAvailableQtyGreaterThan(today, thresholdDate, 0, pageable);
 
         return PageResponse.of(expiringBatches.map(inventoryBatchMapper::toBatchResponse));
     }
 
-    // 3. Lịch sử vào ra của từng lô hàng
     public PageResponse<InventoryTransactionResponse> getBatchTransactions(int batchId, int page, int size){
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
@@ -167,7 +159,6 @@ public class WarehouseInboundService {
         return PageResponse.of(transactions.map(inventoryTransactionMapper::toInventoryTransactionResponse));
     }
 
-    //kiem ke ton kho (stock adjustment)
     public BatchResponse physicalInventoryCount(InventoryAdjustmentRequest request){
         InventoryBatch b = inventoryBatchRepository.findById(request.getBatchId())
                 .orElseThrow(() -> new AppException(ErrorCode.INVENTORY_BATCH_NOT_EXISTED));
@@ -200,7 +191,6 @@ public class WarehouseInboundService {
         return inventoryBatchMapper.toBatchResponse(b);
     }
 
-    //hoan kho do don hang huy
     public void processInventoryRestoration(Order order, TransactionTypeEnum transactionType, boolean isPhysicalReturn) {
         List<InventoryTransaction> trans = inventoryTransactionRepository.findAllByReferenceId(order.getId());
 

@@ -48,6 +48,7 @@ public class WarehouseOrderService {
     WarehouseOrderMapper warehouseOrderMapper;
 
     //COMMAND
+
     public void packOrder(String orderId) {
         User u = this.getCurrentUser();
 
@@ -115,7 +116,7 @@ public class WarehouseOrderService {
         log.info("Warehouse xác nhận đã nhập lại kho đơn hàng Boom [{}].", orderId);
     }
 
-    public void cancelOrderFromWarehouse(String orderId) throws Exception {
+    public void cancelOrderfromWarehouse(String orderId) throws Exception {
         Order o = this.getOrder(orderId);
 
         if(o.getOrderStatus() != OrderStatusEnum.CONFIRMED) {
@@ -132,7 +133,7 @@ public class WarehouseOrderService {
         log.info("Warehouse cancelled and refunded order [{}]", orderId);
     }
 
-    public void markOrderCompleted(String orderId){             //danh cho shipping provider
+    public void markOrderCompleted(String orderId){             // use for shipping provider
         Order o = this.getOrder(orderId);
 
         if(o.getOrderStatus() != OrderStatusEnum.SHIPPING)

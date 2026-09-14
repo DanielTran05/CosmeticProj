@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -57,17 +58,20 @@ public class WarehouseReservationService {
             throw new AppException(ErrorCode.PRODUCT_VARIANT_UNAVAILABLE);
         }
 
-        List<InventoryBatch> allBatches = inventoryBatchRepository.findAllAvailableBatchesFIFOForVariants(requestedVariantIds);
-        Map<String, List<InventoryBatch>> batchesByVariantMap = allBatches.stream()     //ao1: [b1, b2], ao2: [b1, b2]
+        int MIN_EXPIRATION_BUFFER_DAYS = 90;            //90 days
+        LocalDate minValidExpirationDate = LocalDate.now().plusDays(MIN_EXPIRATION_BUFFER_DAYS);
+        List<InventoryBatch> allBatches = inventoryBatchRepository.findAllAvailableBatchesFEFOForVariants(
+                requestedVariantIds, minValidExpirationDate);
+
+        Map<String, List<InventoryBatch>> batchesByVariantMap = allBatches.stream()
                 .collect(Collectors.groupingBy(b -> b.getProductVariant().getId()));
 
         for (OrderDetailRequest odRequest : request.getOrderDetailRequests()) {
             String variantId = odRequest.getProductVariantId();
-            ProductVariant variant = variantMap.get(variantId);     //obj variant
+            ProductVariant variant = variantMap.get(variantId);
             int requireQty = odRequest.getQty();
 
-
-            if(variant.getDeletedAt() != null) throw new AppException(ErrorCode.PRODUCT_VARIANT_UNAVAILABLE);
+            if (variant.getDeletedAt() != null) throw new AppException(ErrorCode.PRODUCT_VARIANT_UNAVAILABLE);
 
             List<InventoryBatch> availableBatches = batchesByVariantMap.getOrDefault(variantId, new ArrayList<>());
 
@@ -120,8 +124,8 @@ public class WarehouseReservationService {
             int qtyToTake = Math.min(batch.getAvailableQty(), remainingToFulfill);
             batch.setAvailableQty(batch.getAvailableQty() - qtyToTake);
 
-            BigDecimal costFromThisBatch = batch.getUnitCost().multiply(BigDecimal.valueOf(qtyToTake));
-            lineTotalCogs = lineTotalCogs.add(costFromThisBatch);
+            BigDecimal costfromThisBatch = batch.getUnitCost().multiply(BigDecimal.valueOf(qtyToTake));
+            lineTotalCogs = lineTotalCogs.add(costfromThisBatch);
 
             InventoryTransaction transaction = InventoryTransaction.builder()
                     .inventoryBatch(batch)

@@ -23,7 +23,6 @@ public class WarehouseOrderController {
     WarehouseOrderService warehouseOrderService;
     ReturnOrderService returnOrderService;
 
-    //ds don hang theo status
     @GetMapping
     public ApiResponse<PageResponse<OrderResponse>> getAllOrders(
             @RequestParam(required = false) OrderStatusEnum status,
@@ -35,7 +34,6 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    // chi tiet don hang de soan hang
     @GetMapping("/{orderId}")
     public ApiResponse<WarehouseOrderResponse> getOrderDetail(@PathVariable String orderId) {
         
@@ -44,7 +42,6 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //soan hang
     @PutMapping("{orderId}/packing")
     public ApiResponse<Void> packOrder(@PathVariable String orderId) {
 
@@ -55,7 +52,6 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //xac nhan xuat giao cho dvvc                                                   CONFIRMED → SHIPPING
     @PutMapping("/{orderId}/export")
     public ApiResponse<Void> orderExportForShipping(@PathVariable String orderId) {
         
@@ -66,7 +62,6 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //xac nhan hoan hang                                                            COMPLETED||RETURN_REQUEST → RETURNED
     @PutMapping("/{orderId}/confirmReturn")
     public ApiResponse<Void> confirmReturnOrder(@PathVariable String orderId) throws Exception {
         
@@ -77,7 +72,6 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //xac nhan hoan hang huy (boom)
     @PutMapping("/{orderId}/confirmDeliveryFailed")
     public ApiResponse<Void> warehouseConfirmFailedOrder(@PathVariable String orderId) throws Exception {
 
@@ -88,18 +82,16 @@ public class WarehouseOrderController {
                 .build();
     }
 
-    //huy don tu kho                                                                  → CANCELED
     @PutMapping("/{orderId}/cancel")
-    public ApiResponse<Void> cancelOrderFromWarehouse(@PathVariable String orderId) throws Exception {
+    public ApiResponse<Void> cancelOrderfromWarehouse(@PathVariable String orderId) throws Exception {
         
-        warehouseOrderService.cancelOrderFromWarehouse(orderId);
+        warehouseOrderService.cancelOrderfromWarehouse(orderId);
         
         return ApiResponse.<Void>builder()
                 .message("Hủy đơn hàng thành công")
                 .build();
     }
 
-    //xac nhan giao thanh cong DVVC                                                     SHIPPING → COMPLETED
     @PutMapping("/{orderId}/deliver")
     public ApiResponse<Void> confirmDelivered(@PathVariable String orderId) {
         

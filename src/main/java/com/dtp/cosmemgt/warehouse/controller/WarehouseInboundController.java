@@ -39,7 +39,6 @@ public class WarehouseInboundController {
                 .build();
     }
 
-    //get all batches
     @GetMapping("/batches")
     public ApiResponse<PageResponse<BatchResponse>> getAllBatches(@RequestParam Map<String, String> queryParams) {
         return ApiResponse.<PageResponse<BatchResponse>>builder()
@@ -58,7 +57,6 @@ public class WarehouseInboundController {
                 .build();
     }
 
-    //canh bao sap het han
     @GetMapping("/batches/expiring")
     public ApiResponse<PageResponse<BatchResponse>> getExpiringBatches(
             @RequestParam(defaultValue = "30") int daysThreshold,
@@ -69,7 +67,6 @@ public class WarehouseInboundController {
                 .build();
     }
 
-    //lich su giao dich lo hang
     @GetMapping("/batches/{batchId}/transactions")
     public ApiResponse<PageResponse<InventoryTransactionResponse>> getBatchTransactions(
             @PathVariable int batchId,
@@ -80,7 +77,6 @@ public class WarehouseInboundController {
                 .build();
     }
 
-    // kiem ke dieu chinh lo hang thuc te
     @PostMapping("/batches/adjustments")
     public ApiResponse<BatchResponse> physicalInventoryCount(
             @RequestBody @Valid InventoryAdjustmentRequest request) {
