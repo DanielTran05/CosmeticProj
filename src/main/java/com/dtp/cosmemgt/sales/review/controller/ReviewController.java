@@ -61,8 +61,6 @@ public class ReviewController {
                 .build();
     }
 
-
-    //chuyen sang core
     @GetMapping()
     ApiResponse<PageResponse<ReviewResponse>> getAll(@RequestParam Map<String, String> queryParams) {
         return ApiResponse.<PageResponse<ReviewResponse>>builder()

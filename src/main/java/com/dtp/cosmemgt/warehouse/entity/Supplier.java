@@ -16,7 +16,7 @@ import org.hibernate.annotations.SQLRestriction;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "supplier")
-@SQLDelete(sql = "UPDATE supplier SET deleted_at = NOW() WHERE id = ?")
+@SQLDelete(sql = "update supplier SET deleted_at = NOW() where id = ?")
 @SQLRestriction("deleted_at IS NULL")
 public class Supplier extends BaseAuditEntity {
     @Id

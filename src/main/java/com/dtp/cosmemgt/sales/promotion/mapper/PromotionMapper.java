@@ -26,5 +26,5 @@ public interface PromotionMapper {
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "targetItems", ignore = true)
-    void updatePromotionFromRequest(PromotionUpdateRequest request, @MappingTarget Promotion promotion);
+    void updatePromotionfromRequest(PromotionUpdateRequest request, @MappingTarget Promotion promotion);
 }

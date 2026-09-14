@@ -19,6 +19,10 @@ public enum ErrorCode {
     UPLOAD_FAILED(1100, "Img uploading failed", HttpStatus.BAD_REQUEST),
     ROLE_NOT_EXIST(1101, "Role is not existed", HttpStatus.BAD_REQUEST),
     INVALID_FORMAT(1012, "Invalid data format or mismatched type", HttpStatus.BAD_REQUEST),
+    INVALID_OR_EXPIRED_OTP(1013, "Invalid or expired otp", HttpStatus.BAD_REQUEST),
+    WRONG_PASSWORD(1014, "Wrong password", HttpStatus.BAD_REQUEST),
+    PASSWORD_MUST_BE_DIFFERENT(1015, "New password must be different", HttpStatus.BAD_REQUEST),
+
 
     //cate
     CATEGORY_EXISTED(2001, "Category existed", HttpStatus.BAD_REQUEST),
@@ -156,8 +160,21 @@ public enum ErrorCode {
     PROMOTION_TARGET_ITEMS_REQUIRED(9703, "Promotion target items are required for product/variant scope", HttpStatus.BAD_REQUEST),
     PROMOTION_OUT_OF_USAGE(9704, "Promotion has reached its usage limit", HttpStatus.BAD_REQUEST),
     INVALID_VOUCHER(9705, "Invalid voucher code", HttpStatus.BAD_REQUEST),
-    PROMOTION_MIN_ORDER_AMOUNT_NOT_ALLOWED(9706, "Promotion minimum order amount is not allowed for this scope", HttpStatus.BAD_REQUEST)
-
+    PROMOTION_MIN_ORDER_AMOUNT_NOT_ALLOWED(9706, "Promotion minimum order amount is not allowed for this scope", HttpStatus.BAD_REQUEST),
+    PROMOTION_CODE_REQUIRED(9707, "Promotion code is required", HttpStatus.BAD_REQUEST),
+    PROMOTION_CODE_INVALID_LENGTH(9708, "Promotion code length must be between 2 and 50 characters", HttpStatus.BAD_REQUEST),
+    PROMOTION_NAME_REQUIRED(9709, "Promotion name is required", HttpStatus.BAD_REQUEST),
+    DISCOUNT_TYPE_REQUIRED(9710, "Discount type is required", HttpStatus.BAD_REQUEST),
+    DISCOUNT_VALUE_REQUIRED(9711, "Discount value is required", HttpStatus.BAD_REQUEST),
+    DISCOUNT_VALUE_MUST_BE_POSITIVE(9712, "Discount value must be strictly greater than 0", HttpStatus.BAD_REQUEST),
+    SCOPE_TYPE_REQUIRED(9713, "Scope type is required", HttpStatus.BAD_REQUEST),
+    MIN_ORDER_AMOUNT_REQUIRED(9714, "Minimum order amount is required", HttpStatus.BAD_REQUEST),
+    MIN_ORDER_AMOUNT_INVALID(9715, "Minimum order amount must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
+    USAGE_LIMIT_INVALID(9716, "Usage limit must be at least 1", HttpStatus.BAD_REQUEST),
+    START_DATE_REQUIRED(9717, "Start date is required", HttpStatus.BAD_REQUEST),
+    END_DATE_REQUIRED(9718, "End date is required", HttpStatus.BAD_REQUEST),
+    END_DATE_MUST_BE_FUTURE(9719, "End date must be in the future", HttpStatus.BAD_REQUEST),
+    DISCOUNT_VALUE_INVALID(1076, "Discount value must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
 
     ;
 

@@ -64,6 +64,7 @@ public class PlaceOrderService {
             throw new AppException(ErrorCode.INVALID_VOUCHER);
         }
 
+        //reserve inventory
         List<InventoryTransaction> transactionsToSave = reservationService.reserveInventory(request, order);
         reservationService.persistReservedTransactions(transactionsToSave, savedOrder);
 

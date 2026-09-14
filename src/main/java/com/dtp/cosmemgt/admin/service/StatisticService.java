@@ -36,7 +36,6 @@ public class StatisticService {
     private final InventoryBatchRepository inventoryBatchRepository;
     private final CategoryRepository categoryRepository;
     private final ProductVariantRepository productVariantRepository;
-    private final ProductRepository productRepository;
     OrderRepository orderRepository;
     UserRepository userRepository;
 
@@ -123,7 +122,6 @@ public class StatisticService {
                 .build()).collect(Collectors.toList());
     }
 
-    // 2. Tỷ trọng danh mục
     public List<CategoryShareResponse> getCategoryShare(LocalDateTime startDate, LocalDateTime endDate) {
         List<Object[]> results = categoryRepository.getTheWeightOfCategory(startDate, endDate);
         return results.stream().map(row -> CategoryShareResponse.builder()
@@ -133,7 +131,6 @@ public class StatisticService {
                 .build()).collect(Collectors.toList());
     }
 
-    // 3. Định giá tồn kho
     public InventoryValuationResponse getInventoryValuation() {
         List<Object[]> results = inventoryBatchRepository.getTotalInventoryValue();
         if (results.isEmpty() || results.get(0) == null) {
@@ -149,7 +146,6 @@ public class StatisticService {
                 .build();
     }
 
-    // 4. Cảnh báo cận Date (Mặc định lấy các lô hết hạn trong 30 ngày tới)
     public List<NearExpiryBatchResponse> getNearExpiryBatches(int alertDays) {
         LocalDate alertDate = LocalDate.now().plusDays(alertDays);
         List<InventoryBatch> batches = inventoryBatchRepository.getNearExpiryBatches(alertDate);
@@ -163,12 +159,7 @@ public class StatisticService {
                 .build()).collect(Collectors.toList());
     }
 
-
-
-
-
-
-
+    // helpers
 
     private long parseLongSafely(Object value) {
         if (value == null) return 0L;

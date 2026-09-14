@@ -18,5 +18,5 @@ public interface ReviewMapper {
     ReviewResponse toReviewResponse(Review review);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateReviewFromRequest(ReviewUpdateRequest request, @MappingTarget Review review);
+    void updateReviewfromRequest(ReviewUpdateRequest request, @MappingTarget Review review);
 }

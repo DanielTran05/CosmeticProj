@@ -21,5 +21,5 @@ public class OrderResponse {
     String employeeName;
     LocalDateTime createdAt;
     OrderShippingResponse orderShipping;
-    List<OrderDetailItemsResponse> orderDetailItemsResponses;//test
+    List<OrderDetailItemsResponse> orderDetailItemsResponses;
 }

@@ -62,14 +62,12 @@ public class OrderQueryService {
         return PageResponse.of(orderPage.map(orderMapper::toOrderResponse));
     }
 
-    // Dành cho Admin: Lấy tất cả đơn hàng, có hỗ trợ queryParams (ví dụ: ?status=SHIPPING)
     @Transactional(readOnly = true)
     public PageResponse<OrderResponse> getAllOrderAdmin(Map<String, String> queryParams) {
         int page = queryParams.containsKey("page") ? Integer.parseInt(queryParams.get("page")) : 0;
         int size = queryParams.containsKey("size") ? Integer.parseInt(queryParams.get("size")) : 10;
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
 
-        // Sử dụng lại OrderSpecification đã có sẵn
         Specification<Order> filterOrderSpec = OrderSpecification.filterOrder(queryParams);
 
         Page<Order> orderPage = orderRepository.findAll(filterOrderSpec, pageable);

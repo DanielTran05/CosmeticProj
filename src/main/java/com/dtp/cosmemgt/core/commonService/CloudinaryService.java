@@ -42,7 +42,7 @@ public class CloudinaryService {
             Map<String, Object> uploadParams = new HashMap<>();
             uploadParams.put("folder", "cosmemgt/" + folderName);
             uploadParams.put("resource_type", "auto");
-            uploadParams.put("overwrite", true); // BẬT CỜ GHI ĐÈ
+            uploadParams.put("overwrite", true);
 
             if (objectId != null && !objectId.trim().isEmpty()) {
                 uploadParams.put("public_id", objectId);

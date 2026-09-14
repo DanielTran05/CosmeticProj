@@ -69,7 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS).permitAll()
                         .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
 
-                        // Role-based Access Control
+                        // rbac
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/warehouse/**").hasRole("WAREHOUSE")
 

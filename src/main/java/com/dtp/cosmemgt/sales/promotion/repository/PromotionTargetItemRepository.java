@@ -12,7 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface PromotionTargetItemRepository extends JpaRepository<PromotionTargetItem, Integer> {
     @Modifying
-    @Query(value = "DELETE FROM promotion_target_item WHERE promotion_id = :promotionId", nativeQuery = true)
+    @Query(value = "delete from promotion_target_item where promotion_id = :promotionId", nativeQuery = true)
     void hardDelByPromotionId(@Param("promotionId") String promotionId);
 
 }

@@ -33,7 +33,6 @@ public class CartCalculationService {
         BigDecimal subTotal = BigDecimal.ZERO;
         boolean hasProductDiscount = false;
 
-        // 1. Tính tổng tiền hàng (Subtotal) dựa trên giá Variant rẻ nhất hiện có
         List<String> variantIds = request.getItems().stream().map(OrderDetailRequest::getProductVariantId).toList();
         Map<String, ProductVariant> variantMap = productVariantRepository.findAllById(variantIds).stream()
                 .collect(Collectors.toMap(ProductVariant::getId, v -> v));
@@ -42,12 +41,10 @@ public class CartCalculationService {
             ProductVariant variant = variantMap.get(item.getProductVariantId());
             if (variant != null) {
                 BigDecimal originalPrice = variant.getUnitPrice();
-                // Ưu tiên giá đã giảm của Variant, nếu không có thì lấy giá gốc
                 BigDecimal priceToCalculate = variant.getDiscountedPrice() != null
                         ? variant.getDiscountedPrice()
                         : originalPrice;
 
-                // Kiểm tra xem sản phẩm này có đang được giảm giá không
                 if (priceToCalculate.compareTo(originalPrice) < 0) {
                     hasProductDiscount = true;
                 }
@@ -61,10 +58,9 @@ public class CartCalculationService {
         String appliedVoucherCode = null;
         String errorMsg = null;
 
-        // 2. Xử lý Voucher cho Order (nếu khách có nhập)
+        // voucher order
         if (request.getVoucherCode() != null && !request.getVoucherCode().trim().isEmpty()) {
 
-            // CHẶN NGAY: Nếu giỏ hàng đã có sản phẩm giảm giá thì không cho áp mã đơn hàng
             if (hasProductDiscount) {
                 errorMsg = "Đơn hàng đã chứa sản phẩm khuyến mãi, không thể áp dụng thêm mã giảm giá đơn hàng.";
             } else {
@@ -74,7 +70,7 @@ public class CartCalculationService {
                     errorMsg = "Mã giảm giá không tồn tại.";
                 } else if (voucher.getScopeType() != ScopeType.ORDER) {
                     errorMsg = "Mã giảm giá này không áp dụng cho toàn bộ đơn hàng.";
-                } else if (!voucher.getIsActive()) { // Bổ sung check isActive
+                } else if (!voucher.getIsActive()) {
                     errorMsg = "Mã giảm giá đã bị vô hiệu hóa.";
                 } else if (voucher.getStartDate().isAfter(LocalDateTime.now()) || voucher.getEndDate().isBefore(LocalDateTime.now())) {
                     errorMsg = "Mã giảm giá đã hết hạn hoặc chưa tới thời gian sử dụng.";
@@ -83,7 +79,6 @@ public class CartCalculationService {
                 } else if (voucher.getMinOrderAmount() != null && subTotal.compareTo(voucher.getMinOrderAmount()) < 0) {
                     errorMsg = "Đơn hàng chưa đạt giá trị tối thiểu để dùng mã này.";
                 } else {
-                    // Hợp lệ toàn bộ -> Tính toán giảm giá
                     finalTotal = promotionCalculator.calculateDiscountedPrice(subTotal, voucher);
                     voucherDiscount = subTotal.subtract(finalTotal);
                     appliedVoucherCode = voucher.getCode();

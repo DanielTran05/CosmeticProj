@@ -16,5 +16,5 @@ public interface SupplierMapper {
 
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateSupplierFromRequest(SupplierCreationRequest request, @MappingTarget Supplier supplier);
+    void updateSupplierfromRequest(SupplierCreationRequest request, @MappingTarget Supplier supplier);
 }

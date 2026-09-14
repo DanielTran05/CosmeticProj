@@ -66,10 +66,6 @@ public class MomoPaymentService implements IPaymentService {
     final MailService mailService;
     final  ObjectMapper mapper;
 
-    //NEU LINK THANH TOAN KO GUI VE DC THI SAU (re-try)
-    //NEU THANH TOAN THANH CONG KHONG GUI RESULT VE THI SAO (SERVER DIED)
-    //NEU THANH TOAN KHONG THANH CONG CHO PHEP THANH TOAN LAI KHONG
-
     public PaymentResponse createPaymentRequest(PaymentCreationRequest request, String ipAddress) throws Exception {
         Order order = orderRepository.findById(request.getOrderId())
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
@@ -154,7 +150,7 @@ public class MomoPaymentService implements IPaymentService {
             String payType = ipnData.path("payType").asText();
             long responseTime = ipnData.path("responseTime").asLong();
             String extraData = ipnData.has("extraData") ? ipnData.get("extraData").asText() : "";
-            String signatureFromMomo = ipnData.path("signature").asText();
+            String signaturefromMomo = ipnData.path("signature").asText();
 
             String rawSignature = String.format(
                     "accessKey=%s&amount=%d&extraData=%s&message=%s&orderId=%s&orderInfo=%s&orderType=%s&partnerCode=%s&payType=%s&requestId=%s&responseTime=%d&resultCode=%d&transId=%d",
@@ -163,7 +159,7 @@ public class MomoPaymentService implements IPaymentService {
 
             String mySignature = signHmacSHA256(rawSignature, SECRET_KEY);
 
-            if (!mySignature.equals(signatureFromMomo)) {
+            if (!mySignature.equals(signaturefromMomo)) {
                 log.error("[MoMo IPN] Security Alert! Signature mismatch for MoMo OrderId: {}", momoOrderId);
                 return;
             }
@@ -273,7 +269,7 @@ public class MomoPaymentService implements IPaymentService {
     }
 
     public PaymentStatusResponse checkTransactionStatus(Order order) throws Exception {
-        String momoOrderId = order.getInvoice().getPaymentRequestId(); // Lấy ID đã lưu
+        String momoOrderId = order.getInvoice().getPaymentRequestId();
         if (momoOrderId == null) {
             throw new AppException(ErrorCode.INVALID_PAYMENT_REQUEST);
         }

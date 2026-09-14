@@ -51,7 +51,7 @@ public class SupplierService {
         Supplier s = supplierRepository.findById(supplierId)
                 .orElseThrow(() -> new AppException(ErrorCode.SUPPLIER_NOT_EXISTED));
 
-        supplierMapper.updateSupplierFromRequest(request, s);
+        supplierMapper.updateSupplierfromRequest(request, s);
 
         return supplierMapper.toSupplierResponse(supplierRepository.save(s));
     }

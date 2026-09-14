@@ -60,8 +60,8 @@ vnpay:
   tmn-code: ${VNP_TMN_CODE}
   hash-secret: ${VPN_HASH_SECRET}
   pay-url: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
-  return-url: "http://localhost:3000/payment-result" # URL FE sẽ hứng kết quả sau khi khách thanh toán xong
-  api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction" # Dùng sau này nếu làm tính năng Hoàn tiền tự động
+  return-url: "http://localhost:3000/payment-result"
+  api-url: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction" #automatic refund
   version: "2.1.0"
   command: "pay"
   order-type: "other"

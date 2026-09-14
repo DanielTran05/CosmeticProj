@@ -73,7 +73,7 @@ public class CancelOrderService {
         log.info("Order [{}] cancelled successfully by user [{}]", orderId, u.getId());
     }
 
-    public void cancelOrderDueToPaymentFailure(String orderId, boolean isFromPaymentFailedEvent) {
+    public void cancelOrderDueToPaymentFailure(String orderId, boolean isfromPaymentFailedEvent) {
         Order o = orderRepository.findByIdWithLock(orderId)
                 .orElseThrow(() -> new AppException(ErrorCode.ORDER_NOT_FOUND));
 
@@ -83,7 +83,7 @@ public class CancelOrderService {
 
         o.setOrderStatus(OrderStatusEnum.CANCELLED);
 
-        if (isFromPaymentFailedEvent) {
+        if (isfromPaymentFailedEvent) {
             o.getInvoice().setPaymentStatus(PaymentStatusEnum.FAILED);
         } else {
             o.getInvoice().setPaymentStatus(PaymentStatusEnum.CANCELLED);

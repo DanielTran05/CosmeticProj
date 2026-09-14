@@ -20,16 +20,16 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecificationExecutor<Order> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT o FROM Order o WHERE o.id = :orderId")
+    @Query("select o from Order o where o.id = :orderId")
     Optional<Order> findByIdWithLock(@Param("orderId") String orderId);
 
-    @Query("select COUNT(o) > 0 " +
+    @Query("select count(o) > 0 " +
             "from Order o " +
             "join o.orderDetails od " +
             "join od.productVariant pv " +
-            "WHERE o.customer.id = :userId " +
-            " AND pv.product.id = :productId " +
-            " AND o.orderStatus = 'COMPLETED'")
+            "where o.customer.id = :userId " +
+            " and pv.product.id = :productId " +
+            " and o.orderStatus = 'COMPLETED'")
     boolean hasUserPurchasedAnyVariantOfProduct(@Param("userId") String userId,
                                     @Param("productId") String productId);
 
@@ -48,7 +48,7 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
 
     @Modifying
     @Query("update Order o set o.orderStatus = 'PROCESSING', o.employee = :employee " +
-            "where o.id = :orderId AND o.orderStatus = 'CONFIRMED'")
+            "where o.id = :orderId and o.orderStatus = 'CONFIRMED'")
     int assignOrderToEmployee(@Param("orderId") String orderId, @Param("employee") User employee);
 
     @Transactional(readOnly = true)
@@ -59,27 +59,27 @@ public interface OrderRepository extends JpaRepository<Order, String>, JpaSpecif
     );
 
     //statistic
-    @Query(value = "SELECT " +
-            "COUNT(id) AS total_orders, " +
-            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS successful_orders, " +
-            "COALESCE(SUM(CASE WHEN order_status IN ('CANCELLED', 'RETURNED', 'DELIVERY_FAILED') THEN 1 ELSE 0 END), 0) AS failed_returned_orders, " +
-            "COALESCE(SUM(CASE WHEN order_status IN ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'RETURN_REQUESTED') THEN 1 ELSE 0 END), 0) AS in_progress_orders, " +
-            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN total_amount ELSE 0 END), 0) AS total_revenue, " +
-            "COALESCE(SUM(CASE WHEN order_status = 'COMPLETED' THEN total_cogs ELSE 0 END), 0) AS total_cogs " +
-            "FROM \"order\" " +
-            "WHERE created_at BETWEEN :startDate AND :endDate", nativeQuery = true)
+    @Query(value = "select " +
+            "count(id) AS total_orders, " +
+            "coalesce(sum(case when order_status = 'COMPLETED' THEN 1 ELSE 0 END), 0) AS successful_orders, " +
+            "coalesce(sum(case when order_status in ('CANCELLED', 'RETURNED', 'DELIVERY_FAILED') THEN 1 ELSE 0 END), 0) AS failed_returned_orders, " +
+            "coalesce(sum(case when order_status in ('PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPING', 'RETURN_REQUESTED') THEN 1 ELSE 0 END), 0) AS in_progress_orders, " +
+            "coalesce(sum(case when order_status = 'COMPLETED' THEN total_amount ELSE 0 END), 0) AS total_revenue, " +
+            "coalesce(sum(case when order_status = 'COMPLETED' THEN total_cogs ELSE 0 END), 0) AS total_cogs " +
+            "from \"order\" " +
+            "where created_at BETWEEN :startDate and :endDate", nativeQuery = true)
     List<Object[]> getAllOrderFinancialStatistic(@Param("startDate") LocalDateTime startDate,
                                                  @Param("endDate") LocalDateTime endDate);
 
 
-    @Query(value = "SELECT " +
-        "EXTRACT(MONTH FROM created_at) AS month_val, " +
-        "COALESCE(SUM(total_amount), 0) AS total_revenue, " +
-        "COALESCE(SUM(total_cogs), 0) AS total_cogs " +
-        "FROM \"order\" " +
-        "WHERE order_status = 'COMPLETED' " +
-        "AND EXTRACT(YEAR FROM created_at) = :year " +
-        "GROUP BY EXTRACT(MONTH FROM created_at) " +
-        "ORDER BY month_val", nativeQuery = true)
+    @Query(value = "select " +
+        "extract(MONTH from created_at) AS month_val, " +
+        "coalesce(sum(total_amount), 0) AS total_revenue, " +
+        "coalesce(sum(total_cogs), 0) AS total_cogs " +
+        "from \"order\" " +
+        "where order_status = 'COMPLETED' " +
+        "and extract(YEAR from created_at) = :year " +
+        "group by extract(MONTH from created_at) " +
+        "order by month_val", nativeQuery = true)
     List<Object[]> getMonthlyStatisticsByYear(@Param("year") int year);
 }

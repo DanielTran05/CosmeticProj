@@ -12,10 +12,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PageResponse<T> {
     List<T> content;
-    int currentPage;         // trang hien tai
-    int pageSize;            // tong do phan tu moi trang
-    long totalElements;      // tong so bang ghi db
-    int totalPages;          // tong so trang
+    int currentPage;
+    int pageSize;
+    long totalElements;
+    int totalPages;
     boolean hasNext;
     boolean hasPrevious;
 

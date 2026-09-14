@@ -81,7 +81,7 @@ public class AdminPromotionService {
             pr.getTargetItems().addAll(targetItems);
         }
 
-        Promotion savedPromotion = promotionRepository.save(pr); // Lưu DB
+        Promotion savedPromotion = promotionRepository.save(pr);
 
         if ((savedPromotion.getScopeType() == ScopeType.PRODUCT || savedPromotion.getScopeType() == ScopeType.VARIANT)
                 && request.getTargetItems() != null) {
@@ -119,13 +119,11 @@ public class AdminPromotionService {
             throw new AppException(ErrorCode.PROMOTION_TARGET_ITEMS_REQUIRED);
         }
 
-        promotionMapper.updatePromotionFromRequest(request, pr);
+        promotionMapper.updatePromotionfromRequest(request, pr);
 
         List<TargetItemRequest> targetsToSync = new ArrayList<>();
 
-        // 1. Nếu client CÓ gửi targetItems mới: Thay thế danh sách cũ
         if (request.getTargetItems() != null) {
-            // Gom danh sách cũ để đồng bộ (phòng trường hợp gỡ bỏ sản phẩm cũ)
             if (pr.getTargetItems() != null) {
                 targetsToSync.addAll(pr.getTargetItems().stream()
                         .map(item -> new TargetItemRequest(item.getTargetId(), item.getTargetType()))
@@ -135,7 +133,6 @@ public class AdminPromotionService {
                 pr.setTargetItems(new ArrayList<>());
             }
 
-            // Thêm danh sách mới
             List<PromotionTargetItem> newTargetItems = request.getTargetItems().stream()
                     .map(item -> PromotionTargetItem.builder()
                             .promotion(pr)
@@ -145,10 +142,8 @@ public class AdminPromotionService {
                     .toList();
             pr.getTargetItems().addAll(newTargetItems);
 
-            // Gom thêm danh sách mới để đồng bộ
             targetsToSync.addAll(request.getTargetItems());
         }
-        // 2. Nếu client KHÔNG gửi targetItems (chỉ đổi discountValue, ngày tháng, v.v.): Giữ nguyên và đồng bộ danh sách hiện tại
         else if (pr.getTargetItems() != null) {
             targetsToSync.addAll(pr.getTargetItems().stream()
                     .map(item -> new TargetItemRequest(item.getTargetId(), item.getTargetType()))
@@ -157,7 +152,6 @@ public class AdminPromotionService {
 
         Promotion savedPromotion = promotionRepository.save(pr);
 
-        // Kích hoạt đồng bộ lại giá với mức giảm giá mới
         if (savedPromotion.getScopeType() == ScopeType.PRODUCT || savedPromotion.getScopeType() == ScopeType.VARIANT) {
             if (!targetsToSync.isEmpty()) {
                 syncByTargetItems.syncByTargetItems(targetsToSync);
@@ -190,17 +184,14 @@ public class AdminPromotionService {
     }
 
     public void restorePromotion(String promotionId) {
-        // 1. Phục hồi dưới DB
         int rowsAffected = promotionRepository.restorePromotion(promotionId);
         if (rowsAffected == 0) {
             throw new AppException(ErrorCode.PROMOTION_NOT_DELETED_OR_NOT_FOUND);
         }
 
-        // 2. Query lại cái Promotion vừa được phục hồi để lấy danh sách target
-        Promotion pr = promotionRepository.findById(promotionId) // Hoặc getPromotionById tùy logic của bạn
+        Promotion pr = promotionRepository.findById(promotionId)
                 .orElseThrow(() -> new AppException(ErrorCode.PROMOTION_NOT_EXISTED));
 
-        // 3. Gọi đồng bộ để áp lại giá sale cho các sản phẩm
         if ((pr.getScopeType() == ScopeType.PRODUCT || pr.getScopeType() == ScopeType.VARIANT) && pr.getTargetItems() != null) {
             List<TargetItemRequest> targetsToSync = pr.getTargetItems().stream()
                     .map(item -> new TargetItemRequest(item.getTargetId(), item.getTargetType()))
@@ -230,7 +221,6 @@ public class AdminPromotionService {
 
         promotionRepository.hardDelById(pr.getId());
 
-        // 3. Gọi đồng bộ
         if (!targetsToSync.isEmpty()) {
             syncByTargetItems.syncByTargetItems(targetsToSync);
         }
@@ -243,7 +233,6 @@ public class AdminPromotionService {
             throw new AppException(ErrorCode.PROMOTION_OUT_OF_USAGE);
         }
 
-        // Kiểm tra nếu mã vừa chạm ngưỡng usageLimit thì kích hoạt sync để gỡ giá giảm
         Promotion promotion = promotionRepository.findById(promotionId).orElse(null);
         if (promotion != null && promotion.getUsedCount().equals(promotion.getUsageLimit())) {
             if (promotion.getTargetItems() != null && !promotion.getTargetItems().isEmpty()) {

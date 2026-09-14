@@ -11,7 +11,7 @@ import java.util.List;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class OrderDetailResponse {
-    String id;  //id cua order
-    List<OrderDetailItemsResponse> orderDetailItemsResponses;   //list cac san pham cua no
+    String id;
+    List<OrderDetailItemsResponse> orderDetailItemsResponses;
     OrderShippingResponse orderShippingResponse;
 }

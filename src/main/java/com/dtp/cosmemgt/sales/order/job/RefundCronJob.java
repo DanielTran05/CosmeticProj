@@ -22,7 +22,7 @@ public class RefundCronJob {
 
     @Scheduled(cron = "0 0/30 * * * ?")
     public void processAutoRefunds() {
-        log.info("Bắt đầu chạy Job hoàn tiền TỰ ĐỘNG cho đơn Hủy...");
+        log.info("Start job for automatically refund for cancelled orders...");
 
         List<Order> autoRefundOrders = orderRepository.findByOrderStatusAndInvoice_PaymentStatus(
                 OrderStatusEnum.CANCELLED,
@@ -33,7 +33,7 @@ public class RefundCronJob {
             try {
                 refundProcessor.executeSingleRefund(order.getId());
             } catch (Exception e) {
-                log.error("Lỗi hoàn tiền tự động đơn {}: {}", order.getId(), e.getMessage());
+                log.error("Error refund for order {}: {}", order.getId(), e.getMessage());
             }
         }
     }

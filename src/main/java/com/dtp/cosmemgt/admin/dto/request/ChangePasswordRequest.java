@@ -10,11 +10,13 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ForgotPasswordRequest {
+public class ChangePasswordRequest {
     @NotBlank(message = "EMAIL_REQUIRED")
     @Email(message = "EMAIL_INVALID_FORMAT")
     String email;
-    String otp;
+
+    @NotBlank(message = "PASSWORD_REQUIRED")
+    String oldPassword;
 
     @NotBlank(message = "PASSWORD_REQUIRED")
     String newPassword;

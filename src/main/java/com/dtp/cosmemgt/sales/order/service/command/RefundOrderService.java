@@ -47,8 +47,6 @@ public class RefundOrderService {
             paymentService.refund(o);
         }
 
-        //da xoa mail do refund handle roi
-
         log.info("Admin successfully processed refund for order [{}]", orderId);
     }
 }

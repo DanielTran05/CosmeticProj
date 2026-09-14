@@ -15,9 +15,7 @@ public class SwaggerConfig {
         final String securitySchemeName = "bearerAuth";
         
         return new OpenAPI()
-                // Yêu cầu token cho TẤT CẢ các API
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
-                // Cấu hình nút nhập token
                 .components(new Components()
                         .addSecuritySchemes(securitySchemeName,
                                 new SecurityScheme()

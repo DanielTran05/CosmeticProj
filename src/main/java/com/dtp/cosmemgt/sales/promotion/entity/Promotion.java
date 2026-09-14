@@ -22,7 +22,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
 @Table(name = "promotion")
-@SQLDelete(sql = "UPDATE promotion SET deleted_at = NOW(), is_active = false WHERE id = ?")
+@SQLDelete(sql = "update promotion SET deleted_at = NOW(), is_active = false where id = ?")
 public class Promotion extends BaseAuditEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -55,11 +55,11 @@ public class Promotion extends BaseAuditEntity {
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean isActive = false; // true = đang active, false = đã hết hạn hoặc bị admin tắt
+    private Boolean isActive = false;
 
     @Builder.Default
     @Column(nullable = false)
-    private Boolean isAutoApplied = false; // true = Flash Sale tự áp, false = phải nhập Code
+    private Boolean isAutoApplied = false;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;

@@ -111,7 +111,7 @@ public class VNPayPaymentService implements IPaymentService {
                 .build();
     }
 
-    //http://localhost:3000/payment-result?vnp_Amount=59000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP15673226&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+VNPAY&vnp_PayDate=20260904194304&vnp_ResponseCode=00&vnp_TmnCode=FA3UELQX&vnp_TransactionNo=15673226&vnp_TransactionStatus=00&vnp_TxnRef=VNP1788525762246&vnp_SecureHash=f79dbdce8f0d3bd31930e1165291f155441934fe56bce9964babbad50ae349c9bbb6e3f17c27181b8dc0f3ca740fb831ffd9b486e318e19120361752b28b9690
+    // ex: http://localhost:3000/payment-result?vnp_Amount=59000000&vnp_BankCode=NCB&vnp_BankTranNo=VNP15673226&vnp_CardType=ATM&vnp_OrderInfo=Thanh+toan+don+hang+VNPAY&vnp_PayDate=20260904194304&vnp_ResponseCode=00&vnp_TmnCode=FA3UELQX&vnp_TransactionNo=15673226&vnp_TransactionStatus=00&vnp_TxnRef=VNP1788525762246&vnp_SecureHash=f79dbdce8f0d3bd31930e1165291f155441934fe56bce9964babbad50ae349c9bbb6e3f17c27181b8dc0f3ca740fb831ffd9b486e318e19120361752b28b9690
     public Map<String, String> handleIpn(Map<String, String> params) {
         Map<String, String> response = new HashMap<>();
         try {
@@ -162,7 +162,7 @@ public class VNPayPaymentService implements IPaymentService {
             if ("00".equals(vnp_ResponseCode)) {
                 log.info("[VNPAY IPN] Thanh toán THÀNH CÔNG cho Hóa đơn: {}", vnp_TxnRef);
                 invoice.setPaymentStatus(PaymentStatusEnum.PAID);
-                invoice.setTransactionId(vnp_TransactionNo); // Ghi đè lại bằng TransactionNo thật của VNPAY
+                invoice.setTransactionId(vnp_TransactionNo);
 
                 if (order.getOrderStatus() == OrderStatusEnum.PENDING) {
                     order.setOrderStatus(OrderStatusEnum.CONFIRMED);

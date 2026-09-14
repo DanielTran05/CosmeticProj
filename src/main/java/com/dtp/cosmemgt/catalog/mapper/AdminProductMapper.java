@@ -21,5 +21,5 @@ public interface AdminProductMapper {
 
     @IgnoreAuditFields
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
-    void updateProductFromRequest(ProductUpdateRequest request, @MappingTarget Product product);
+    void updateProductfromRequest(ProductUpdateRequest request, @MappingTarget Product product);
 }

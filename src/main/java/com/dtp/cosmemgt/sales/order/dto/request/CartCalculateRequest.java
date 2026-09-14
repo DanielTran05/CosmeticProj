@@ -13,6 +13,6 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CartCalculateRequest {
     @NotEmpty
-    private List<OrderDetailRequest> items; // Gồm: productVariantId và qty
-    private String voucherCode; // Mã ScopeType.ORDER khách nhập (có thể null)
+    List<OrderDetailRequest> items; // variantId, qty
+    String voucherCode; // ScopeType.ORDER
 }

@@ -20,7 +20,7 @@ public class BatchCreationRequest {
     @NotNull(message = "Supplier ID is required")
     Integer supplierId;
 
-    BigDecimal unitCost;        //gia nhap bien the != gia niem yet bien the
+    BigDecimal unitCost;
     Integer originalQty;
     LocalDate expirationDate;
 }

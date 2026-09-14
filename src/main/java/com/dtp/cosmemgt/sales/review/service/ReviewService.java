@@ -103,7 +103,7 @@ public class ReviewService {
             throw new AppException(ErrorCode.ORDER_DO_NOT_BELONG);
         }
 
-        reviewMapper.updateReviewFromRequest(request, r);
+        reviewMapper.updateReviewfromRequest(request, r);
         return reviewMapper.toReviewResponse(reviewRepository.save(r));
     }
 

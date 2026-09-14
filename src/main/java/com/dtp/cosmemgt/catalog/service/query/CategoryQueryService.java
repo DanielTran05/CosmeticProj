@@ -23,7 +23,7 @@ import java.util.List;
 public class CategoryQueryService {
     CategoryRepository categoryRepository;
 
-    @Cacheable(value = "Categories", key = "'all'", unless = "#result == null || #result.isEmpty()", sync = true)
+    @Cacheable(value = "Categories", key = "'all'", sync = true)
     public List<CustomerCategoryResponse> getAll() {
         return categoryRepository.findAllCustomerCate();
     }

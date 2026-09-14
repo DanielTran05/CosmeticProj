@@ -77,7 +77,6 @@ public class Statistic {
     @GetMapping("/inventory/near-expiry")
     public ApiResponse<List<NearExpiryBatchResponse>> getNearExpiryBatches(
             @RequestParam(defaultValue = "30") int alertDays) {
-        // Cho phép Client truyền số ngày cảnh báo (mặc định 30 ngày)
         return ApiResponse.<List<NearExpiryBatchResponse>>builder()
                 .result(statisticService.getNearExpiryBatches(alertDays))
                 .build();

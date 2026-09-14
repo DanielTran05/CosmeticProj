@@ -22,8 +22,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
 
     Page<Promotion> findAll(Specification<Promotion> specification, Pageable pageable);
 
-    @Query("SELECT p FROM Promotion p WHERE p.scopeType = 'ORDER' AND p.isActive = true " +
-            "AND p.startDate <= :now AND p.endDate >= :now AND p.usedCount < p.usageLimit")
+    @Query("select p from Promotion p where p.scopeType = 'ORDER' and p.isActive = true " +
+            "and p.startDate <= :now and p.endDate >= :now and p.usedCount < p.usageLimit")
     List<Promotion> findAvailableOrderVouchers(@Param("now") LocalDateTime now);
 
     @Modifying(clearAutomatically = true)
@@ -52,8 +52,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
                                                 @Param("now") LocalDateTime now);
 
     @Modifying
-    @Query("UPDATE Promotion p SET p.usedCount = p.usedCount + 1 " +
-            "WHERE p.id = :promotionId AND p.usedCount < p.usageLimit")
+    @Query("update Promotion p SET p.usedCount = p.usedCount + 1 " +
+            "where p.id = :promotionId and p.usedCount < p.usageLimit")
     int incrementUsedCount(@Param("promotionId") String promotionId);
 
     Optional<Promotion> findByCode(String code);

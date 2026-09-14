@@ -21,7 +21,7 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     @Query("select new com.dtp.cosmemgt.catalog.dto.response.CustomerCategoryResponse(" +
             "c.id, c.parentCategory.id, c.name, c.img, count(p)) " +
             "from Category c " +
-            "left join Product p on p.category = c AND p.deletedAt IS NULL " +
+            "left join Product p on p.category = c and p.deletedAt IS NULL " +
             "where c.deletedAt is null " +
             "group by c.id, c.parentCategory.id, c.name, c.img")
     List<CustomerCategoryResponse> findAllCustomerCate();
@@ -43,19 +43,19 @@ public interface CategoryRepository extends JpaRepository<Category, Integer> {
     //statistic
 
     //ty trong doanh so ban duoc theo danh muc
-    @Query(value = "SELECT " +
+    @Query(value = "select " +
             "c.name AS categoryName, " +
-            "SUM(od.quantity) AS totalSold, " +
-            "SUM(od.quantity * od.purchased_price) AS totalRevenue " +
-            "FROM order_detail od " +
-            "JOIN \"order\" o ON od.order_id = o.id " +
-            "JOIN product_variant v ON od.variant_id = v.id " +
-            "JOIN product p ON v.product_id = p.id " +
-            "JOIN category c ON p.category_id = c.id " +
-            "WHERE o.order_status = 'COMPLETED' " +
-            "AND o.created_at BETWEEN :startDate AND :endDate " +
-            "GROUP BY c.id, c.name " +
-            "ORDER BY totalRevenue DESC", nativeQuery = true)
+            "sum(od.quantity) AS totalSold, " +
+            "sum(od.quantity * od.purchased_price) AS totalRevenue " +
+            "from order_detail od " +
+            "join \"order\" o ON od.order_id = o.id " +
+            "join product_variant v ON od.variant_id = v.id " +
+            "join product p ON v.product_id = p.id " +
+            "join category c ON p.category_id = c.id " +
+            "where o.order_status = 'COMPLETED' " +
+            "and o.created_at BETWEEN :startDate and :endDate " +
+            "group by c.id, c.name " +
+            "order by totalRevenue DESC", nativeQuery = true)
     List<Object[]> getTheWeightOfCategory(@Param("startDate") LocalDateTime startDate,
                                           @Param("endDate") LocalDateTime endDate);
 }

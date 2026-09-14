@@ -62,8 +62,8 @@ public class RedisConfig {
     private RedisSerializer<Object> customJsonSerializer() {
         BasicPolymorphicTypeValidator validator = BasicPolymorphicTypeValidator.builder()
                 .allowIfBaseType(Object.class)
-                .allowIfSubType("com.dtp.cosmemgt") // Cho phép toàn bộ DTO trong dự án
-                .allowIfSubType("java.util")        // Cho phép ArrayList, List...
+                .allowIfSubType("com.dtp.cosmemgt") // allow all DTO
+                .allowIfSubType("java.util")        // allow all ArrayList, List...
                 .build();
 
         return GenericJacksonJsonRedisSerializer.builder()

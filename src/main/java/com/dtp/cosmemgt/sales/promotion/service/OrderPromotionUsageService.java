@@ -35,7 +35,6 @@ public class OrderPromotionUsageService {
     public void deductProductPromotions(List<ProductVariant> purchasedVariants) {
         if (purchasedVariants == null || purchasedVariants.isEmpty()) return;
 
-        // 1. Gom ID sản phẩm và ID biến thể để truy vấn
         List<String> productIds = purchasedVariants.stream()
                 .map(v -> v.getProduct().getId())
                 .distinct()
@@ -46,7 +45,6 @@ public class OrderPromotionUsageService {
 
         Set<String> appliedPromotionIds = new HashSet<>();
 
-        // 2. Tìm ngược lại mã KM nào đang khớp với mức giá discountedPrice của biến thể
         for (String productId : productIds) {
             List<Promotion> activePromotions = promotionRepository.findActiveProductPromotions(
                     productId, variantIds, LocalDateTime.now()
@@ -84,7 +82,6 @@ public class OrderPromotionUsageService {
                 throw new AppException(ErrorCode.PROMOTION_OUT_OF_USAGE);
             }
 
-            // 4. Nếu vừa trừ xong mà chạm nóc (hết limit) -> Đánh thức hệ thống đồng bộ gỡ bỏ giá giảm
             Promotion promotion = promotionRepository.findById(promoId).orElse(null);
             if (promotion != null && promotion.getUsedCount().equals(promotion.getUsageLimit())) {
                 log.info("Mã giảm giá {} đã hết lượt. Kích hoạt tự động gỡ giảm giá...", promotion.getCode());
@@ -136,7 +133,6 @@ public class OrderPromotionUsageService {
 
         Set<String> appliedPromotionIds = new HashSet<>();
 
-        // 1. Quét tìm các mã khuyến mãi liên quan
         for (String productId : productIds) {
             List<Promotion> activePromotions = promotionRepository.findActiveProductPromotions(
                     productId, variantIds, LocalDateTime.now()
@@ -164,7 +160,6 @@ public class OrderPromotionUsageService {
             }
         }
 
-        // 2. Trả lại lượt sử dụng (decrementUsedCount) và bật lại isActive nếu mã từng bị ngắt
         for (String promoId : appliedPromotionIds) {
             Promotion promotion = promotionRepository.findById(promoId).orElse(null);
             if (promotion != null && promotion.getUsedCount() > 0) {

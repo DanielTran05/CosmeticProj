@@ -14,7 +14,7 @@ import java.math.BigDecimal;
 public class OrderDetailItemsResponse {
     String slug;
     String productName;
-    int quantity; //test
+    int quantity;
     BigDecimal purchasedPrice;
     ProductVariantResponse productVariant;
 }

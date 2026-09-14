@@ -107,7 +107,7 @@ public class AdminProductService {
         Category cate = categoryRepository.findById(request.getCateId())
                 .orElseThrow(() ->new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
 
-        productMapper.updateProductFromRequest(request, p);
+        productMapper.updateProductfromRequest(request, p);
         p.setCategory(cate);
 
         return productMapper.toProductResponse(productRepository.save(p));

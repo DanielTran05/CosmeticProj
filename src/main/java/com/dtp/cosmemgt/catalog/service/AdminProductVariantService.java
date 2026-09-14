@@ -106,7 +106,7 @@ public class AdminProductVariantService {
         ProductVariant pv = productVariantRepository.findById(productVariantId)
                 .orElseThrow(() -> new AppException(ErrorCode.PRODUCT_NOT_EXISTED));
 
-        productVariantMapper.updateProductVariantFromRequest(request, pv);
+        productVariantMapper.updateProductVariantfromRequest(request, pv);
 
         if(request.getProduct() != null) {
             Product p = productRepository.findById(request.getProduct())

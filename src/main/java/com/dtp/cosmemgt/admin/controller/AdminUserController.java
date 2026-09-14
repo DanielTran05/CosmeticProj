@@ -48,7 +48,6 @@ public class AdminUserController {
                 .build();
     }
 
-    // Thêm vào AdminUserController.java
     @PutMapping("/{userId}/toggle-status")
     public ApiResponse<Void> toggleUserStatus(@PathVariable String userId) {
         userService.toggleUserStatus(userId);

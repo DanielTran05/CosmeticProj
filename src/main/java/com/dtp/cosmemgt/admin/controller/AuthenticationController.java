@@ -51,7 +51,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/forgot-password/reset")
-    public ApiResponse<?> resetPassword(@RequestBody ForgotPasswordRequest request) {
+    public ApiResponse<?> resetPassword(@RequestBody @Valid ForgotPasswordRequest request) {
         authenticationService.resetPasswordWithOtp(request);
 
         return ApiResponse.builder()

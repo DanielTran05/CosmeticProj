@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Invoice {
-
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;

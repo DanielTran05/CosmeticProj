@@ -9,14 +9,12 @@ import java.util.*;
 public class VNPayUtils {
 
     public static String buildQueryUrl(Map<String, String> fields, String secretKey) {
-        // 1. Sắp xếp key theo alphabet
         List<String> fieldNames = new ArrayList<>(fields.keySet());
         Collections.sort(fieldNames);
 
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
 
-        // 2. Duyệt qua từng param và chỉ nối khi có giá trị
         boolean isFirst = true;
         for (String fieldName : fieldNames) {
             String fieldValue = fields.get(fieldName);
@@ -29,7 +27,6 @@ public class VNPayUtils {
                         query.append('&');
                     }
 
-                    // Tên param giữ nguyên, giá trị được encode UTF-8
                     hashData.append(fieldName).append('=').append(encodedValue);
                     query.append(URLEncoder.encode(fieldName, StandardCharsets.UTF_8.toString()))
                             .append('=').append(encodedValue);
@@ -41,7 +38,6 @@ public class VNPayUtils {
             }
         }
 
-        // 3. Băm HMAC-SHA512
         String vnp_SecureHash = hmacSHA512(secretKey, hashData.toString());
         return query.toString() + "&vnp_SecureHash=" + vnp_SecureHash;
     }
