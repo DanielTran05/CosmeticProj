@@ -22,13 +22,13 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     boolean existsByName(String name);
 
     @Query(value = """
-        SELECT DISTINCT p.* FROM product p
-        JOIN product_variant pv ON p.id = pv.product_id
-        JOIN promotion_target_item pti ON (pti.target_id = p.id AND pti.target_type = 'PRODUCT') 
-                                       OR (pti.target_id = pv.id AND pti.target_type = 'VARIANT')
-        JOIN promotion promo ON pti.promotion_id = promo.id
-        WHERE promo.is_active = true 
-        AND CURRENT_TIMESTAMP BETWEEN promo.start_date AND promo.end_date 
+        select distinct p.* from product p
+        join product_variant pv ON p.id = pv.product_id
+        join promotion_target_item pti ON (pti.target_id = p.id and pti.target_type = 'PRODUCT') 
+                                       OR (pti.target_id = pv.id and pti.target_type = 'VARIANT')
+        join promotion promo ON pti.promotion_id = promo.id
+        where promo.is_active = true 
+        and CURRENT_TIMESTAMP BETWEEN promo.start_date and promo.end_date 
         limit 12 
     """, nativeQuery = true)
     List<Product> findProductCurrentlyOnSale();
@@ -39,7 +39,7 @@ public interface ProductRepository extends JpaRepository<Product, String>,
 
     @Query(value = "select p " +
             "from Product p left join fetch p.productVariants " +
-            "where p.id = :productId and p.deletedAt is not null")
+            "where p.id = :productId and p.deletedAt is null")
     Optional<Product> findByIdWithVariants(String productId);
 
     @Modifying
@@ -53,15 +53,15 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     @Query(value = "select * from product where id = ?1", nativeQuery = true)
     Optional<Product> getProductById(String id);
 
-    @Query("SELECT p AS product, SUM(od.quantity) AS totalSold " +
-            "FROM OrderDetail od " +
-            "JOIN od.order o " +
-            "JOIN od.productVariant pv " +
-            "JOIN pv.product p " +
-            "WHERE o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
-            "AND p.deletedAt IS NULL " +
-            "GROUP BY p " +
-            "ORDER BY SUM(od.quantity) DESC")
+    @Query("select p AS product, sum(od.quantity) AS totalSold " +
+            "from OrderDetail od " +
+            "join od.order o " +
+            "join od.productVariant pv " +
+            "join pv.product p " +
+            "where o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
+            "and p.deletedAt IS NULL " +
+            "group by p " +
+            "order by sum(od.quantity) DESC")
     List<BestSellerProductProjection> findTop12BestSellingProducts();
 
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);

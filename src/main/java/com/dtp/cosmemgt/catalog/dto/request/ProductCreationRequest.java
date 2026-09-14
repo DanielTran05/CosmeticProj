@@ -20,10 +20,6 @@ public class ProductCreationRequest {
     @Digits(integer = 2, fraction = 0, message = "CATE_ID_FORMAT_INVALID")
     Integer cateId;
 
-    @DecimalMin(value = "0.0", inclusive = false, message = "BASE_PRICE_MIN_INVALID")
-    @Digits(integer = 9, fraction = 0, message = "BASE_PRICE_FORMAT_INVALID")
-    BigDecimal basePrice;
-
     @NotBlank(message = "ABC_CLASS_BLANK")
     @Size(min = 1, max = 1, message = "ABC_CLASS_INVALID_LENGTH")
     String abcClass;

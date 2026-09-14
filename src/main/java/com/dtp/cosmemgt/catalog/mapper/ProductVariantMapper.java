@@ -28,7 +28,7 @@ public interface ProductVariantMapper {
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "product", ignore = true)
     @Mapping(target = "unitOfMeasure", ignore = true)
-    void updateProductVariantFromRequest(ProductVariantUpdateRequest request, @MappingTarget ProductVariant productVariant);
+    void updateProductVariantfromRequest(ProductVariantUpdateRequest request, @MappingTarget ProductVariant productVariant);
 
 
 

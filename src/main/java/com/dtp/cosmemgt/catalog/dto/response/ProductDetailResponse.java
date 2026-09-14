@@ -14,7 +14,6 @@ import java.util.List;
 public class ProductDetailResponse {
     String id;
     String name;
-    BigDecimal basePrice;
     String avatar;
     String description;
     List<ProductVariantResponse> productVariantResponses;

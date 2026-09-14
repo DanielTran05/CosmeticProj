@@ -39,11 +39,6 @@ public class Product extends BaseAuditEntity {
     String slug;
 
     @Basic(optional = false)
-    //@NotNull bo dan dan
-    @Column(precision = 19, scale = 4)
-    BigDecimal basePrice;
-
-    @Basic(optional = false)
     @NotNull
     @Column(name = "abc_class", length = 5)
     String abcClass;

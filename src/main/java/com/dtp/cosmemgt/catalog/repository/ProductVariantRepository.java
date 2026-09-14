@@ -25,37 +25,42 @@ public interface ProductVariantRepository extends JpaRepository<ProductVariant, 
 
     List<ProductVariant> findByIdIn(List<String> variantIds);
 
-    @Query("SELECT pv FROM ProductVariant pv WHERE " +
+    //for promotion select
+    @Query("select pv from ProductVariant pv where " +
             "LOWER(pv.product.name) LIKE LOWER(CONCAT('%', :kw, '%')) OR " +
-            "LOWER(pv.variantName) LIKE LOWER(CONCAT('%', :kw, '%'))")
+            "LOWER(pv.variantName) LIKE LOWER(CONCAT('%', :kw, '%')) " +
+            "and pv.deletedAt is null")
     Page<ProductVariant> searchByKeyword(@Param("kw") String kw, Pageable pageable);
+    //for promotion select 2
+    @Query("select pv from ProductVariant pv where pv.deletedAt is null")
+    Page<ProductVariant> findAllSimpleVariant(Pageable pageable);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "DELETE FROM product_variant WHERE id = :id", nativeQuery = true)
+    @Query(value = "delete from product_variant where id = :id", nativeQuery = true)
     void hardDelById(@Param("id") String id);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query(value = "UPDATE product_variant SET deleted_at = NULL WHERE id = :id", nativeQuery = true)
+    @Query(value = "update product_variant SET deleted_at = NULL where id = :id", nativeQuery = true)
     int restoreById(@Param("id") String id);
 
-    @Query(value = "SELECT * FROM product_variant WHERE id = :id", nativeQuery = true)
+    @Query(value = "select * from product_variant where id = :id", nativeQuery = true)
     Optional<ProductVariant> findByIdForAdmin(@Param("id") String id);
 
     //statistic
 
-    @Query(value = "SELECT " +
+    @Query(value = "select " +
             "pv.sku AS SKU, " +
             "pv.variant_name AS variantName, " +
-            "SUM(od.quantity) AS totalSold, " +
-            "SUM(od.quantity * od.purchased_price) AS totalRevenue " +
-            "FROM order_detail od " +
-            "JOIN \"order\" o ON od.order_id = o.id " +
-            "JOIN product_variant pv ON od.variant_id = pv.id " +
-            "JOIN product p ON p.id = pv.product_id " +
-            "WHERE o.order_status = 'COMPLETED' " +
-            "AND o.created_at BETWEEN :startDate AND :endDate " +
-            "GROUP BY pv.id, pv.sku, pv.variant_name " +
-            "ORDER BY totalSold DESC " +
+            "sum(od.quantity) AS totalSold, " +
+            "sum(od.quantity * od.purchased_price) AS totalRevenue " +
+            "from order_detail od " +
+            "join \"order\" o ON od.order_id = o.id " +
+            "join product_variant pv ON od.variant_id = pv.id " +
+            "join product p ON p.id = pv.product_id " +
+            "where o.order_status = 'COMPLETED' " +
+            "and o.created_at BETWEEN :startDate and :endDate " +
+            "group by pv.id, pv.sku, pv.variant_name " +
+            "order by totalSold DESC " +
             "LIMIT 5", nativeQuery = true)
     List<Object[]> getTopSellingVariants(@Param("startDate") LocalDateTime startDate,
                                          @Param("endDate") LocalDateTime endDate);

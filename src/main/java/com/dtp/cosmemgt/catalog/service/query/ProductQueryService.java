@@ -44,7 +44,7 @@ public class ProductQueryService {
     @Cacheable(
             value = "Products",
             key = "'slug_' + #slug",
-            unless = "#result == null",
+//            unless = "#result == null",
             sync = true
     )
     public ProductDetailResponse getProductBySlug(String slug){
@@ -73,8 +73,12 @@ public class ProductQueryService {
 
     @Cacheable(
             value = "Products",
-            condition = "#queryParams.get('keyword') == null && #queryParams.get('minPrice') == null",
-            key = "'page_' + (#queryParams['page'] ?: '0') + '_size_' + (#queryParams['size'] ?: '10')",
+            condition = "#queryParams.get('keyword') == null " +
+                    "&& #queryParams.get('cateId') == null " +
+                    "&& #queryParams.get('sort') == null " +
+                    "&& #queryParams.get('minPrice') == null " +
+                    "&& #queryParams.get('maxPrice') == null",
+            key = "'default_p_' + (#queryParams['page'] ?: '0') + '_s_' + (#queryParams['size'] ?: '10')",
             unless = "#result == null || #result.content == null || #result.content.isEmpty()"
     )
     public PageResponse<ProductResponse> getAll(Map<String, String> queryParams) {
@@ -86,7 +90,7 @@ public class ProductQueryService {
     @Cacheable(
             value = "Products",
             key = "'top12_bestsellers'",
-            unless = "#result == null || #result.items == null || #result.items.isEmpty()"
+            sync = true
     )
     public ProductCardListResponse getTop12BestSellers() {
         List<BestSellerProductProjection> results = productRepository.findTop12BestSellingProducts();
@@ -98,18 +102,19 @@ public class ProductQueryService {
         return ProductCardListResponse.of(cards);
     }
 
-    //san pham dang giam gia
     @Cacheable(
             value = "Products",
             key = "'top12_saleproduct'",
-            unless = "#result == null || #result.isEmpty()"
+            sync = true
     )
-    public List<ProductCardResponse> getTop12SaleProducts() {
+    public ProductCardListResponse getTop12SaleProducts() {
         List<Product> onSaleProducts = productRepository.findProductCurrentlyOnSale();
 
-        return onSaleProducts.stream()
+        List<ProductCardResponse> cards = onSaleProducts.stream()
                 .map(product -> buildProductCard(product, 0L))
                 .toList();
+
+        return ProductCardListResponse.of(cards);
     }
 
     private ProductCardResponse buildProductCard(Product product, Long totalSold) {

@@ -46,7 +46,7 @@ public class ProductController {
     @GetMapping("/sale")
     public ApiResponse<List<ProductCardResponse>> get12SaleProduct() {
         return ApiResponse.<List<ProductCardResponse>>builder()
-                .result(productQueryService.getTop12SaleProducts())
+                .result(productQueryService.getTop12SaleProducts().getItems())
                 .build();
     }
 }

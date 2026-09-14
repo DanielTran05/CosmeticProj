@@ -15,6 +15,7 @@ import com.dtp.cosmemgt.sales.promotion.service.PromotionCalculator;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +29,7 @@ import java.util.Set;
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class ProductSyncService {
 
     ProductRepository productRepository;
@@ -52,7 +54,6 @@ public class ProductSyncService {
                 .map(ProductVariant::getId)
                 .toList();
 
-        // 2. Tìm tất cả các KM đang active cho Product hoặc các Variant này (Dùng hàm đã định nghĩa sẵn trong Repo)
         List<Promotion> activePromotions = promotionRepository.findActiveProductPromotions(
                 productId,
                 variantIds,
@@ -96,7 +97,7 @@ public class ProductSyncService {
         product.setMinPrice(minOriginal);
         product.setMinDiscountedPrice(minDiscount);
         product.setRepresentativeVariantId(repVariantId);
-        product.setRepresentativeVariantImg(repVariantImg); // Lưu xuống DB
+        product.setRepresentativeVariantImg(repVariantImg);
 
         productRepository.save(product);
     }

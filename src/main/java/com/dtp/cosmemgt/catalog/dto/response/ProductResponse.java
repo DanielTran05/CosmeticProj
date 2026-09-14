@@ -14,7 +14,6 @@ public class ProductResponse {
     String id;
     String name;
     String slug;
-    BigDecimal basePrice;
     String description;
     BigDecimal minPrice;
     BigDecimal minDiscountedPrice;
