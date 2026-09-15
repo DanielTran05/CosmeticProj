@@ -125,17 +125,4 @@ public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
 
         userRepository.save(user);
     }
-
-//    public UserResponse updateUserByAdmin(String userId, AdminUserUpdateRequest request) {
-//        User user = userRepository.findById(userId).orElseThrow(
-//                () -> new AppException(ErrorCode.USER_NOT_EXISTED));
-//
-//        userMapper.adminUpdateUser(user, request);
-//
-//        if (request.getRoles() != null && !request.getRoles().isEmpty()) {
-//            throw new AppException(ErrorCode.UNAUTHORIZED);
-//        }
-//
-//        return userMapper.toUserResponse(userRepository.save(user));
-//    }
 }

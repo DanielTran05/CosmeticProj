@@ -97,4 +97,37 @@ public class MailService {
 
         brevoMailClient.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
     }
+
+    @Async
+    public void sendOtpForgotPasswordEmail(String toEmail, String fullName, String otp) {
+        String subject = "Mã xác thực khôi phục mật khẩu - Yesstyle";
+        String htmlBody = String.format("""
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <h2>Xin chào %s,</h2>
+                <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn tại <b>Yesstyle</b>.</p>
+                <p>Mã OTP xác thực của bạn là:</p>
+                <div style="padding: 12px 24px; background-color: #f2f4f8; display: inline-block; font-size: 24px; font-weight: bold; letter-spacing: 4px; color: #2065DD; border-radius: 6px;">
+                    %s
+                </div>
+                <p>Mã xác thực có hiệu lực trong vòng <b>5 phút</b>. Vui lòng không chia sẻ mã này cho bất kỳ ai.</p>
+                <p>Nếu bạn không gửi yêu cầu này, vui lòng bỏ qua email.</p>
+            </div>
+            """, fullName != null ? fullName : "Quý khách", otp);
+
+        brevoMailClient.sendEmail(toEmail, fullName != null ? fullName : "Customer", subject, htmlBody);
+    }
+
+    @Async
+    public void sendPasswordChangedSuccessEmail(User user) {
+        String subject = "Thông báo đổi mật khẩu thành công - Yesstyle";
+        String htmlBody = String.format("""
+            <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+                <h2>Xin chào %s,</h2>
+                <p>Mật khẩu tài khoản của bạn tại <b>Yesstyle</b> vừa được thay đổi thành công.</p>
+                <p>Nếu bạn không thực hiện hành động này, vui lòng liên hệ ngay với bộ phận hỗ trợ khách hàng để được bảo vệ tài khoản.</p>
+            </div>
+            """, user.getFullName());
+
+        brevoMailClient.sendEmail(user.getEmail(), user.getFullName(), subject, htmlBody);
+    }
 }
