@@ -20,6 +20,7 @@ public class OrderResponse {
     String paymentMethod;
     String employeeName;
     LocalDateTime createdAt;
+    LocalDateTime updatedAt;
     OrderShippingResponse orderShipping;
     List<OrderDetailItemsResponse> orderDetailItemsResponses;
 }

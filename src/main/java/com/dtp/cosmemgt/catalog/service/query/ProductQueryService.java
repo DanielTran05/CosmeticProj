@@ -73,7 +73,7 @@ public class ProductQueryService {
 
     @Cacheable(
             value = "Products",
-            condition = "#queryParams.get('keyword') == null " +
+            condition = "#queryParams.get('kw') == null " +
                     "&& #queryParams.get('cateId') == null " +
                     "&& #queryParams.get('sort') == null " +
                     "&& #queryParams.get('minPrice') == null " +

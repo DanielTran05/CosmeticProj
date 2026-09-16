@@ -22,14 +22,18 @@ public interface ProductRepository extends JpaRepository<Product, String>,
     boolean existsByName(String name);
 
     @Query(value = """
-        select distinct p.* from product p
-        join product_variant pv ON p.id = pv.product_id
-        join promotion_target_item pti ON (pti.target_id = p.id and pti.target_type = 'PRODUCT') 
-                                       OR (pti.target_id = pv.id and pti.target_type = 'VARIANT')
-        join promotion promo ON pti.promotion_id = promo.id
-        where promo.is_active = true 
-        and CURRENT_TIMESTAMP BETWEEN promo.start_date and promo.end_date 
-        limit 12 
+        SELECT DISTINCT p.* FROM product p
+        JOIN product_variant pv ON p.id = pv.product_id
+        JOIN category c ON c.id = p.category_id
+        JOIN promotion_target_item pti ON (pti.target_id = p.id AND pti.target_type = 'PRODUCT')
+                                       OR (pti.target_id = pv.id AND pti.target_type = 'VARIANT' AND pv.deleted_at IS NULL)
+        JOIN promotion promo ON pti.promotion_id = promo.id
+        WHERE p.deleted_at IS NULL
+          AND c.deleted_at IS NULL
+          AND pv.deleted_at IS NULL
+          AND promo.is_active = true
+          AND CURRENT_TIMESTAMP BETWEEN promo.start_date AND promo.end_date
+        LIMIT 12
     """, nativeQuery = true)
     List<Product> findProductCurrentlyOnSale();
 
@@ -58,10 +62,13 @@ public interface ProductRepository extends JpaRepository<Product, String>,
             "join od.order o " +
             "join od.productVariant pv " +
             "join pv.product p " +
+            "join p.category c " +
             "where o.orderStatus = com.dtp.cosmemgt.sales.order.enums.OrderStatusEnum.COMPLETED " +
             "and p.deletedAt IS NULL " +
+            "and c.deletedAt is null " +
             "group by p " +
-            "order by sum(od.quantity) DESC")
+            "order by sum(od.quantity) DESC " +
+            "limit 12")
     List<BestSellerProductProjection> findTop12BestSellingProducts();
 
     Page<Product> findByNameContainingIgnoreCase(String name, Pageable pageable);

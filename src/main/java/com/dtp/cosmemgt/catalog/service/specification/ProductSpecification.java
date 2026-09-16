@@ -1,8 +1,11 @@
 package com.dtp.cosmemgt.catalog.service.specification;
 
+import com.dtp.cosmemgt.catalog.entity.Category;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.sales.promotion.repository.PromotionRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -75,12 +78,15 @@ public class ProductSpecification {
     }
 
     public static Specification<Product> filterProductForCustomer(Map<String, String> params) {
-        Specification<Product> customerActiveSpec = (root, query, cb) -> cb.and(
+        Specification<Product> customerActiveSpec = (root, query, cb) -> {
+            Join<Product, Category> categoryJoin = root.join("category", JoinType.INNER);
 
-
-                cb.isNull(root.get("deletedAt")),
-                cb.isNull(root.get("category").get("deletedAt"))
-        );
+            return cb.and(
+                    cb.isNull(root.get("deletedAt")),
+                    cb.isNotNull(root.get("category")),
+                    cb.isNull(categoryJoin.get("deletedAt"))
+            );
+        };
 
         return filterProductForAdmin(params).and(customerActiveSpec);
     }

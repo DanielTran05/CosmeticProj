@@ -3,7 +3,6 @@ package com.dtp.cosmemgt.catalog.service.query;
 import com.dtp.cosmemgt.catalog.entity.Product;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.catalog.repository.ProductRepository;
-import com.dtp.cosmemgt.catalog.repository.ProductVariantRepository;
 import com.dtp.cosmemgt.catalog.service.specification.ProductSpecification;
 import com.dtp.cosmemgt.core.exception.AppException;
 import com.dtp.cosmemgt.core.exception.ErrorCode;
@@ -11,7 +10,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +45,7 @@ public class ProductCoreService {
         if (queryParams.containsKey("sort") && queryParams.get("sort") != null && !queryParams.get("sort").isEmpty()) {
             String[] sortParams = queryParams.get("sort").split(",");
 
-            String sortBy = sortParams[0].equals("price") ? "basePrice" : sortParams[0];
+            String sortBy = sortParams[0].equals("price") ? "minDiscountedPrice" : sortParams[0];
             String sortDir = sortParams.length > 1 ? sortParams[1] : "asc";
 
             if (sortDir.equalsIgnoreCase("desc")) {

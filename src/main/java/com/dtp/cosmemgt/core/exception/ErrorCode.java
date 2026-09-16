@@ -22,6 +22,7 @@ public enum ErrorCode {
     INVALID_OR_EXPIRED_OTP(1013, "Invalid or expired otp", HttpStatus.BAD_REQUEST),
     WRONG_PASSWORD(1014, "Wrong password", HttpStatus.BAD_REQUEST),
     PASSWORD_MUST_BE_DIFFERENT(1015, "New password must be different", HttpStatus.BAD_REQUEST),
+    ACCOUNT_UNACTIVE(1016, "Account has been unactive, contact 1900... for more information", HttpStatus.BAD_REQUEST),
 
 
     //cate
@@ -31,6 +32,7 @@ public enum ErrorCode {
     CATEGORY_MUST_NOT_BE_BLANK(2004, "Category name must not be blank", HttpStatus.BAD_REQUEST),
     CATEGORY_NAME_INVALID_LENGTH(2005, "Category name must be between 8 and 100 characters", HttpStatus.BAD_REQUEST),
     CATEGORY_DES_INVALID_LENGTH(2005, "Category name must be less than 225 characters", HttpStatus.BAD_REQUEST),
+    CATEGORY_CONSTRAIN_VALIDATION(2006, "Category violates foreign key constraint", HttpStatus.INTERNAL_SERVER_ERROR),
 
     //supplier
     SUPPLIER_EXISTED(3001, "Supplier existed", HttpStatus.BAD_REQUEST),
@@ -102,6 +104,7 @@ public enum ErrorCode {
     INVALID_STATUS_FOR_DELIVERY_FAILED(8023, "Order can not be failed, invalid status", HttpStatus.BAD_REQUEST),
     ORDER_IS_PROCESSING(8024, "Order is being packing", HttpStatus.BAD_REQUEST),
     INVALID_EXPORTING_WH_STAFF(8024, "This order has been assigned to another Warehouse staff", HttpStatus.BAD_REQUEST),
+    INTERNAL_STAFF_CANNOT_PLACE_ORDER(8025, "Internal staff accounts are not allowed to place orders", HttpStatus.FORBIDDEN),
 
 
     //warehouse order

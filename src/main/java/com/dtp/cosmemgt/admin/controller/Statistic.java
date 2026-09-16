@@ -1,6 +1,5 @@
 package com.dtp.cosmemgt.admin.controller;
 
-import com.cloudinary.Api;
 import com.dtp.cosmemgt.admin.dto.response.MonthlyStatisticResponse;
 import com.dtp.cosmemgt.admin.dto.response.OverviewStatisticResponse;
 import com.dtp.cosmemgt.admin.service.StatisticService;

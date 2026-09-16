@@ -71,6 +71,9 @@ public class AuthenticationService {
                 .findByEmail(request.getEmail())
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
 
+        if(Boolean.FALSE.equals(user.getIsActive()))
+            throw new AppException(ErrorCode.ACCOUNT_UNACTIVE);
+
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
 
         if (!authenticated) throw new AppException(ErrorCode.UNAUTHENTICATED);

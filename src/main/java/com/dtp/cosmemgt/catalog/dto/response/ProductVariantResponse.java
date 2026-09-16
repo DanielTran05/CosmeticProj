@@ -17,6 +17,7 @@ public class ProductVariantResponse {
     BigDecimal unitPrice;
     String img;
     String oum;
+    String sku;
     private BigDecimal originalPrice;       //unitPrice before any discount is applied
     private BigDecimal discountedPrice;
     private String appliedPromotionCode;

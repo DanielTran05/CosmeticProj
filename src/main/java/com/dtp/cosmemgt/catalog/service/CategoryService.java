@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -93,6 +94,11 @@ public class CategoryService {
     public void hardDelCate(int categoryId) {
         Category c = categoryRepository.getById(categoryId)
                 .orElseThrow(() -> new AppException(ErrorCode.CATEGORY_NOT_EXISTED));
-        categoryRepository.hardDelById(c.getId());
+        try{
+            categoryRepository.hardDelById(c.getId());
+        }catch (DataIntegrityViolationException ex){
+            throw new AppException(ErrorCode.CATEGORY_CONSTRAIN_VALIDATION);
+        }
+
     }
 }

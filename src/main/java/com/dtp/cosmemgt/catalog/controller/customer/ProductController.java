@@ -26,6 +26,7 @@ public class ProductController {
 
     @GetMapping()
     public PageResponse<ProductResponse> getAllProducts(@RequestParam Map<String, String> queryParams) {
+        queryParams.entrySet().removeIf(entry -> entry.getValue() == null || entry.getValue().trim().isEmpty());
         return productQueryService.getAll(queryParams);
     }
 

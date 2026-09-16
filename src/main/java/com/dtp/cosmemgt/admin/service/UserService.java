@@ -39,7 +39,7 @@ public class UserService {
     UserMapper userMapper;
     PasswordEncoder passwordEncoder;
 
-public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
+    public UserResponse createUser(UserCreationRequest request, boolean isAdmin) {
     User user = userMapper.toUser(request);
     user.setPassword(passwordEncoder.encode(request.getPassword()));
 

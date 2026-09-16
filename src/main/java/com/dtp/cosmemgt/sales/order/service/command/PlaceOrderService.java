@@ -1,5 +1,6 @@
 package com.dtp.cosmemgt.sales.order.service.command;
 
+import com.dtp.cosmemgt.admin.entity.Role;
 import com.dtp.cosmemgt.admin.entity.User;
 import com.dtp.cosmemgt.catalog.entity.ProductVariant;
 import com.dtp.cosmemgt.core.commonService.CurrentUserService;
@@ -45,6 +46,7 @@ public class PlaceOrderService {
 
     public OrderResponse create(OrderCreationRequest request) {
         User currentUser = currentUserService.getCurrentUser();
+        checkStaff(currentUser);
 
         // create order
         Order order = Order.builder()
@@ -91,5 +93,18 @@ public class PlaceOrderService {
 
         log.info("Order [{}] created successfully for user [{}]", savedOrder.getId(), currentUser.getId());
         return orderMapper.toOrderResponse(savedOrder);
+    }
+
+        private boolean checkStaff(User currentUser){
+        if (currentUser != null && currentUser.getRoles() != null) {
+            boolean isInternalStaff = currentUser.getRoles().stream()
+                    .map(Role::getName)
+                    .anyMatch(roleName -> roleName.equalsIgnoreCase("ADMIN")
+                            || roleName.equalsIgnoreCase("WAREHOUSE"));
+            if (isInternalStaff) {
+                throw new AppException(ErrorCode.INTERNAL_STAFF_CANNOT_PLACE_ORDER);
+            }
+        }
+        return false;
     }
 }
